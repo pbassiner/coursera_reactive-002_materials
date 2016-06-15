@@ -1,0 +1,415 @@
+In the previous part of this lecture, we
+have extended the
+link check example to run on a cluster of
+nodes, and we
+have seen that cluster start up and shut
+down, but how
+did that actually work, what were these
+states that we have seen?
+When a cluster node wants to join, it
+enters the joining state.
+That was the first one we have seen.
+We've also seen that in the example,
+nothing happened until the second node
+joined, because we had defined that the
+cluster needs at least size two to work.
+But what happened then is that the node
+became up.
+This transition was made by the leader,
+when the leader determined that
+all members of the cluster had seen all
+new nodes joining.
+When the program was done, the cluster
+main shut itself down, and
+it did so by declaring that it wants to
+leave the cluster.
+This intention is expressed by going to
+the leaving state.
+This transition can be done by any node,
+without the leader having anything to do
+with it.
+The information that the node wants to
+leave needs to be disseminated to
+all others, so that they are prepared to
+remove it from the membership list.
+Because otherwise, not all would have the
+same
+picture, and it would not be a cluster.
+In order to do that in an orderly fashion,
+the leader
+determines when all have seen.
+And moves
+the node to the exiting
+state.
+And this is the
+signal for all the other nodes to
+remove this entry from their membership
+list, at their next convenience.
+This was the sequence of states which the
+cluster main went through.
+From joining to up, then performing what
+it was
+supposed to do, and then leaving via this
+path,
+until it shut itself down.
+The ClusterWorker lift the
+cluster afterwards by is, a little bit
+different route which was
+via a state called unreachable.
+And, we'll talk about that next.
+In order to form a cluster, everyone
+within it
+needs to be in consensus about who is in
+it.
+That was the definition of it.
+Therefore, only if the members of the
+cluster
+can communicate with each other, can the
+cluster function.
+This means that the reachability of all
+cluster members
+must be closely monitored, and once one
+becomes unreachable,
+special action needs to be taken.
+In order to check the ability to
+communicate, every node in
+a cluster is monitored by several others
+using so called heartbeats.
+That means that periodic messages are
+sent.
+And once they are not received anymore
+there is presumably a problem.
+Now if you have a very large cluster it is
+impractical to have everybody
+monitor everybody else, because then the
+number
+of connections needed for that, the number
+of communication pairs, would be roughly
+one half n squared which can be a lot.
+Therefore, we apply a technique of that
+the neighbors monitor each other.
+How do we define neighbors?
+Let's say we have a cluster with seven
+nodes.
+One, two, three, four,
+five, six, and seven.
+Since these nodes all agree that they are
+the seven which are in the
+cluster and you can apply a sort order on
+their addresses,
+every of these seven nodes can draw the
+same kind of ring with
+the same order of the nodes in it.
+And then we could
+say that one monitors two and three, two
+monitors three and four, and so on.
+This would be a picture if every node
+would monitor two others.
+For a more tight mesh, we could also make
+it
+three, for example, then it would look
+like this.
+Let us say that node five
+fails.
+It was monitored by
+two, three, and four.
+Eventually,
+these three nodes will not receive a
+heartbeats from five anymore.
+But, heartbeats cannot be sent at a one
+millisecond interval.
+That would just be too much.
+So, let's say you send a heartbeat every
+five seconds.
+Then, within five seconds, the three will
+notice
+that the first heartbeat was not received.
+But, that might just have been a fluke.
+The next one might still arrive.
+So triggering when one is absent is
+usually too finicky.
+So what you need to wait for is that two
+or three fail and then it takes maybe 15
+seconds.
+And the more monitors you have, the higher
+the chance is that you get
+the signal a bit earlier.
+So let us say, node 4 was the first to
+detect that 5 is down.
+Then this information will be included in
+the gossip messages.
+And four talks randomly to all the other
+nodes in the ring and spreads the
+information.
+So, it might be communicated to six, and
+then
+to two, but six also keeps talking to one,
+and so on.
+And eventually, all of them will know that
+node number four has seen that five is
+down.
+For a cluster to be hampered in its
+function, it
+is enough that one of the communication
+links does not work.
+Unless messages can be routed
+by other nodes.
+So if 4 and 5 cannot talk anymore,
+and if, for example, the routing protocol
+does not messages to
+go via one, for example, then the cluster
+cannot function.
+And that is the case in Akka that supports
+only direct messages at this point.
+This means that as soon as one node sees
+another
+node as unreachable, that node has to
+be considered unreachable for the whole
+cluster.
+And that means that the cluster currently
+is inconsistent.
+Because these six nodes think, that that
+one is not part of the cluster.
+But this node, well it might not have
+crashed.
+Someone might have pulled the, the network
+cable out from it, so it
+cannot communicate anymore.
+And the last state that it has is that
+everybody is part of the cluster.
+But as this node is also monitoring other
+nodes - namely six,
+seven, and one - it will conclude after
+some period of time that they are down.
+It will start monitoring these instead to
+see if they are still up.
+So in the end, the clusters will split.
+Five would be in a cluster on its own,
+and these nodes would also be in a cluster
+on its own.
+But in order to form these clusters, nodes
+need to be removed properly,
+so that these six nodes can declare that
+five is no longer in it.
+Going to back to this state diagram,
+unreachability is not really a state.
+It is a flag, because I know it can become
+reachable after a period of time.
+For example, someone plugs in that network
+cable again, and everything happily starts
+over.
+But unreachability is important enough to
+be part of this diagram.
+And nodes can become unreachable at all
+times, at any time.
+And if the did not really crash as I said,
+they can become reachable again.
+In order to form a new cluster, without
+the unreachable node, that node needs to
+be communicated that it is leaving.
+But it is not the same kind of leaving
+as we've seen over here.
+Because, the node went down.
+This transition here is a policy decision,
+because you cannot in all cases say
+whether
+the node is really down or whether it
+is transiently unreachable, whether it
+will come back.
+So in the end, there will be some either a
+program or
+an operator monitoring the system, and
+deciding after which
+an unreachability period to move a node to
+down.
+Once that has happened, and once that has
+properly been disseminated
+among all of the remaining cluster nodes,
+the leader removes the node.
+Now we can recapitulate the whole history
+as seen by the ClusterWorker.
+It's, it was joining it saw the main
+joining and then up, and once the
+main program stopped, the ClusterWorker
+detected it as being unreachable.
+Then I have shown you that I set an option
+called autodown in the worker.
+Which means that as soon as a
+node becomes unreachable, this transition
+happens automatically.
+So as soon as that failure detector
+flagged that the
+main is unreachable, it went from up via
+unreachable to down.
+And that means that there was just one
+node in that cluster left.
+The cluster worker was the only node, and
+therefore also its leader,
+and it removed the main, and that
+triggered the ClusterWorker's main actor
+to shut down the program.
+In the program code, we registered
+for certain events to be received.
+The first one was MemberUp.
+And that is published exactly with this
+transition here.
+And in response to it, we started the
+program running.
+The cluster main reacted to this MemberUp
+event in order to start the calculation.
+The cluster worker was more interested in
+when the main exited.
+And that is published as MemberRmoved upon
+this transition here, as well as this one.
+There are other transitions which you can
+listen to, for example
+MemberLeaving, and MemberUnreachable,
+which were not shown in code so far.
+Whenever a node is removed from the
+cluster, all the actors which are on it
+might still be alive, if it's just
+a network partition, but that does not
+matter.
+As far as the cluster is concerned, this
+node is
+removed and does not exist anymore.
+That also means that all actor refs which
+are still held within
+the cluster to actors on that removed node
+need to be considered terminated.
+If, for example, DeathWatch was registered
+on these
+actor refs, then the terminated messages
+must be delivered.
+Even though the actors possibly have not
+really stopped
+yet, but they are considered to be dead
+after the node has been removed.
+This is important to allow consistent
+cleanup of resources.
+One actor, monitoring the lifecycle of
+another was interested in when that other
+actor cannot perform its duties anymore,
+and that is clearly the case here.
+Another reason why this needs to be done
+consistently is
+that for remote-deployed actors, for
+example, if a child actor was
+on the remove node, the parent needs to be
+told that child is no longer there.
+The name is free again, for example.
+Or, if that node had remote deployed
+children
+to nodes which are still on the cluster.
+Then these are currently without a parent.
+And that cannot be because then there is
+no one who will handle
+their failures.
+This means that they also need to be
+stopped.
+The most important part of the semantics
+of DeathWatch are, that once the
+terminated message has been delivered, no
+further
+communication will be received from that
+actor.
+This has consequences on the cluster as
+well.
+Once a node has been removed, and
+DeathWatch has fired on all the actors
+within it, this node cannot join the
+cluster again.
+It cannot come back, because that would
+mean that the actors could also
+start sending messages again, and that
+would
+violate the contract of the terminated
+message.
+Therefore, a node which was removed from
+the cluster needs to be
+restarted completely before it can join
+again, and there cannot be any
+of the old actors still on it.
+If you have paid close attention, you will
+have noticed a small inconsistency here.
+In Akka message delivery is not
+guaranteed, but
+still we do guarantee that the terminated
+message arrives.
+The need for this guarantee should have
+become clear, and
+the reason why we can afford to implement
+this guarantee is
+that terminated can just be synthesized.
+It can be put together even though the
+sender is currently not able to do that
+anymore.
+Therefore the terminated message enjoys
+this special status.
+To try this out, we will modify the
+ClusterWorker, not to rely on the
+MemberRemoved event, but instead to use
+DeathWatch so that it terminates once the
+cluster main stops.
+First of all the worker needs to subscribe
+to the MemberUp event.
+And after joining the main, it waits
+for this event to arrive, signaling that
+the cluster main has been started.
+Then we need an actor to which we can
+apply DeathWatch,
+we know one which will exist, that is the
+receptionist.
+We can construct the receptionist's actor
+path because we have the
+main address, and we can form a root actor
+path from it.
+And then these paths have a little DSL
+built in where you can separate
+by slashes, the path components.
+So, this is the
+address of the cluster main / user / app /
+receptionist.
+We can resolve this actor path using
+actorSelection and sending it an Identify
+message with some random tag here,
+and If we cannot find, if we cannot
+resolve the receptionist, something must
+be wrong.
+We stop the program.
+Otherwise, this is normal case.
+We just watch the receptionist, and once
+we get the terminated, we stop the
+program.
+YOu can see here this modified
+ClusterWorker.
+I've inserted one log line, when we
+successfully
+watched the receptionist, to print out who
+that was.
+Now running the program.
+We see that the main program performs its
+duty.
+It did the retrevials and then it shut
+down.
+But we're more interested in the worker.
+We see here that the worker was welcomed
+into the cluster by the cluster main.
+And then we resolved the receptionist to
+be this actor ref here, with the UID.
+This was at 11:09:21, and then eight
+seconds later when the work
+was done, the application was shutting
+down because it received the terminated
+message.
+As you have seen, using the cluster is
+really not complicated,
+it just means subscribing to some events
+and then reacting to MemberUp.
+And for example, using DeathWatch just as
+normal.
+I invite you to play around with this
+program a little bit, maybe
+add more cluster nodes and see how you can
+make this program scale.
+

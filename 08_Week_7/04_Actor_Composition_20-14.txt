@@ -1,0 +1,501 @@
+In the past lectures, we have seen
+how actors collaborate to achieve a common
+task,
+but now we will look a bit more in detail
+on how to compose them.
+The type of an object describes how that
+object looks
+like from the outside, what you can do
+with it.
+When looking at an actor, the role of the
+type is played by the set of messages it
+accepts.
+The set of messages is not bound to the
+name of the actor, and hence the
+type described by it is not nominal, and
+actor's type is structural.
+Since an actor can change its behavior
+over time the structure can
+also change, and that means that the type
+of the actor could change.
+In terms of a protocol which exchange with
+it.
+If you look at the types appearing in
+actor implementations, we have seen two
+main methods.
+First is sending a message, that's the
+tail.
+And it has signature any to unit.
+And the second is the behavior inside the
+actor, which is a partial function.
+Again from any to unit.
+These types do not restrict what you can
+send.
+In a sense, you could say that actors
+are not usefully typed.
+As represented for example in Scala and
+Akka.
+But it should be noted that this
+limitation is not fundamental.
+While it is true that an actor can change
+its behavior
+arbitrarily in principle, most Actors you
+write will not do that.
+They will either always accept the same
+set of
+messages, at least the types or it might
+change.
+But then the total sets of all messages
+ever accepted will be bounded.
+In all actors we have seen so far, we
+defined the
+complete set of messages they accept in
+their companion object for example.
+This makes it possible to statically
+verify that when you send a message to
+an actor, it could in principal at some
+point, have a chance to handle it.
+Means you could reject a large number of
+errors.
+This is tried out.
+There is an experimental implementation of
+typed channels.
+In Haskell there's cloud Haskell with
+typed channels between actors as well.
+I think we will see some development in
+that area.
+However, the type system will never allow
+us
+to express which state an actor currently
+is in.
+So we can deal with the complete set of
+messages, but we
+cannot statically determine whether an
+actor
+will process a given message for example.
+There are many reasons for that.
+One of them is that delivery is not
+guaranteed, for example.
+Another one is that actors may interact
+with several different parties
+and if we have here, for example, Alice
+and Bob both talking to Charlie.
+Then Bob may send a message changing the
+state, so that when Alice sends a message,
+that might find Charlie in a state which
+is not suitable for that message anymore.
+And since this can happen concurrently, it
+is not known statically at compile time.
+So the compiler will not be able to catch
+those kinds of mistakes.
+However, having fully typed Actors is
+something which we do not
+have yet, so let us use what we have right
+now.
+Given that sending a message to an Actor
+does not
+return anything and the types currently
+are not really restricted.
+It is obvious that Actors cannot be
+composed like functions.
+Instead we have seen that actors
+collaborate like human organizations.
+You can split down a task into sub tasks
+and have each actor
+perform its own part, and then the results
+are taken together, they are composed,
+and reply to the client which asks for the
+operation to be performed.
+This means that actors are not composed
+like functions,
+they're composed at the protocol level.
+This gives the actor the possibility
+to do everything you can think of
+conceptually using function composition.
+So you can translate the values passed
+into a function.
+You can translate its return value.
+And the same thing you can do with
+messages flying back and forth.
+You can also call multiple actors and
+then aggregate the results.
+But what protocol composition can do
+which,
+function composition cannot do, is, for
+example, to
+alter the frequency with which an actor is
+called, or the precise timing of the
+calls.
+Or perhaps dropping messages, injecting
+new messages.
+There is a lot more freedom here but this
+freedom is
+bought by list type safety.
+Let us now look at a few patterns of what
+you can do.
+The most fundamental pattern is one which
+we have seen since
+two weeks ago, reappearing everywhere, and
+that is the request-reply pattern.
+It is so common that in Akka the
+sender reference is kept exactly for that
+purpose.
+Because you
+so often need to reply.
+And for that you need to know to whom to
+reply.
+Let us say that Alice wants to know
+something
+of Bob, and sends a message.
+Together
+with the sender information, this enables
+Bob to reply.
+But we have seen other uses, for example
+Bob could forward the message to
+Charlie for example.
+So it's basically this.
+And forwarding means that the sender
+reference stays the same.
+So the sender of that message here, will
+not be Bob, it will be Alice.
+And then the reply from Charlie, goes
+directly back to Alice.
+This means the fact that simply putting
+the sender reference in the
+message and letting it travel with it
+allows dynamic composition of actors.
+Bob can decide
+dynamically whom shall handle the request.
+Then the reply will go back to the one
+requesting it.
+We could also take an ActorRef and wrap it
+inside another actor, say here, this
+AuditTrail, which does nothing but forward
+all messages to the target, like so.
+But it's, logs every message which it has
+forwarded,
+to leave this audit trail.
+These interceptors are trivial to make
+precisely because messages are not typed
+specifically.
+We can just pass along anything that might
+be sent.
+Another useful pattern is the one where
+you expect exactly one reply.
+We call this, the ask pattern.
+You ask a question, you get one reply.
+This is also pretty common, which is why
+it is implemented as a pattern within
+akka.
+Importing this gives you an implicit
+conversion
+on ActorRefs, which gives it this question
+mark operator here.
+We pronounce this, user service ask
+FindByEmail in this case.
+The actor which we are looking at here
+might be a part of
+a blog management system and it has a
+reference to the user service.
+And you can ask this PostsByEmail actor to
+find
+all the posts which have been posted from
+a certain
+email address.
+Unfortunately, the user service does not
+offer this kind of information directly.
+So we write a little actor, which
+transforms what the user service can give
+us.
+So when we get a request with an email in
+it we ask FindByEmail everything you know
+about that user.
+And this returns a future.
+Since
+Actors are not usefully typed as we've
+seen.
+This is a future of any.
+But we expect back actually a user info.
+There is an operation map to, which takes
+a type, and
+that will, under the hood, transform the
+future, doing a checked cost.
+So after this, we have a future of
+UserInfo.
+Then we can map
+that and take this info.
+And look at it, for example might have a
+list of posts, which we
+filter, whether the email matches, and
+this
+filter list then goes into the result.
+So this has been transformed into a future
+of result, now.
+And then at the end we pipe it back to the
+sender.
+We have seen that before.
+The line here,
+takes all errors which might occur, and
+takes them, this is, this
+is throwable, this is an exception, and
+wraps them in a failure message.
+Let's say failure was also a message,
+defined by PostsByEmail.
+And this is done such that pipeTo always
+sends a normal message, so, either
+a result or a failure, back to the sender.
+Which are the pieces that can
+go wrong here?
+We have this ask operation.
+We have seen that actors only can send
+messages to ActorRef.
+And there is not really an explicit
+ActorRef to reply to in this case.
+What the ask operator does is, it creates
+a little, very small tiny light weight
+pseudo actor,
+which just is an actor if linked to a
+promise.
+This actor of course has a name and
+everything, it needs to be registered.
+So it also needs to be garbage collected
+when it is no longer needed.
+Unfortunately, that is not very easy to
+determine, because actors are also
+location transparent.
+So for example, user service might be on a
+remote system, and we do not know
+when or if it will reply.
+For this reason, the ask operation takes
+an implicit
+time out, which we have set to three
+seconds here.
+After these three seconds, the future will
+be completed with an ask timeout
+exception.
+And this little pseudo actor will be
+stopped.
+So this is the first thing which could go
+wrong.
+We could see an ask timeout exception
+here.
+Map to does a checked cast.
+So if the reply was not of type UserInfo,
+then we will find a class
+cast exception in this future, so it will
+propagated here.
+And then finally, within the map, whatever
+goes wrong
+here, would also end up in the recover
+case.
+You will find this sequence of steps quite
+common when transforming another
+Actor in this kind of façade fashion.
+An alternative to this pattern would be to
+spawn an Actor, of course.
+So when we get an email, we could create a
+little customer Actor
+which uses tell to communicate with the
+user service, and then the user service
+sends back.
+And this Actor would then reply to the
+original sender.
+The ask operation here is just an
+optimized form of this.
+The actor which is created in this case,
+consumes less resources than a real actor
+would.
+Even though a real actor is really cheap,
+but if
+you do this million times per second, then
+the difference matters.
+Another consideration
+is that this code is fairly clear.
+We
+ask this of some other actor then we make
+sure it has the right type.
+We transform it catch errors, and pipe it
+back.
+So if it is this kind of easy
+transformation then ask is fine.
+If you find yourself writing very
+complicated expressions in here,
+or multiple steps with different futures
+and the error recovery paths
+get ever more convoluted, then it is for
+sure time to switch to a customer actor.
+The third possibility, is to keep track of
+who the original sender was, but including
+this information in the message which
+travels to the user service and back.
+If you are designing your
+own system from scratch, that might be the
+most efficient way to do it.
+But, if you need to work with a user
+service, in this case, which
+you cannot modify, then you need to use
+ask or or a customer actor.
+Another use case where the ask pattern
+comes in handy
+is if you need to aggregate results from
+multiple other actors.
+So let's say this is a blog PostSummary
+actor, and when
+it gets a request for a certain postID
+with user and password, then we
+generate three requests.
+First we ask for the status of the post.
+Our sub publisher actor.
+This result will be some kind of post
+status.
+Then we're we retrieve the text from the
+post store by issuing a get request.
+But then we also ask the authentication
+service
+whether this user and password is a valid
+combination and
+whether that user is authorized to see
+this kind of information.
+We use a for comprehension to tie these
+three futures together.
+And when all of them are successful this
+code will run.
+So we check whether the authentication was
+successful.
+In that case we send back the result.
+Otherwise it gives
+a failure, saying, not authorized.
+This is a transformed future.
+We started out with a future here, and
+then the, this is
+translated to flat map and map of futures,
+and this yields a future.
+We have a response here which is a future
+of result or failure.
+And this response is then piped back to
+the sender eventually.
+This
+is an extremely common pattern if you are
+running, like, a web store or some big
+website, and the user requests, for
+example, his
+own home page on some social network, for
+example.
+There will be possibly hundreds of such
+requests involved in
+answering this one Get operation from the
+client's web browser.
+But an actor is not limited to
+transforming the values which travel.
+It also can transform, for example, the
+lifecycle monitoring, or the semantics
+of how an actor works.
+For example, let's say we have, a
+FileWorker
+here, which is an actor
+which can write things to files.
+And let's say we have a request here.
+To write something.
+The File Worker will try to do that but
+we know that during IO many things can go
+wrong.
+So this write just might fail.
+Then of course there will be an exception
+and the supervisor will handle it.
+But even though the file worker might be
+restarted, for example
+there would be no reply to this request,
+because the processing failed.
+And the
+only way for the client to determine that
+it was not successful, is to
+wait for a timeout to happen.
+That can take a lot of time, because you
+need to foresee; IO operations could take
+some seconds, and then a reasonable
+timeout window would be impractically
+long.
+What we can do is to wrap this
+FileWorker's function in another actor.
+Let's call it FileWriter.
+And then the write does not go here
+anymore.
+It is sent here.
+The FileWriter will create a worker and
+supervise it
+and monitor it.
+And then, well, successful results could
+come back, or it might fail, or terminate
+before sending a successful result.
+No matter what, the FileWriter itself did
+not perform the
+risky part, so it is a lot less likely to
+fail.
+Therefore the writer, very likely can
+respond,
+done or failed,
+making the interaction with this
+FileWorker more safe.
+Here I have sketched this out a bit in
+code.
+We have the FileWriter, and when it gets
+it a write command, it will
+create a new FileWorker for the file, and
+tell it to respond.
+To self, so, to the FileWriter.
+Then we watch it, and we also need to keep
+track
+of for whom this particular worker is
+performing the work.
+So we can send back the done or failed
+messages.
+Then, if anything goes wrong, we have a
+stopping strategy.
+That means that the worker will not be
+restarted.
+And in the end we either get a done
+message, or the actor terminates.
+Whichever happens first
+will be successful, because we look into
+the map
+for the sender, this is now the worker
+actor
+and if there is still contents in the map,
+then we send the done message and remove
+this one.
+This means that when it terminates later
+this one won't find anything anymore.
+But if it terminates without having sent a
+done message, we send a failed to the
+client.
+Using ephemeral actors which are created
+per request is a quite
+common pattern, especially if the work to
+be performed is risky.
+We have seen a few patterns of how you can
+compose
+actors, to translate values going in and
+out, or to validate requests.
+But it is easy to imagine many more of
+these.
+For example, rate limitations, or also
+access control.
+These are things which with normal method
+calls are hard to implement.
+Or for example, access control needs to
+use
+aspect oriented programming, for example,
+to insert it around method calls.
+Since actors are purely based on
+asynchronous message
+passing we have many more possibilities on
+how
+to compose them on protocol level to
+achieve
+these things, for example, without using
+aspect-oriented programming.
+On the other hand this great flexibility
+is part of the reason
+why actors are not as usefully typed or as
+strictly typed as method calls.
+

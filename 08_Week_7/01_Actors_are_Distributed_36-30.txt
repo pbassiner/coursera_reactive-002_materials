@@ -1,0 +1,846 @@
+In this last week of the reactive
+programming course, we
+will focus first on something which was
+implicitly there already.
+Namely, that actors as independent agents
+of computation are by default distributed.
+Normally you run them just on different
+CPU's in the same system.
+But, there is nothing stopping you from
+running them on
+different network hosts, and we will do
+this in practice.
+This means,
+if you picture for example, people who are
+living on different continents that
+it takes some effort for them to agree on
+a common truth or a common decision.
+The same thing is true for actors and we
+call this eventual consistency.
+After that, we will talk about scalability
+and responsiveness
+and how you achieve these in an
+actor-based system.
+Rounding up all the four tenets of
+reactive
+programming, which were event-driven
+Scalable, resilient, and responsive.
+>> Actors are designed to be
+distributed, and in this
+lecture, we will see an example of that
+using the Acacluster.
+In order to fully appreciate how far
+actors take us, when it comes to
+distribution,
+let us look at.
+What the impact of network communication
+is to a distributive program.
+compared to communication within the same
+process, by calling methods for example.
+We will experience several differences
+when doing that over the network.
+First of all, the memory is not shared
+anymore.
+Data can
+only be shared by value because a copy
+will be made.
+The object will be serialized, sent over
+the network
+connection, de-serialized, therefore, the
+object will not be the same.
+We have seen that a stateful object is one
+whose behavior depends on its history.
+But the history of the copy of the other
+side of the network will not be the same
+after a while than the history of the
+object on the
+originating node.
+This has the consequence
+that only immutable objects can be
+sensibily shared.
+Other differences include that the
+bandwidth available for communication is
+a lot lower when you traverse the network.
+And the latency for all communication is
+quite a bit higher.
+You cannot transfer a network packet in a
+nanosecond
+but you can call a method in a nanosecond.
+Together with a need to serialize and
+de-serialize
+objects instead of just passing along
+their reference.
+This makes the difference even more
+severe.
+But in addition to these quantitative
+effects,
+there are also new things which can
+happen.
+When you send a message over the network
+It might just not
+arrive, or it might arrive, and the reply
+might not come back.
+Thus, there is the possibility of partial
+failure,
+or part of your messages might not arrive,
+for example, and you cannot know which
+ones
+that were until you get the reply back.
+Another kind of failure is that data
+corruption can also happen.
+I know from personal experience that when
+you
+send data down a TCP connection for
+example.
+You will see about one corruption event
+per terabyte data sent.
+Running multiple processes on the same
+computer
+and having them communicate for example
+Over the
+localhost interface, makes some of these
+differences
+less severe, in number, but the
+qualitative issues
+stay the same.
+The overarching description of the problem
+is that distributed computing
+breaks the core assumptions made by a
+synchronous programming model.
+We have talked about actors for quite
+awhile now, so you know that
+all of their communication is asynchronous
+one way, and not guaranteed to arrive.
+Hence,
+they model precisely what the network
+gives us.
+You could say that, instead of taking the
+local model and
+trying to extend it to the network, actors
+took the inverse approach.
+Looking at the network model and using
+that on the local machine.
+The next feature of actors is that they
+run so fully isolated from each other that
+from
+the outside they all look the same.
+They all just, ActorRefs.
+Regardless where they live it will be the
+same sending a message to them.
+This is what we call location
+transparency.
+The current semantics in feature set
+offered by [UNKNOWN] actors have
+been reached by rigorously treating
+everything as if it were remote.
+And all features
+which cannot be modeled in this world were
+removed.
+As a result, the effort of writing
+a distributed program Using actors is
+basically
+the same as the effort of writing a local
+variant of the same program.
+The code itself will not look much
+different, as we will soon see.
+Before we can witness actors
+talking to each other over the network, we
+need
+to look at how that is done under the
+hood.
+We know that actors are hierarchical and
+every actor
+has a name in the name space of its
+parent.
+They form a tree just like a file system.
+Let's say we have an actor here, named
+user.
+This is [UNKNOWN]
+Guardian actor for all actors you create.
+With system actor of.
+And this one creates a greeter.
+This is the same as
+a file system having a folder called user
+and in it a folder called greeter.
+All actors can have children so they are
+all like folders and not like files.
+When you run this program and print the
+path
+of this actorOf that you will show you
+this.
+All paths conform to the URI format.
+The
+uniform resource identifier.
+This one has an, a
+so-called authority
+part, [SOUND]
+and a path.
+In Akka, the authority part is used to
+display the address of the actor system.
+In this case, we created an actor system
+called HelloWorld in the Akka scheme,
+so the Akka protocol designates that this
+is a local Actor path.
+Then with slashes, we separate the path
+element.
+So user is this actor
+greeter is this actor.
+We want to talk about actors
+which use the network, so we should look
+at a remote address example.
+Here we have an akka system using the TCP
+protocol.
+Also named hello world at some IP address
+or
+hostname, colon and then the port at which
+it listens.
+This description is enough for any other
+actor system
+to send a message to any actor within this
+one.
+It will just open a TCP connection to this
+IP address, and port
+and try to connect to this actor system
+should it have responded to that.
+We have seen here two examples, a local
+address for the greeter,
+and a remote address.
+Which for the greeter, would look like
+this, this
+means, that every actor is identified by
+at least one
+URI, it could have multiple, if for
+example, the actor
+system is reachable by multiple protocols
+or multiple IP addresses.
+Up to know we have nasty work with
+ActorRef.
+And the newly found ActorPath has some
+relationship
+to it ActorRef, which needs to be properly
+explained.
+Actor names are unique within a parent,
+but once the terminated message has
+been delivered for a child, the parent
+knows that the name can be reused.
+It could create an actor which has exactly
+the
+same name but it will not be the same
+actor.
+The ActorRef will be a different one.
+Therefore, keep in mind that ActorPath is
+just the full name of
+the actor and the ActorPath exists whether
+the actor exists or not.
+An ActorRef on the other hand points
+exactly to one actor.
+Which was started at some point.
+It points to one incarnation we say, of
+the
+actor path.
+An actor path also has a tell method, we
+will see that later, so you can send it
+messages.
+The difference is, since you don't know
+that behind
+this ActorPath actually an actor exists,
+it cannot be watched.
+You need an ActorRef if you want to use
+life cycle monitoring.
+In the end the difference between an
+ActorRef and
+an ActorPath is just one number.
+We call it the UID of the
+actor incarnation.
+If you print an ActorRef, it looks just
+like the actor path, but with a fragment
+part added, which is this UID.
+When communicating with remote systems, it
+is necessary to talk to actors
+Which you have not created and for which
+you have no means to acquire an ActorRef.
+You just know at which host and port the
+Actor lives.
+What the system's name is and where the
+Actor is in the hierarchy over there.
+To support this, the Actor context has
+another method.
+Called actor selection.
+It can pass in any actor path, and it will
+construct something which you can send to.
+It's the only operation it supports.
+And, there is one message that every actor
+automatically handles.
+And that is akka.actor.identify, imported
+here,
+which takes one piece of data, a
+correlation identifier, you
+can use anything you want.
+This little actor here,
+the resolver will perform the job of
+resolving an actor path, if possible.
+To the actor ref of the actor, which is
+currently living under that name.
+So sending
+the Identify message with the pair of path
+and current
+sender will result in us getting back an
+ActorIdentity.
+In the positive case, where the actor is
+currently alive, we get this one.
+With some reference.
+So we can tell our client that we resolved
+the path, and this is the actor
+ref of the actor currently.
+Otherwise, the actor identity message will
+contain none.
+This procedure reflects that communication
+is necessary.
+In order to determine whether an actor
+exists or does not exist.
+This is why no actor refs can just be
+fabricated from thin air.
+They must be obtained by using identify
+from
+paths, if there is no other way to obtain
+them.
+Actor Paths do not have to be absolute.
+They do not need to contain all the Actor
+systems address information.
+They can also be relative to the current
+Actor.
+When we see context.actorSelection, and
+give
+a relative URI without a leading slash.
+Then it will be interpreted to the current
+actors position in the hierarchy.
+In this case,
+if the current actor has a child actor
+named child.
+That one had a child actor named
+grandchild.
+And this actor selection will select it.
+Just as in file system, you can use dot
+dot
+to signify the parent at any point in the
+selection.
+If the selection starts with a slash, its
+anchor
+will be the system's root guardian.
+So you can resolve actors which live
+somewhere near the top Of
+the hierarchy, and where you know the
+exact name of all parents.
+Finally, actor selection also supports
+wild cards.
+So, you can, for example, send a message
+to this actor selection.
+/users/controllers/* to send to all
+children of the controllers actor.
+The ability to send to a name instead of
+to an actor ref is
+exploited by the akka cluster module which
+we will look at next.
+First, what is a cluster?
+A cluster is foremost
+a set of nodes, of actor systems in this
+case, and
+this set is defined such that all members
+of
+this set, so all nodes of the same
+cluster, have the
+same idea about who is in the cluster and
+who is not.
+It is like a group of people where
+everybody
+knows everybody else and foreigners are
+known to be foreign.
+This group of people can then collaborate
+on a common task.
+And the same can be done between actor
+systems.
+Let's say,
+we have some.
+Actor systems, some nodes, A, B,
+C and D.
+And these four,
+all have the same idea that they four form
+a cluster.
+Now if we have another node here.
+Called e and this node thinks it forms a
+cluster
+with the other four.
+Then the set of a, b, c, d, and e is not a
+cluster because not everyone in this set
+agrees upon who is in the cluster.
+Cluster membership can change over time,
+of course.
+And A, B, C, and D might learn of
+Es existence, and finally accept E into
+the same cluster.
+And then the cluster would have size five.
+We'll see how that works in a minute.
+Clusters are formed in a form of inductive
+reasoning.
+It starts with one node which basically
+joins itself, it declares
+itself to be a cluster of size one, and
+then any given node can join a given
+cluster.
+To enlarge that cluster by 1.
+This is achieved by
+sending a request to any current member of
+the cluster and
+then the information is spread within the
+cluster than this new
+one wants to join and once all the current
+members have
+learned of this, they agree okay it is a
+good idea.
+Let's accept it in.
+One important property of the akka cluster
+is that it does not contain any
+central leader or coordinator which would
+be a single point of failure.
+Information is disseminated in an epidemic
+fashion.
+This gossip protocol is resilient to
+failure because...
+Every node will gossip to a few of
+its peers, every second, regardless of
+whether that was successful or
+not, so eventually, all information will
+be spread throughout the cluster.
+Let's see how this works in practice.
+For that, we need one more dependency,
+which is the akka cluster module.
+And in the configuration we need to enable
+the cluster module by saying
+that the akka.actor.provider must be
+akka.cluster.ClusterActorRefProvider.
+This configures the actor system to use a
+different mechanism when creating actors
+All calls to context actor of are in the
+end handled by the actor ref provider,
+and the cluster one supports a few
+operations
+that the local one cannot, as we will see.
+There are several ways to apply this
+configuration,
+for example, you could add a file named
+application.conf.
+To the class path which contains this
+snippet.
+Or you can use Java system properties like
+that on the command line.
+Next, we need to write a new main program.
+This actor, when it starts up, obtains the
+cluster extension of the system.
+Subscribes to some events.
+This in, in the end works the
+same way as the event stream.
+And finally, it joins its own address.
+If remember, the first step in forming a
+cluster is that one node must
+start it off, it must join itself.
+Then, in the behavior of this
+actor, we wait for MemberUp events, for
+which we registered.
+And if the member which just joined is not
+the current one,
+then someone else joined and then we can
+do some interesting stuff.
+The default configuration of the remote
+communication module is
+that it will start listening on port 2552
+using TCP.
+To make this exercise interesting, we need
+of course a second node.
+Since all actor systems will need to
+listen on a TCP port But only 1 of
+them can have the port 2552.
+We need to configure a different port
+for the ClusterWorker.
+Setting the port is done like
+this with the property
+akka.remote.netty.tcp.port.
+And setting it to 0 means to pick a random
+one.
+We don't need to know at which port the
+cluster
+worker lives because it will just join the
+main one.
+The address of the cluster main can be
+derived from this worker's self address by
+replacing the port with the number 2552.
+And then, the worker joins
+the main In this case, we registered for
+receiving
+not member up, but member removed events.
+And
+whenever the address of the removed member
+is the main one.
+So when the main program shuts down, this
+also stops.
+With these 2 main programs, we can
+if we run them observe that they will
+join.
+But nothing much will happen.
+We need to define some actor which makes
+use of the cluster.
+For this, we are going to modify the well
+known receptionist.
+To spawn the controller actors not
+locally.
+Using context actor of simply as local
+children.
+But to run them instead on
+cluster nodes which are not the current
+node.
+How does that work?
+First of all, the receptionist needs to
+know who is in the cluster and who is not.
+Therefore, it subscribes to member up and
+member removed events.
+And when it stops, it unsubscribes itself.
+In response to cluster.subscribe.
+The actor will always receive first the
+current cluster state.
+And this current cluster state has a
+members list.
+I convert these members to a linear
+sequence from a set and
+a map _.address over it to extract all the
+addresses of
+the cluster nodes.
+Then from these addresses I filter out
+the self address.
+So whatever remains is not myself.
+And if there is another node, so not
+myself
+is not empty, then I change to the active
+node.
+But typically, when the receptionist is
+started, that happens quite
+early in the program, the cluster has not
+yet been formed.
+So typically, the current cluster state
+will contain
+no members.
+Therefore there is the second case that
+upon member up.
+If that members address is not my own
+address.
+I change to the active state with the
+vector of size one getting just that
+member.
+While of 18 members we have no computing
+resources In order to perform the task of
+getting
+url for example.
+So during that time we reply through the
+sender
+that it failed because we have no nodes
+available.
+The active behavior will also have to
+monitor the cluster.
+Because after all, members can be added or
+removed at any point in time.
+When more members are added, again which
+is not the self address, then we just
+change to the active state with the
+addition of the newly known address.
+And when members are removed from this
+set, we filter it out from the addresses.
+And, if that was the last one, then we go
+back to the awaiting members state.
+Otherwise we
+continue with the reduced list.
+Now we get closer to the interesting part,
+using the information we just obtained.
+In the active state, when a get request
+comes in.
+We look whether the currently running
+requests that is context.
+children.size is less than the addresses
+we know about.
+Otherwise, we have one request running per
+cluster node.
+Lets say that is the limit and then we
+reject it.
+But If it is the first request which comes
+in, that will always work.
+So we copy the client, that's the sender
+of this get request.
+Then we pick an address randomly from the
+list and extract it here.
+And then we create a new actor A
+customer which I'll show the in the next
+slide, which gets the client, URL, which
+is
+supposed to be retrieved, and a cluster
+address,
+where the work is supposed to be
+performed.
+Please note that these two lines are
+necessary because
+The actor creation described in here runs
+asynchronously.
+Props describe how to create an actor
+later.
+Therefore, it is subject to the, the
+same restrictions as with future
+call-backs within actors.
+Or scheduled actions within actors as we
+have seen last week.
+Finally, the customer actor.
+This one is reponsible
+for making sure that the given URL is
+retrieved but the work
+is supposed to be performed at a remote
+node whose address is given here.
+For that we need to create a controller.
+We have props, controller here.
+Props, as I said, is a recipe for how to
+create an actor, and what
+we have used so far is the default
+behavior of creating an actor locally.
+But it also supports giving other
+arguments.
+Here we say, with deploy and then a deploy
+that is a description of how to deploy the
+actor.
+You can modify several things.
+One of them is the scope in which it shall
+be deployed.
+In this case it is a Remote Scope.
+We do not want to create the actor on the
+local node,
+we want to create it on the given node,
+whose address is here.
+This is the only change which is necessary
+To perform the work on a remote node.
+The call to context actorOf then looks
+just the same, gives back an actorOf.
+Sending to this actorOf looks just the
+same,
+but this will go over the network now.
+Context.watch controller will watch this
+actor
+also over the network.
+But the call we make here looks exactly
+the same as in the local case.
+There is one more detail in this actor
+which needs special explanation.
+It's this line here.
+Whenever a message is sent for example,
+here
+to another actor we know that the self
+reference of the enclosing actor is
+automatically picked
+up and passed along as the sender
+reference.
+This customer actor here is an [UNKNOWN]
+one, it is one which is not supposed to be
+seen from the outside.
+What this line does, is it changes the
+meaning of
+who the sender of messages of this actor
+shall be.
+This implicit value is also of type actor
+ref.
+And it is available in the current scope,
+which
+takes precedence over implicit values
+found in the actor trait.
+Therefore, all messages sent by this
+customer, will
+appear to have been sent by its parent
+instead.
+Since
+the consequences of this remote deployment
+are not visible in code.
+Let me draw a diagram to show what
+happens.
+The whole program starts, because we
+instantiate the cluster main application
+actor.
+We need to mark out in which actor system
+that happens.
+This is.
+Cluster main.
+And it's guardian actor.
+The app then goes on to create the
+receptionist,
+And when a request comes in this one will
+create a Customer.
+Up to this point everything has been
+local.
+But the customer deploys the
+controller into the cluster workers
+system, so we need to draw that as well.
+This system also has a, user guardian.
+And application.
+But this application does not do anything
+besides waiting for the termination of the
+program.
+This system has another thing which is
+interesting here.
+It has a remote guardian, and when the
+customer deploys the controller.
+What it really does is it sends a message
+to this one to create the controller for
+it.
+This one will first create a folder so
+that it can keep actors deployed from
+different other systems.
+And within it, it will create a marker
+for, that it was
+user, app, receptionist, customer, and so
+forth.
+And then it will finally create
+The controller actor.
+These here are
+not really actors.
+They are just names inserted such that,
+the controller can be found for remote
+communication.
+But the controller will be the child actor
+of the customer
+logically.
+So when in the controller we say,
+contexts.parent, the message will go here.
+Then as in
+this link checker example, it will spawn
+getters as needed during the retrieval of
+the URL.
+Now that we have successfully remote
+deployed
+the controller, we just need to supervise
+it.
+As usual, there was the receive timeout,
+in which case We unwatch the controller
+and say, the retrieval has failed, because
+we didn't get anything in time.
+Note that deathwatch works exactly the
+same even though the controller
+is remote deployed.
+So in that case, we also give a failure
+message.
+If we get back a successful result.
+Again we unwatch and send back the
+successful result.
+And then whatever happens after any of
+these three has occurred, we need to stop.
+And this stop is recursive, so once this
+parent actor is stopped the
+controller is stopped with it.
+We need to explicitly annotate the type of
+this
+partial function literal here because
+galas type inference would
+not be able to figure that out without
+help
+a when it comes to the and then
+commonator.
+I have loaded these actors as well into
+the
+Eclipse project so that we can try it out.
+First here you see the cluster worker with
+the code that you already know.
+Note that the web client will now be
+called in the cluster worker so
+this is where we need to clean up the
+resources of the async web client.
+The ClusterMain is like the
+original main program, but it has been
+adapted as shown to
+watch for cluster events and to join
+itself in the beginning.
+And in the behavior, when we're, when we
+receive the MemberUp event and
+the member's address is not our own Then
+we know that there is a cluster worker.
+So I have written a small function get
+later to use this system scheduler
+to send a get request to the receptionist
+after a certain delay which is given here.
+So after 1
+second we retrieve google.com.
+After 2 seconds, we try two parallel
+queries.
+One of them should fail because there's
+just one cluster worker.
+And then we try two more.
+In the run configuration for the cluster
+main, I have
+set the necessary option to switch on the
+clustering support.
+And here is another option, which can be
+set We say
+the cluster shall not start unless there
+are at least two members.
+For the cluster worker, as mentioned, we
+need to configure the remote port
+to be automatic.
+And then there is one more option which
+I've set, which is called auto down.
+Which I will explain in the following.
+So, we run the cluster main.
+It starts up.
+Informs us that the node akka tcp main on
+port two, five, five, two.
+Is in the joining phase but nothing has
+happened yet.
+When we start up, the cluster worker, the
+program will start to run, and
+now it has finished, so we can look at the
+logs.
+This was the line which we had already
+seen.
+Then, the cluster worker running on the
+[UNKNOWN] port is also seen as joining.
+Then That, this here, it says the leader
+is moving
+node 2552 to up and the other one also to
+up.
+I told you there is no single point of
+bottleneck in akka cluster.
+Although it does have a leader.
+Now this seems to be contradictory but it
+is not so.
+The leader is not elected.
+It is one special node.
+Any node can be the leader.
+And it is just statically determined
+by this set of node addresses.
+They are sorted in a certain format
+and then always the first address which is
+in the membership list will be
+the leader.
+And since everybody agrees on who is in
+the list and on the sort order.
+Everybody will see the same as the leader
+without the need for communication.
+Once the nodes are up, the program goes on
+to retrieve the page from
+Google.com.
+Then we launched two queries in parallel.
+One of them gets rejected by too many
+queries.
+The other are successful.
+Finally, we had modified the main program
+such that it
+will shut down after the retrievals have
+all been performed.
+So the leader is moving itself first to
+leaving and then to exiting states.
+And then the whole program shuts down.
+There is some communication afterwards
+between nodes in the end.
+First this one shuts down and the other
+one has
+also automatically shut down.
+This one has gone by a different route
+which I will explain in the following.
+

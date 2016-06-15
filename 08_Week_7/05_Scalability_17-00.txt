@@ -1,0 +1,399 @@
+An important aspect of the reactive
+programming is
+the scalability, specifically that we
+favors scalability over performance.
+The distinction I am making here is that
+performance focuses
+on when the system is used by a single
+client.
+Making the system faster in this case will
+usually involve optimizing it for running
+on one CPU,
+for example, which is as fast as possible.
+But when multiple clients use the system,
+these optimizations mean that there is a
+ceiling
+which will be reached, and beyond a
+certain point the system will not scale
+anymore.
+It will not be able to process
+the inputs received from these multiple
+clients anymore.
+Sketching this graphically, I have here
+the
+number of clients, and here the request
+per second.
+And optimally this would be what clients
+want,
+because every new clients adds just to the
+request
+per second that the system can handle,
+which
+means that the responds time will stay
+roughly constant.
+In this case, let us say it looks like
+this.
+Of course, a real system will have a
+maximum, say, here.
+And that means that the real performance
+curve will look somewhat like this.
+And what that translates to, in terms of
+response time,
+is something like that.
+So when I say, focus on scalability
+instead of performance, that
+means moving this red line as far up as it
+is practical.
+And this will make your system withstand a
+higher number of clients, without
+compromising the service quality, as would
+happen in this case here.
+You want to move the point,
+where the response time explodes as far to
+the right as possible.
+What does that mean in terms of
+implementing an actor system?
+We learned that one actor can process only
+exactly one message at any given time.
+It cannot do more work, just because there
+are more messages coming in.
+You need to have multiple actors working
+on the incoming requests, in
+parallel, in order to make the system with
+more requests per second.
+One pattern
+we have already seen in the link checker
+example, is to start new actors for every
+request.
+Another one is that you can have replicas
+of actors, which perform a certain
+task, and if these actors are stateless,
+then these replicas can run concurrently.
+Let's say you have an actor here, for
+example, calculating
+mortgages.
+And when a client requests, it sends a
+message, and then the mortgage service
+will calculate the conditions, and reply
+back with an interest rate, for example.
+Now if this calculation is moderately
+complex, then it will take some time, and
+we could, for example, scale it out by
+having multiple workers
+to perform the task.
+It is not necessary to have one per
+request.
+It could be a pool of, say five or ten,
+and then they can use at most five or ten
+CPUs completely for this purpose.
+By not having one actor per request, it
+is easy to limit the parallelism, which is
+allowed.
+Since actor communication is,
+conveniently, asynchronous message
+passing, the client here
+does know whether the Mortgage Service
+does
+the calculation itself, or whether it has
+farmed it out to any of the workers.
+This means that asynchronous message
+passing gives us the possibility for
+vertical scalability, which means using
+more CPUs in the same node.
+The purpose of this mortgage service, in
+the last example, was
+just to route the incoming requests to the
+pool of workers.
+There are different schemes for doing
+that,
+which we shall look at in the following.
+These schemes can be grouped into stateful
+or stateless routing.
+Stateful means that the routing algorithm
+itself needs to keep some state.
+For example
+round robin needs to keep a count.
+We will see what that means in detail.
+And in general, stateless routing might be
+preferable, because that can even
+happen, in parallel, by multiple routers,
+because they don't need to share anything.
+The most easily understood routing scheme
+is the round robin one.
+You have the router here, incoming
+messages,
+and let's say we have three targets.
+One, two, and three here.
+Then the first request will go here.
+The second will go here.
+Third will go here, then it starts over.
+Always one, two, three, one, two, three,
+one, two, three.
+This means
+that the distribution of messages to these
+routees here will
+be quite close to equal at any given point
+in time.
+But that also means that if, for example,
+actor one here experiences failure and the
+restart takes a bit, then it will
+still receive the same incoming rate of
+messages.
+So, the mailbox of this one will get more
+full
+than the other two.
+And that means that messages which go to
+number one, which
+is 1/3rd the incoming messages here will
+experience a higher processing
+latency, because there is a mailbox in
+here, which the actor
+needs to work off, in order to get to the
+current message.
+This can be fixed, of course, by looking
+at
+the mailbox size, and routing only to
+those which
+have the lowest number of messages,
+currently.
+This requires all the routees to be local
+so the message queue can be inspected.
+It obviously does not work over the
+network.
+And also, the cost of looking into the
+mailbox
+and counting the messages in there, is
+rather high.
+These data structures are concurrent and
+need to be properly synchronized.
+And they're not as cheap to traverse as a
+normal collection is.
+This means that this routing cost is
+rather high, and only worth
+it if the job to be performed takes more
+time than that.
+But in that case, the imbalances
+introduced between different processing
+speeds of the actors are evened out by the
+algorithm, and the latency
+which is experienced by clients, is more
+consistent.
+Taking this model to the extreme means
+sharing a work queue between different
+actors.
+So, what we have here is just
+a queue for the messages, and then we have
+our routees here.
+And they always process the oldest message
+in the queue.
+And effectively everyone pulls
+from there.
+Messages go in on top.
+The most efficient implementation of this
+scheme is
+that they really do share the same work
+queue.
+There is an aka the balancing dispatcher
+for achieving
+that, but that requires the routees to be
+local, again.
+Of course this will give the most
+homogeneous latency which you can achieve.
+So far, evening out imbalances
+came with a rather high cost of routing
+itself, and, or the need for the routees
+to be local.
+If we sample the imbalances, for example,
+over time, it can be rather coarse.
+It doesn't need to happen per message.
+It could be once per second, for example,
+or even less frequently.
+Then we can gather this data and use them
+to steer
+the routing weights.
+So if we have here, the incoming
+message stream, and here this adaptive
+router and the routees.
+The routees will periodically send back,
+the feedback of, for example, how full
+their queue was at this second,
+or what the CPU load is on that node.
+Because they could run on different nodes.
+And then this one has an algorithm inside,
+which uses this information
+to change the relative weights of where
+messages shall go.
+For example, more frequently here, less
+frequently
+here, if this node is currently under more
+load.
+This can be a good compromise, but it
+requires the steering of
+these weights to be done carefully,
+because other wise you can introduce
+oscillations.
+Or over-dampening, so that the reaction
+times
+are longer than necessary.
+And for that you need to look into
+feedback control theory.
+The routing algorithms we looked at so far
+have all been state four.
+The router itself needed to keep
+information.
+For example, the round ro, robin needed a
+counter where the last message was sent.
+This can lead to some routing overhead
+because the decision depends on something
+which
+is shared.
+If you use random routing, for example,
+then, in principle, no router is
+necessary.
+We have the incoming message stream.
+And we have, our routees.
+And
+each sender of a message to this set of
+actors, randomizes, on its own,
+where the actual message goes.
+That means that there doesn't need to
+be an intermediate actor here, which does
+anything.
+This offers the lowest possible routing
+overhead.
+The problem with it is that well the
+process is random.
+So, there are also, there is the prob,
+probability that for
+example, number one, might for a certain
+time window, get more messages
+than two and three.
+Asymptotically, these will even out.
+But in the real running program, it might
+be observable.
+Another stateless routing scheme, is that
+of splitting up
+the incoming message stream, consistently,
+according to some criteria.
+So we have our routees again.
+And
+then, let's say,
+we have the black part,
+the red part,
+and the green part of the message stream.
+And all messages which match
+this green color, always go to routee
+number 3.
+This means that there also does not mean
+to be a central authority here during the
+routing.
+But it also means that the sub stream need
+to
+be chosen, such they are, that they are of
+equal weight.
+Otherwise, it will lead to systematic
+inbalances
+between the processing times for the three
+routees.
+This scheme has another advantage.
+Up to now, it was not really deterministic
+which message comes to which node, or
+which routee.
+So, one, two, and three, needed to be
+identical actors.
+And if another
+request comes in later, it will have no
+correlation, or it cannot have any cannot
+require
+any correlation with a, an earlier
+request, because
+the state of these reactors is not shared.
+Splitting up the message screen, according
+to some criterion allows us, to, for
+example, have all requests pertaining to a
+certain user Go to this actor.
+And if the user is the important state to
+be kept, then well, everything
+perti, pertaining to my user, for example,
+always goes to routee number one.
+And then, subsequent messages could have
+a,
+common interest correlation because they
+all go
+to the same target, always.
+And updates to my user for, example,
+at number one, would be safe because later
+messages will see the updated state.
+This means that consistent hashing routing
+can be used to replicate
+stateful actors.
+This requires that the input stream
+of messages can be split, in such a
+fashion,
+that the state affected by these
+substreams is independent.
+If a certain part of the state is shared
+between several actors,
+we have seen that in a previous lecture,
+with this distributed store.
+You have two actors here, A and B.
+And if they share something, which shall
+be the
+same, then they need to communicate, we
+have seen
+that, and they need to exchange data in
+appropriate
+data structures, so that they can achieve
+eventual consistency.
+Here, replication is not used for
+scalability
+so much, but it can also be used for fault
+tolerance.
+And
+while we are at that topic, it is quite
+easy to see that persistent
+actors persistent stateful actors, can be
+replicated as well.
+When something goes wrong, we just need to
+recover the
+actor, and that could well happen at the
+different location.
+For example, if the node where the actor
+was living.
+Let's say
+node A, we have our actor here.
+If that node crashes and is not
+recoverable,
+then on node B, we can just replay the
+state of actor A
+and resurrect it.
+This will also require a certain
+message router, which first sends messages
+here, and then after the crash, switches
+to the new instance.
+And if we are using event sourcing, we can
+even optimize this process.
+This second
+copy of A could be started right away, but
+it could be inactive and only,
+replay the event stream which generate,
+which is generated by Ą.
+So, the event store, and then recovery of
+A
+in the event of failure takes very little
+time.
+All the features seen so far, have been
+made possible by the design of the actor
+model.
+Asynchronous message passing gives us
+vertical scalability, so the
+ability to run a process in parallel on
+the same node on multiple CPUs.
+And location transparency, which means
+hiding everything behind actoreth
+and remoting does not look different,
+enables horizontal scalability.
+That means running the computation not on
+one node, but on a cluster
+of potentially hundreds of nodes.
+

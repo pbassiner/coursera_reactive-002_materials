@@ -1,0 +1,362 @@
+In the previous lecture, we have seen how
+the Akka cluster works.
+And what was evident there is that
+everything takes time.
+It takes time for a node joining
+to disseminate the information among the
+rest of
+the cluster, and then it takes time until
+the welcome message arrives, and so on.
+And the decisions are taken in some
+consistent fashion, but they are not taken
+immediately.
+The cluster is one example of a system
+which is eventually
+consistent, and in this lecture we will
+look at what that means.
+When we made our bank account thread-safe
+by introducing synchronization, we made it
+strongly consistent.
+That means that after an update to the
+field all subsequent reads will see the
+new,
+the updated value.
+You can see here a minimal example of such
+a system.
+We have a private field, accesses to which
+are protected by a synchronization.
+And the update method accepts a function
+which transforms from the current
+field value to the new one.
+And in the synchronized region we read
+the field, apply the function, write the
+new
+value back, and then return the written
+value.
+Any excess reading this field will also
+synchronize on the same object.
+That means that all reads and all updates
+are serialized.
+They are executed in one specific order.
+And every read observes the value which
+was put in by
+the most previous update.
+This is called strong consistency, and
+it can be easily achieved here, because we
+are doing it in a fully local system.
+The locks offered by Scala's objects only
+work because we are
+executing all code here in the same Java
+Virtual Machine, on the same computer.
+But even so we have already
+discussed that this can be problematic
+because synchronization blocks the thread
+which wants to execute it potentially.
+And that is not good for CPU utilization.
+We can remove the need to block the
+calling
+thread by moving the synchronization into
+another execution context.
+Here, this synchronized block is
+executed in a Future.
+That means that the update method, which
+takes this function,
+does not return the new value itself, it
+returns a
+Future of that new value and the thread
+can continue
+normally without having to wait for the
+update to occur.
+In order to properly publish the new value
+of the field, we write it here back.
+And if
+we mark the variable as volatile, that
+makes sure that other
+threads see the updated value when they do
+their next read.
+Therefore, no synchronization is necessary
+for the read message here.
+By removing the blocking nature of the
+update method, we have also removed
+strong consistency, because calling update
+and then immediately calling
+read will probably not give us back the
+new value.
+It will take some time until the new value
+is visible.
+This is called weak consistency and that
+means that after an
+update, certain conditions need to met
+until the new value is visible.
+And this is called the inconsistency
+window.
+Eventual consistency is a special kind of
+weak consistency.
+First of all, it takes awhile until all
+reads return a consistent
+value, and second, this only really works
+once the system becomes quiescent.
+So once the updates stop, and then, after
+awhile, once everyone has communicated the
+new value
+then everyone is on the same page and
+consistency will be achieved.
+Let us try this out with a simple actor.
+This actor, also, the main purpose is to
+hold this field an integer.
+But the goal is to have different actors
+collaborate and share the
+value of this field, such that updates can
+be performed on any
+of these.
+And eventually, the update will be seen on
+all other copies.
+For the outside protocol, we need an
+update command, which gives a new value.
+Then we need a get request, and a result.
+Reply type.
+The actors, which are part of this
+distributed store network, will
+communicate additionally using
+synchronization
+messages and they will learn of their
+existence using Hello.
+Now, how can we serialize the updates to
+this field?
+Because there are multiple copies of this
+field, one in every actor.
+And once two writes happen on different
+actors, these
+two actors need to agree upon which value
+to keep.
+Say, we have an actor D1 here, for
+distributed
+store one, and
+D2.
+And this one
+get's a command, Update
+42.
+And this one gets
+another update, 43.
+They will both locally
+process these messages, and afterwards,
+they will talk and sync up.
+And they need to keep either the 42 or the
+43.
+In order to serialize these updates, we
+use here the current time in milliseconds.
+Whenever an update is made, we capture a
+timestamp
+and associate it with this value of the
+field.
+And then when D1 tells D2, I have a new
+value for you, then
+D2 can check, is this actually a new
+value, or do I have something better?
+This is a simplified implementation of
+this protocol.
+Every time an update comes in,
+we write to the field, and we take a
+current timestamp.
+When a get request comes in we reply with
+the current field value.
+So far, so simple.
+Now when a synchronization message comes
+in with a potentially new
+value we check that this timestamp is
+newer than what we know.
+And if that is the case we apply it and
+keep track of the new timestamp.
+In order to set up this system, a Hello
+message must be sent from D1 to D2, for
+example.
+And then D2 knows this a new one, which I
+need to keep updated.
+So, in reply to the hello, we sent the
+first sync, and whenever we get a new
+update, an original one, we took everyone
+who wanted to know about it.
+We can try this out in the Scala Ripple.
+First, we import all important Akka
+things.
+Then, of course we need an actor system to
+run things in.
+And I made this implicit to use something
+called the Actor DSL.
+This is a small toolbox if you want to
+create actors on the fly in the Ripple.
+It can be done like this.
+What this does is, it creates a new actor.
+I didn't give it a name, hence it got the
+name $A.
+And the function of this actor is to just
+print out any message that it gets.
+This is made available as an implicit
+ActorRef so that it will
+be picked up when we send a message here
+from the prompt.
+I have loaded the code, in a package,
+which
+I'm importing real quick.
+And now let us instantiate two such
+actors.
+Called
+a, and b.
+If we send a get request
+to a, it will reply with a result of zero
+to this anonymous
+actor we had up here, which will print it
+out.
+The same result for b right now.
+If we now update a,
+we see that is was updated.
+But b does not know anything about it.
+Now we can introduce these two actors.
+So, effectively, b sent a hello
+to a, a should have replied with the
+value, and we see that has worked.
+Now, if we update
+b, that is reflected here.
+But
+now, a was not updated because the, the
+introduction needs to be done
+both ways.
+Now, the update has propagated back to a.
+And now we could update on any of the
+two, and the other one will eventually
+learn of it.
+After playing with actors in the Ripple,
+we need to shut down the system, otherwise
+the Ripple will not properly terminate.
+Actors and eventual consistency are deeply
+related concepts.
+We have seen that within an actor, we have
+an, so to speak,
+an island of consistency in an ocean
+of nondeterminism, which is the messaging
+outside.
+So everything you do within an actor is
+sequentially consistent.
+Everything happens like it was on a single
+thread.
+But as soon as you have actors
+which collaborate, they can never be
+strongly consistent.
+They can never agree on a shared thing.
+Because they always need to exchange
+messages,
+and a message takes time to travel.
+So by the time it arrives this date
+which should be agreed upon might already
+have changed.
+Therefore, collaborating actors can at
+most be eventually consistent.
+But that is not automatically the case.
+You need to work to make the behavior
+eventually consistent.
+Looking back at the distributed store
+which we
+have just seen that had a few flaws.
+For example, if updates come within the
+same
+millisecond then the merge was not
+properly resolved.
+Another problem is that message delivery
+is not
+guaranteed, but there was no resend
+mechanism.
+And this would also be problematic because
+eventual consistency requires
+that eventually all updates are
+disseminated to all interested parties.
+And this usually implies that there needs
+to be a resend mechanism.
+Another way to do it has been shown in the
+cluster which does not resend
+because of failures.
+It just resends pessimistically so to
+speak.
+The gossip messages are always sent no
+matter whether we know that the
+other party, for example, needs the update
+or it might all be old news.
+And the last observation is that in order
+to achieve eventual consistency,
+the data structures which I shared need to
+be suitable for that.
+There is a class of such
+data structures which are called
+commutative or
+convergent replicated data types described
+in this paper.
+If you have watched the second part of the
+Actors Are Distributed lecture then
+you have seen another example of this one,
+which is the cluster membership state.
+In the following I explain how that data
+type works.
+But this is optional as was the part of
+the distributive lecture.
+As a reminder, we had six
+states.
+It began with joining.
+And then we had up,
+leaving.
+Exiting
+removed, and we had down.
+The
+property which makes this data type
+manageable as a convergent
+data type, is that all transitions form
+a directed and acyclic
+graph.
+So the normal way the nodes takes
+through this is from joining via up,
+leaving, exiting, to removed.
+But there are other ways.
+For example, from these
+states, you can always become down, and
+then removed.
+When cluster nodes exchange gossip
+messages, these messages contain
+the state of all nodes currently known to
+the cluster.
+So for each of the members, there will be
+one of these values.
+For example, we had a cluster here with a
+few nodes.
+And this one, learns something about say,
+node four.
+And this one learns something else about
+node four,
+then the information might spread.
+And let's say,
+node two learned the green thing first and
+then the red thing.
+These are two new informations about node
+four which need to be merged.
+It'll say that the red information was,
+that it was down, and the
+green one was, that it was leaving.
+Because this is such a nice graph, we can
+give an order to all the
+possible pairs of states, saying that down
+takes precedence
+over leaving, because you can go from
+leaving to down, but not the other way.
+This gives us the property that a
+conflict,
+for example, as here, can be resolved
+locally, first.
+And the second one is that conflict
+resolution is commutative.
+So it does not matter whether you learn
+this first, or that.
+The merge result will always be down in
+this case.
+And this is the property which makes the
+cluster communication eventually converge,
+even if conflicting information was
+injected at several different points
+in the cluster.
+
