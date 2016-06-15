@@ -1,0 +1,368 @@
+In this unit, we are going to do a recap
+of Scala's collections.
+You've already seen them at length if
+you followed the previous course on
+functional programming.
+So, what we do now is just review some of
+the core principles and highlights.
+If you have seen the material before, then
+you might
+want to fast forward to parts of this
+course now.
+First, Scala has a, quite a rich hierarchy
+of collection classes.
+The base class is one of the base classes
+is called iterable, and it gives
+you collections you can iterate through.
+And then there would be sub-categories.
+there would be the sequences, the sets,
+and the maps.
+if you look at sequences, in turn, they
+could
+be indexed, which means you have fast
+random access.
+Or they could be linear, which means they
+are optimized for sequential scan.
+And then you would have concrete
+implementations, a
+standard one for indexed sequence would be
+vector.
+A standard one for linear sequence would
+be
+list; that's a list, you have already
+seen.
+And then there are also types that, in
+a sense get imported into this hierarchy
+from Java.
+So there would be the Java arrays, which
+are a kind of index sequence.
+And the Scala strings, sorry, the Java
+strings,
+which are also a kind of indexed sequence.
+I've drawn the line here dotted because
+these
+cannot be by their nature subtypes of
+indexed sequence.
+We can't really add new super types to a
+Java class.
+What we do instead is make them behave
+like indexed sequences through the use of
+implicit wrappers.
+Similar to sequences, sets and maps would
+also have several sub-categories and
+several implementations.
+Having so many collection types could be
+confusing, except for the
+fact that they all share a common set of
+general methods.
+So it's very easy to apply a usage
+profile that you know from one collection
+to another.
+The methods that the collections share are
+things
+like picking the first element picking
+some arbitrary element.
+But in our case, more importantly, core
+methods such
+as map, flatMap, and filter, are shared by
+all collections.
+Other important methods would be the fold
+operations,
+foldLeft and foldRight, that map a binary
+operations to,
+on a collection and reduce it to a single
+value.
+Let's have a look at map, flatMap, and
+filter in more detail.
+What we are going to do is study how
+they're implemented on the List class that
+you've already seen.
+Let's do map first.
+So, idealized, map takes a function from
+the
+list element type T, to some arbitrary
+type U.
+So U is a type parameter of map.
+And it would give you back a list of U.
+And what it would do is it would do a
+pattern match over the list itself.
+If this list
+is a cons cell consisting of a head
+element x and a tail xs, then we would
+apply f to the head, map f over the tail,
+and compose the results with a cons.
+If the li-, current list is Nil, then the
+result list is also Nil.
+So that was map.
+If you want to learn about flatMap, the
+easiest
+way to do that is to study the differences
+with respect to map.
+So the first difference you see here, the
+function we pass to flatMap now doesn't
+return a single element, but a list
+of elements of an arbitrary type U.
+But it, again, returns a list of Us.
+So its implementation is, again, a pattern
+match.
+the function f gets applied to the first
+element head.
+But since it's a list, now it gets
+concatenated
+with a recursive call to flatMap, rather
+than just prepended with a, with a cons.
+So instead of a cons here, a double colon,
+you have the concatenation operation,
+which is written plus plus.
+And again for Nil, flatMap gives you back,
+a Nil.
+The last operation we're going to look at
+is filter.
+So filter takes a predicate that's a
+function from the List element
+type T to Boolean and gives you back a
+list of T.
+It keeps all the elements of the list that
+satisfy the predicate.
+The way it does that is again with a
+pattern match.
+If the list is not empty with a head x,
+then if the predicate holds for x.
+Then you get back x followed by filter on
+the tail with a predicate.
+Otherwise, you just filter on the tail,
+and you drop the first element.
+And in the case of Nil,
+you get back Nil, as before.
+In practice, the types and implementations
+of these
+methods are quite different in the Scala
+collection library.
+And that's for two reasons.
+The first one is that in the
+Scala collection library, map, filter and
+flatMap
+are not just defined for lists that
+are defined for arbitrary collections and
+iterables.
+and that means that their types need to be
+more general
+than what you see here.
+The second difference is that in the
+implementations of map, flatMap
+and filter for lists, we want these
+methods to be tail-recursive.
+If they weren't tail-recursive, then
+applying them to lists over a certain
+length, probably over a couple thousand
+elements, would give you a stack overflow.
+So to make map, flatMap, and filter work
+even
+for very, very long lists, we need a
+tail-recursive implementation.
+This one is not because you see for
+instance here, the
+call to filter is actually nested inside
+the call to cons.
+So we need to refactor this implementation
+to give,
+give us something that works in constant
+stack space.
+The second thing I want to cover which is
+related to collections is for-expressions.
+For-expressions are useful because they
+give you a simpler notation for
+something that comes down to combinations
+of
+these core methods; map, flatMap, and
+filter.
+Here's an example that you've seen already
+in the first course on functional
+programming.
+It's a combination of flatMap, filter, and
+map.
+If you look at it for a sufficiently
+long time, you probably figure out what it
+does.
+But why go through all the trouble if
+there's a simpler notation like this one
+here?
+So this
+one here, I would argue it's immediately
+clear what it does.
+You let i step to the integers between 1
+and 10, j between 1 and i.
+You ask whether the sum of i plus j
+isPrime
+and then you yield the pairs of i and j.
+So you yield the pairs of all
+those integers in these ranges whose sum
+isPrime.
+And it actually turns out that if you have
+these for-expressions, then what the
+compiler of Scala would do is give
+you something that's equivalent to
+precisely
+this combination of map, filter, and
+flatMap.
+So the way this is done, we are going to
+show next.
+Here's how the Scala compiler translates
+for-expressions in terms
+of map, flatMap and a lazy variant of
+filter.
+There are three rules that apply
+to the different shapes of the
+for-expressions.
+The first one applies to for-expressions
+that consist of
+a simple generator, written with a left
+arrow here.
+So, you have for x taken from some
+expression e1, yield some expression e2.
+And that's translated into a simple call
+of map.
+So it would be translated to e1.map, and
+then you
+have the closure that takes x as an
+argument and
+gives you back the expression e2.
+The second rule applies to for-expressions
+that follow the
+initial generator with a filter, here
+written if f.
+And there could be also other fields that
+I expressed as s that follow this in turn.
+Such a for-expression is translated to
+this one that you see here.
+The idea is that the filter f would appear
+as an argument x
+arrow f of an anonymous function that
+gets passed to withFilter of the first
+expression.
+So essentially what you do is, you take
+the generator expression e1, and you
+immediately prune down all the elements to
+those that satisfy the filter f.
+And then you continue with the rest of the
+for-expressions.
+You can think of withFilter as a lazy
+variant of filter that does
+not, allocate a, a new list consisting of
+the elements that are kept by the filter.
+But instead, passes on only those elements
+to
+any following cause to map, flatMap or
+withFilter.
+The third rule applies to for-expressions
+that start with two generators in
+sequence.
+These for-expressions are translated to a
+call of flatMap.
+So the flatMap would apply to the first
+generator here.
+And it would contain in its result a
+for-expression that
+is essentially the all the rest of the
+original for-expressions.
+So it starts with the second generator,
+then keeps the, any other elements
+s and the result expression e3.
+So you've seen that each of these rules
+translates a for-expression
+to a for-expression that has one fewer
+elements between the parentheses.
+First for-expression eliminates the single
+generator, the
+second one eliminates a filter element
+here.
+And the third one eliminates the leading
+generator in the for-expression that is
+nested here.
+So if we apply these rules repeatedly, at
+some point we
+will be left without any generators or
+filters in the list.
+And that is then the final result of the
+translation.
+So one thing that we haven't seen yet is
+that the left-hand side of
+a generator in a for-expression can also
+be a pattern, not just the simple
+variable.
+An example of that you see here, so it's a
+query over JSON data.
+we are given a list of JSON objects in
+this data value.
+And what we do now then is we step through
+the data we match
+on all JObjects that contain some
+bindings.
+So we would in that case, discard any
+other JSON
+values like sequences or strings that
+appear on top level here.
+We then look at the phone numbers
+binding in bindings, that's a simple map
+application.
+We pattern match to say, well that should
+be a JSequence of phones.
+We go-, step through all the phones,
+each one gives, gives us a phone.
+the phone is itself an object.
+We pick its number field, that should give
+us a JString of digits.
+And we demand whether the digits start
+with the number 212.
+And if that's the case, then we yield
+bindings of first name and bindings of
+last name.
+So what this would do, in a nutshell,
+would
+give us the first and last names of all
+persons
+that have a telephone number that starts
+with the area code 212.
+Patterns in generators act as implicit
+filters.
+Essentially, what happens here when you
+have a generator like this is then that
+the match with JObject bindings gets added
+as an implicit filter to these data.
+We'll see how in the translation scheme.
+So, we look
+at a generator pat left arrow expression,
+where pat is a pattern.
+For simplicity's sake, we assume it has
+only a single variable x in the pattern.
+And that then would be translated to this
+expression, here.
+So, we take the generator expression,
+expression run it through withFilter.
+Here we say, keep only those elements that
+match the pattern.
+Otherwise return false and
+so the elements would be dropped.
+And then that result, in turn, gets mapped
+with the function that
+takes a pattern and returns x, the
+variable that is in the pattern.
+Here's an exercise.
+According to the rules that you've seen
+for
+the translation for-expressions, what
+would this expression translate to?
+This one, or this one.
+I guess the answer is quite easy to come
+by.
+one indication already is that, that
+for-expression starts with two generators.
+We have seen that, that should map into
+something that starts with a flatMap.
+So, that would rule out the second one.
+And also, if we check all the other
+details, then we see
+that indeed this for-expression maps into
+this combination of map, flatMap, and
+withFilter.
+

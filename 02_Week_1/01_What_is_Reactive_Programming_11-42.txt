@@ -1,0 +1,324 @@
+Welcome to the course on Principles of
+Reactive Programming.
+One year ago, when I finished the course
+on function programming,
+many people asked me for a second course
+on more advanced material.
+At the time I was too flat out exhausted
+to consider anything of the kind.
+But now, one year later, there is a second
+course.
+But the topic is reactive programming.
+So, why this topic?
+Three reasons really.
+The first is that
+reactive programming is becoming
+ubiquitous.
+Nowadays if you write any web service or
+mobile app, or really any
+large system with a real-time component,
+then
+knowing the reactive programming
+techniques is essential.
+The second reason is that reactive
+programming really builds on functional
+programming.
+In fact we will spend the first two weeks
+of this course with some of the more
+advanced concepts
+of functional programming, which then will
+lead naturally
+into the reactive programming content of
+the course.
+Third, I'm really happy that I could draw
+on the help and
+expertise of two of the masters of the
+field, namely Eric Meyer,
+who's the inventor of RX, the reactive
+extensions framework, and Roland Kuhn
+who's the lead of the Akka library for
+actors concurrency, who will both
+teach the, co-teach the course with me.
+So, let's get started.
+Reactive programming describes a set of
+programming patterns and
+techniques that have become increasingly
+important over the last years.
+And the reason for that is mostly driven
+by change in requirements.
+Ten years ago, a typical large
+installations would have tens of servers.
+[INAUDIBLE]
+response times would be measured in
+seconds.
+There would be maintenance downtimes, a
+couple hours per month, say.
+And data volume would be measured in
+gigabites.
+Nowadays, a large server installation or
+cloud installation would have thousands of
+nodes.
+Users expect sub-second response times,
+response times in milliseconds.
+There should be no maintenance down time,
+system should be available 24 seven and
+our data volume
+has easily reached a terabyte and is going
+into the petabytes.
+So these new requirements also need new
+architectures.
+The classical architectures is optimized
+by
+something like the Java Enterprise
+architecture.
+It consists of managed servers and
+application containers.
+What you see now is more and more a shift
+towards so called reactive applications
+that are event driven, and that makes them
+also scalable, resilient, and responsive.
+The Merriam Webster diction defines
+reactive as being readily
+responsive to a stimulus.
+What we mean by that in the world of
+software systems is a system that can
+react to events, so it's event-driven.
+And the system should also be able to
+react
+to changing amounts of loads, system load,
+that means
+it should be scalable.
+Furthermore, such a system should be able
+to
+react to failures and we call that
+resilient.
+And finally, and probably most
+importantly,
+the system should react to its users.
+It should be responsive.
+Now, being event driven is a technical
+property that enables the properties of
+being scalable, and being resilient.
+And all three properties
+together enable systems that are
+responsive to the users.
+So let's start with event-driven.
+Traditionally, concurrent software systems
+were composed of multiple threads,
+communicating with shared and synchronized
+state.
+That let to a very high degree of
+coupling, and also such systems were hard
+to compose.
+Event-driven systems, by contrast, are
+composed from loosely coupled event
+handlers.
+Events in such a system can be handled
+asynchronously.
+They do not incur any blocking.
+And because there's no blocking, that
+means that typically resources
+can be utilized much more efficiently.
+The next property of a reactive system is
+being scalable.
+An application is scalable if it's able to
+be expanded according to it's usage.
+And typically we distinguish two
+directions of scaling.
+They scale up which means they make use of
+parallelism
+in multi-core systems, which become more
+and more common in computers
+today, and then their scaling out, which
+means we make use of multiple server nodes
+of an, in a data center, or in the cloud.
+Important for
+scalability here is always to minimize
+shared multiple state.
+Because we will see that that actually has
+implications
+on the ease and the, the efficiency of
+scaling.
+Important furthermore for scaling out, is
+the property
+of location transparency.
+What that means is that it shouldn't
+matter where a location is located.
+It could be at the same computer as a
+client, or, at some other computer across
+the internet.
+The functionality should always stay the
+same.
+The other important property for scaling
+out is resilience, because
+once you have multiple nodes, some of
+these can fail.
+And the system has to cope with that.
+The third property of reactive system is
+resiliency, an
+application is resilient if it can recover
+quickly from failures.
+Such failures could be software failures
+such as throwing an exception, or hardware
+failures, a computer going down, or maybe
+connection failures, an internet
+connection going down.
+Typically, resilience cannot be added as
+an afterthought, it needs to
+be a part of the system design from the
+beginning.
+Important techniques for constructing
+resilient systems
+are, keeping your components loosely
+coupled.
+Having a strong encapsulation of mutable
+state.
+And having pervasive supervisor
+hierarchies.
+Finally, an application is responsive if
+it provides a rich,
+real time interaction with its users even
+under load, and
+in the presence of failures.
+Response of applications can be built on
+an event driven, scalable, and resilient
+architecture.
+That doesn't automatically lead to a
+responsive application.
+You still need to pay careful attention to
+algorithms,
+system designs, including back pressure,
+and many other details.
+But being event-driven, scalable, and
+resilient are important
+some would argue, even necessary building
+blocks to
+arrive at a responsive application.
+Now let's take a closer look at events and
+event handling.
+Of course event handling is not new.
+It's traditionally being done using
+call-backs.
+A common form of call-backs is found in
+Java.
+In the subject observer pattern.
+So you see an example here.
+we can define a class counter that extends
+a class called action
+listener, which is part of the Java screen
+framework, and then what the
+counter would do, it would register itself
+with an event source.
+In this case, the event source is
+a button, so we would set, say
+addActionListener(this).
+That would register the counter, itself,
+at the event source.
+Then the event source would call, whenever
+there's a new event, this method action
+performed.
+So that's a callback.
+You register yourself to be called back
+here.
+And when the callback
+comes, there's an event that, gets
+triggered
+which gives you details about the event.
+And then, every time that gets triggered.
+You perform an action like increment the
+counter by one.
+Now, this is the common model that I guess
+most of you have already seen today.
+But it's also a model that has quite a few
+problems.
+So the first problem is already apparent
+in the type of this actionPerformed
+method,
+its return type is Unit.
+So that means to have any effect at all,
+the actionPerformed method has to
+have a side effect, in this case the side
+effect is on the variable count.
+So a design using listeners and callbacks
+naturally leads to shared mutable state.
+The second problem is that it's very hard
+to construct higher abstractions out of
+simple listeners.
+So event handlers have a hard time being
+composed.
+And, in summary, all this leads quickly to
+what has been called call back hell.
+So that means applications that
+essentially consist
+of a big web of call backs that are very,
+very hard to track and understand.
+So how can we do better?
+So the idea that is promoted in this
+course is to use fundamental
+constructions from functional programming
+to get composable event abstractions.
+In particular, some of the core principles
+of
+this course is that events should be first
+class.
+They are often represented as messages.
+Handlers of events should also be first
+class so that
+complex handlers can be composed from
+primitive ones.
+So here are the topics that we are going
+to cover in the next seven weeks of this
+course.
+We're going to start this week with a
+review of functional programming, about to
+the degree that
+you have already seen it in the first
+course
+of prin-, on principles of functional
+programming in scalar.
+But we are also going to introduce some
+new topics.
+In particular, we are going to cover
+an important class of functional patterns
+called monads.
+However, reactive systems are not
+typically described
+as pure functional programs, so next week
+we are going to open up the paradigm of
+pure functional programming and combine it
+with the more typical world where we have
+mutable states and non-deterministic
+computations, including events After these
+two more
+preparatory sessions, we apply what we
+know to reactive abstractions.
+We first cover how to abstract over events
+that will lead us to futures.
+Then, how to abstract over event streams
+that will lead us to so-called
+observables.
+We will then look at message passing
+architectures, where the nodes are actors.
+We will look at how to handle failures.
+Including the concept of supervisors, and
+finally we
+will look at scaling out, to distributed
+systems
+looking at distributed actors.
+The course is given by three lecturers, I
+will cover the first two weeks.
+Eric Meier will will cover futures and
+observeables.
+That's week three and four.
+And finally Roland Call will cover actors,
+supervisors and distributed actors
+[SOUND].
+As prerequisites, you should have a solid
+grounding in functional programming.
+Ideally, you've followed the principles of
+functional programming in Scala class on
+Coursera.
+But if you know some other functional
+language, the switch should be rather
+easy.
+

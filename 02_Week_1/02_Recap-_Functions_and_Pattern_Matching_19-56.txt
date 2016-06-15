@@ -1,0 +1,543 @@
+In this unit we are going to do a quick
+recap on functions and pattern matching.
+Most of this you've already seen if you
+followed the course on functional
+programming in Scala.
+But there are also some new additions,
+in particular, the notion of partial
+functions.
+So to get started lets look at a possible
+domain that we
+can express with functions and pattern
+matching and that domain is JSON, the
+Java Script Object Notation.
+So if you don't know what JSON is then I
+guess it's best
+understood by looking at this example
+which
+I have lifted straight out of Wikipedia.
+a JSON structure is a recursive data
+structure consisting of fields of
+primitive types.
+For instance, here, we have a field named
+John, the type is string.
+Here, you have another string called
+Smith.
+values can also be structured objects.
+For instance, the address object consists
+of three fields called streetAddress,
+state, postalCode which are two strings
+here, and the number there.
+And they can also be sequences, sequences
+are written in brackets.
+So here you would have a sequence of two
+phone numbers, whereas objects are written
+in curly brackets.
+So this object here has three
+bindings, three fields, and the outer
+objects that you see
+here then would have, four
+fields, firstName, lastName, address, and
+phoneNumbers.
+So that, in a Nutshell, is what JSON is,
+and it's
+a fairly popular interchange format,
+between JavaScript and also other
+technologies.
+How would we represent JSON data in Scala?
+The most straightforward way, I guess, is
+to just have
+a sequence of case classes that capture
+the different cases of a JSON object.
+So we would start with an abstract class
+JSON, you could also use a trait for that.
+And then there would be cases, one case
+for each kind
+of data in JSON, which will give you six
+cases total.
+The first case here is JSeq, representing
+sequences of JSON objects.
+The sequence is captured in
+this list of JSON elements here called
+elems.
+The second case would be a J object, a
+JSON object that would contain the
+bindings which are a map from strings,
+those are the field names, to JSON
+objects.
+finally there would be the primitive types
+JNum which
+captures a number, which is a double in
+Scala.
+Jstring, which captures a string.
+JBoolean, which captures a Boolean.
+And finally, JNull, which represents the
+null value.
+So these sequence of case classes would
+represent JSON data completely.
+Now here's an example how you can
+construct
+the JSON object that you've seen before,
+in Scala.
+It's exactly the same object that you've
+seen on the first slide, here.
+But now using Scala's internal
+representation, using case classes,
+rather than the external one using this,
+this text representation.
+So the JSON data would be a Jobject, which
+has, is a map containing the
+bindings for firstName, lastName, address,
+and phoneNumbers.
+FirstName, lastNames are strings, so
+Jstring John, Jstring Smith.
+The address is again a Jobject with
+another map.
+the postal code here would be a JNum, a
+number.
+The state and street address would again,
+be strings.
+Phone number is a sequence that contains
+as elements in a list.
+A object which maps type to home, a number
+to this string.
+And the second object put map type to the
+string fax and number to that string here.
+So that's how you could represent JSON
+objects.
+To be sure they're tricks how one could
+dress
+this up further and make the construction
+of JSON
+objects even shorter in Scala, but this is
+what you get for a
+completely straightforward representation
+in case classes, and
+overall it's quite legible, I would argue.
+So let's now do something with this data
+structure.
+The most obvious way is to print the data
+or rather to represent
+them as a string, in more or less the way
+you have seen before.
+So what I want to do now, is I want to go
+from this object here
+and get the string representation for this
+object that you've seen here.
+Without the new lines, so without any
+formatting I would just write the things
+with comas one after the other ,but
+otherwise I
+want to see elements just as they are
+given here.
+How would we do that?
+Well here's the method that does that.
+It's as you would guess a recursive
+function, call
+it show, which takes the JSON object,
+gives you
+back a String, and it would work by
+pattern
+matching over the kind of JSON objects,
+pretty obvious.
+So you would start with JSON match.
+Your pattern matching functions in Scala,
+then you would just go case by case.
+The first case you would say, well, if
+it's the sequence of elements or the
+pattern would say, well the elements in
+the sequence are now in this variable
+elements.
+Then what do you do?
+You print a open bracket, then you show
+recursively
+all the elements and you concatenate in a
+string
+using the make String function with commas
+between
+them, and you close with a closing
+bracket.
+I skip object for the time being because
+it's that's, it's the most complicated.
+So the other four cases are all rather
+simple.
+JNum, if you have a number then, well you
+just turn
+the number into a string using Java and
+Scala's toString function.
+If it's a string, JString string, then you
+print the string
+between quotes, If it's a boolean, you
+turn the boolean to a string.
+And if it's a null, you return the string
+null.
+So the last case we have to look at is the
+case of, JSON objects.
+So if you have a JSON object with some
+bindings, which are a map in Scala.
+Then what do you do?
+Well you have to traverse the map.
+That's done here, we define a value called
+assocs, for
+associations.
+And you define it like this.
+You go through the map bindings, so for
+each
+binding that you find, what does the
+binding look like?
+Well, it will be a pair from a key to a
+value.
+And you can do that by just having another
+pattern match here directly on the map
+function that says well, apply this
+function that
+takes a key and a value and returns
+the key in quotes, a colon, and the value
+subjected
+to the show function.
+So that would give you a list of strings
+that each contain the key, a colon, and
+the string of a value.
+And then finally you take that list, you
+concatenate all the
+elements using commas, and you put it
+inside braces, and you're done.
+So this was just an example to get warm.
+Again, with function programming in Scala,
+you've
+seen the basics of pattern matching,
+recursive
+functions, and some of the combinators
+that
+are very important in Scala are just map.
+What I want to do now is look at some
+aspects of this code in more detail.
+The first thing I want to look at is this
+function here.
+So you have a case
+expression in curly braces.
+And that's a function that gets passed
+directly to this map combinator.
+So the question then is what is the type
+of this function?
+So simplifying slightly, what is the type
+of this expression where we have a pattern
+match on key and value and return the
+concatenation of key, a colon, and value.
+If you would try that out you would find
+that this Scala compiler flags this as an
+error.
+It would say that an anonymous function
+lacks an expected type for the parameters.
+So to correct that you would have to give
+this function a type from the outside.
+So if we plug this function into the
+function
+map that you've seen before here, that's
+where it appears,
+then you will find that map expects a type
+like this.
+What it wants is a function type from or I
+call JBinding to string
+and the JBinding type I've abbreviated it
+here just to make
+it cleaner is an alias for pair of string
+in JSON.
+So those are the bindings in a JSON map
+for an object.
+The keys are strings,
+the values are JSON objects and the whole
+function here would
+then need to have a type that takes one of
+these bindings and returns a string.
+So as you know in Scala every concrete
+type is a type of some class or trait.
+And the function type is no exception
+there.
+A type like JBinding arrow string is in
+fact
+just a shorthand for Scala Function1 of
+JBinding and String.
+So if we look at that then we see that
+Scala Function1 is a
+trait defined in the standard library, and
+JBinding and String are its type
+arguments.
+So we write type arguments with brackets
+here rather than angular brackets that you
+would see in Java or C# or C++.
+So let's look at the Function1 trait
+in more detail.
+Here's what you would see in the standard
+library.
+Function1 is a trait with two type
+parameters, call
+them A and R, and a function which is
+abstract here called apply, which takes an
+argument of
+type A and gives you a result of type R.
+The function type parameters have these
+minus and plus in front of them.
+They indicate
+the variance of a type parameter, so they
+tell you how
+the type is a whole behaves with
+sub-typing when you'll change the
+type argument of the re-, result, let's
+say you make it
+a super type, and the whole function type
+becomes a super type.
+Whereas for the type argument, it goes in
+the other way.
+That has been
+[INAUDIBLE]
+explained in detail in week 4 of the
+functional programming course.
+It's not essential to get an understanding
+of the following,
+so, and we gloss over that a little bit
+here.
+Now, let's look at the pattern matching
+block that we've seen before.
+what would that expand to?
+So if the type is Function1, what would
+the actual value be?
+Well the actual value would be a
+new instance of Function1 with the type
+parameter
+[INAUDIBLE]
+that we have seen before, and what we need
+to do is
+we need to give a definition of the
+abstract apply function here.
+So here it is.
+So our apply function would take a
+JBinding parameter and it would do the
+pattern match that we've seen here in the
+block, on the argument here.
+So we would write x match and then comes
+the pattern matching block.
+So that completes the
+function definition and now you've seen
+how case blocks
+as a whole can expand two functions, one
+instances.
+Now one nice aspect of functions being
+traits in
+Scala is that we can sub-class the
+function type.
+A good instance for that is lets say the
+trait Map which
+is have you, you have seen before, it
+takes keys to values.
+You can see that actually as an
+extention, as a specialization of
+functions from keys to values.
+Scala maps are functions, so you can apply
+them to a key and get the value directly.
+So another example are sequences, which
+are treated
+as functions from indices of type Int to
+values.
+So sequences would be described by a trait
+in this color standard library called Seq,
+parameterised
+with an element, type Elem, and that trait
+would extend to function type Int arrow
+Elem.
+Well actually you would need a pair
+of parentheses to make this syntactically
+correct.
+That's also why we can write elems of i,
+so the index in parentheses
+to refer to the ith element of the
+sequences elems.
+So, sequence indexing is written the same
+way as function application because
+sequences are functions.
+And because arrays in Scala are treated as
+sequences
+by means of an implicit wrapper, the same
+syntax
+would work for array indexing.
+Compare to Java, where you would have
+written elems of i in brackets.
+For array indexing in Java, you would do
+that because, of course, arrays are
+not functions whereas in Scala, through
+the implicit sequence wrapper, they are.
+So we have seen that a pattern matching
+block like this one here case ping to pong
+can be given type String to String.
+Let's try this out directly in practice.
+So what I do is I go in the Eclipse
+[INAUDIBLE]
+Scala IDE.
+I create a new worksheet.
+Call it test.
+[UNKNOWN]
+I want to play with that.
+So we have, say, first, the pattern
+matching expression, case ping to pong.
+Would that type check?
+No, it wouldn't.
+The compiler would say there's a missing
+parameter for an expanded function.
+so you need to give it a type from the
+outside, let's do that.
+Let's say val f
+[NOISE].
+I guess you would agree that a good type
+is String to String, equals case ping to
+pong.
+Yeah, that worked fine.
+And now we can write something like f of
+ping, and we would get pong as expected,
+but what would happen if we apply this
+function to another string, call it abc?
+Well we would get a match error that
+indicates that the pattern match that we
+have done here, lacks the case abc, so we
+haven't defined a case
+for that and the resultant in Scala is an
+exception called match error.
+Now it would be nice to find out
+beforehand given a
+function f whether the function is
+applicable to a certain argument.
+And unfortunately with the function type
+itself we can't do that.
+But it turns out that there's another way
+in Scala to achieve
+that which we are going to see next.
+So here it is.
+we can give the expression ping to
+pong, then type PartialFunction from
+String to String.
+So PartialFunction is another sub-type of
+function it's a special type.
+What it does, is like function, you can
+apply
+it to an argument, but you can also query
+whether
+the function is defined for a given
+argument.
+And this is done with the isDefinedAt
+method.
+So you can write, f is defined at ping,
+and that would give you true,
+or f is defined at another string like
+pong, and that would give you false.
+Let's test that in the worksheet.
+So what I do now is that instead
+of string, I write PartialFunction of
+String and String
+[NOISE].
+And then instead of this thing here, I
+write f is the find at.
+And what it would give me that now f is
+not
+defined at a, abc, but would f be defined
+at things a?
+Yes, here the answer is true.
+So let's have a look at the
+definition of PartialFunction in the
+standard Scala library.
+So it's an extension of Function1 with the
+same type arguments.
+Like Function1, it has an apply method.
+the, in fact, the apply method is
+inherited from the Function1 trait.
+The fact that we have written here, it is
+redundant, it's just there for clarity.
+And it has an additional method called
+isDefinedAt, which maps an argument
+x of type A to Boolean.
+So if the expected type of a pattern
+matching block is PartialFunction then the
+Scala compiler will expand it differently.
+It will create a PartialFunction object
+now obviously, and it
+now has to fill in two abstract methods,
+apply and isDefineAt.
+Apply gets translated just in the case of
+a normal function,
+the ping gets mapped to pong.
+Whereas for isDefinedAt, the pattern
+matching block would be like this.
+If the argument is ping, then the result
+is true.
+For all other cases, the result is false.
+So the Scala compiler would do that
+systematically for
+any pattern matching block if the result
+type is PartialFunction.
+So let's finish with an exercise.
+Given this
+function here, a PartialFunctions from
+list of Ints to
+Strings that is implemented by this
+pattern matching block here.
+So in the case of Nil I return one, in the
+case of a list consisting of
+x followed by y, followed some other
+elements rest, I give back two.
+What do you expect as the result of f dot
+isDefinedAt list of 1, 2, 3?
+True or false?
+I guess the answer to that one is pretty
+straightforward.
+the second pattern here definitely does
+match lists of three elements.
+The first one will be x.
+The second will be y, the rest of
+the elements will be captured in this
+variable, rest.
+So the function definitely is defined on
+the input data, and the result is true.
+So let's look at a slight variation of
+this exercise, and
+now I have a function g which looks like
+f, except that the second
+pattern matches elements consisting of a
+head and some arbitrary tail.
+And then I have a nested pattern match
+which
+works for the rest being Nil, and no other
+case.
+So now what would you think?
+Is g defined at the list 1, 2, 3?
+[BLANK_AUDIO]
+Actually, it turns out the answer is true,
+g is defined on the list, because after
+all, the second case of g, x rest matches
+a list of three elements.
+The first one is x, rest would be bound to
+the list 2, 3 then.
+Even though when you run this function g,
+then of course, you would get a
+match error, because what would happen
+when
+the function g is applied to this argument
+that the second case here would apply,
+then in the nested pattern match, the list
+2, 3 would be matched against the single
+case Nil, and that of course can't work.
+That would give you a match error.
+So what you see in this example is
+that the isDefinedAt guarantee that
+PartialFunction gives you.
+Only applies to the outer most pattern
+matching block.
+It does, is not a guarantee that if
+a function is defined at an argument that
+this function definitely will not throw a
+match
+error when it is run, because the match
+error could be thrown by, as you see here.
+Nested pattern matches or it could of
+course also be thrown by a
+completely different function that gets
+called from
+this function in a chain of calls.
+

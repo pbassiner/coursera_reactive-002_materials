@@ -1,0 +1,559 @@
+In the final unit of this week, we'll
+cover some of the general theory that
+underlies
+[INAUDIBLE]
+what we have seen before.
+We're going to study a very general class
+of
+design patterns that come up almost
+everywhere in functional programming.
+And also in reactive programming.
+The theoretical foundation of this class
+of design
+patterns is important in the concept of a
+Monad.
+As we've seen data structures with map and
+flatMap are quite common.
+And in fact there's a name that describes
+this class of
+data structure together with some
+algebraic laws that they should have.
+These data structures are called monads.
+A monad is a parametric type M with a
+tight parameter T that has two operations,
+flatMap and Unit.
+And these operations
+also need to satisfy some laws.
+So you could, can see it in Scholar as a
+trait, M.
+Where M is the monad, T is the type
+parameter.
+It would have a flatMap method of the type
+that you see here.
+So, it takes an arbitrary type U as a
+parameter, and a function that.
+Maps at T to a monad of U and it gives it
+back the same monad applied
+to U.
+And besides flatMap that would also be the
+unit method.
+That unit method takes an element of type
+T
+and gives you an instance of the monad of
+T.
+In the literature, flatMap is more
+commonly called bind.
+But in scholar, we have flatMap already as
+the established name.
+So I will continue to use that.
+Here are some examples of monad.
+List is a monad where unit is just the
+single element constructor.
+So, given an x, I return the list that
+consists of just x.
+Similarly, set is a monad where unit of x
+is set of x.
+Option is a monad where unit is some, so
+unit of x would
+be I have an element, and here it is.
+And the random
+value generators that we've seen in the
+last unit, they're also a
+monad where unit of x is the single
+generator single of x.
+As you've seen, flatMap was available as
+an operation on each of
+these types, where as the unit in scala is
+different for each monad.
+Quite often, it's just a name of the monad
+type applied to an argument, but sometimes
+it's different.
+For instance, for generator,
+we use single, for option, we use some.
+So we've seen monads have the flatMap
+operation.
+What about map?
+Well, in fact map can be defined for every
+monad as a combination of
+flatMap and unit.
+So, the map applied to a monad with a
+function f would be flatMap of.
+First apply f to the argument x and then
+reinject into the monad using unit.
+Another way to write this expression would
+be to use the m then combinator in scala
+that you have for function composition.
+So you could write m, m map f is m flatMap
+of f andThen unit.
+So you first apply the f function and then
+you apply the unit function.
+To the result of that.
+Now in scalar we do not have a unit that
+we can call
+here because every monad has a different
+expression that gives the unit value.
+Therefore map is in scalar a primitive
+function that is also defined on every
+monad.
+To qualify as a monad, a type has to
+satisfy three laws that connect
+flatMap and unit.
+Associativity is, as usual, a law about
+placing parentheses.
+Here, the parentheses would be placed on
+the left hand side.
+And here, you see them placed on the right
+hand side here.
+So we can alternatively.
+Either do the flatMap here first, or
+combine the
+two functions in the flatMap, and apply to
+the monad.
+Domain where associativity is a bit easier
+to
+express as if we go from monads to
+monoides.
+Monoids is a simpler
+form of monads, it doesn't bind anything.
+So for instance, integers
+are a monoide, and they are associative
+because x plus y plus z.
+It's the same thing as x plus y plus z in
+parenthesis.
+So I can, I can put the parenthesis either
+to the left or to the right.
+The second law that needs to hold for
+monad
+is called left unit.
+It says that if I inject into the monad
+using unit, and then flatMap with f.
+Then the result is the same as simply
+applying f to the value x.
+The last law is right unit.
+It says that if I flatMap with the unit
+constructor,
+I end up with the same monad value as
+before.
+Let's check the monad laws for an example
+type,
+I pick Option for that.
+First thing we have to do is look at
+flatMap for Option.
+So what flatMap should do is, it should
+take an optional value.
+If that optional value is None, so, we
+have nothing, then we keep None.
+If the optional value is something with a
+value x, we apply a
+given function to that value and that will
+give us another optional value.
+Let's start
+to prove the Left Unit Law.
+What we need to show here is that, unit of
+x for option that was some of x as you
+know.
+flatMap f is the same thing as f of x.
+So let's start with that expression, some
+of
+x flatMap f, and expand what flatMap
+means.
+So flatMap is this pattern match which
+says, well, if it's some of x,
+then apply f to it.
+If it's none, keep on having none.
+Now that we can simplify obviously,
+because we have a
+some of x here, so it clearly matches the
+first pattern.
+And that would give us f(x) as the result.
+So the first monad law holds.
+Let's look at the right unit law now.
+So the right unit law says that some
+optional value flatMap, with some which
+is the unit constructor.
+Is the same thing as that optional value.
+So we start with the left hand side.
+Optional value, flatMap some.
+We expand what flatMap means, so we again
+have this pattern match which says well,
+match if it's some of x then return now
+function f is some.
+So the function f here gets inserted here.
+So we return some of x, and if it's none,
+then we return none.
+And that again simplifies to just opt,
+because we see that in each of the
+two branches of the pattern match, we
+return exactly this thing that we started
+with.
+So the right unit law holds also.
+Finally we have to check the Associative
+Law.
+So here it is.
+We need to show that the sequence of the
+two flatMaps
+with the parenthesis to the left, is the
+same thing as
+a flatMap of a flatMap with the
+parenthesis to the right.
+So let's start with the left again.
+Here we have the sequence of the two
+flatMaps.
+Here's what it expands to.
+So that line is the first flatMap with the
+two pattern matches now on one line.
+And the parenthesis will go to this.
+That's its expansion.
+So that result has to be subjected to the
+second flatMap.
+So here we immediately follow the first
+pattern match with the second one, which
+now implements the flatMap called, it's g
+instead of f before.
+So that's the expansion of this
+expression.
+Now what I do is, I take the second
+pattern match, this one here.
+And I move it inside.
+The two branches of the first one.
+So I know that the result of the first
+pattern match will be the selector of the
+second one.
+All I did here was to say, well let's take
+each branch of the first pattern match.
+And make it the selector of the second
+one.
+So I pulled the second selector in here.
+And in here.
+That gives me this expression here, and
+that expression now in turn, we can
+simplify.
+So let's look at the case, none here
+first.
+So in, if the optional value is none, then
+we have the
+match none match case some y g of y case
+none none.
+So obviously it would be the second
+pattern match that applies.
+And the whole expression simplifies to
+this one that you see here.
+So the
+second case is just, if you get a none, we
+keep a none.
+Let's turn to the first case.
+So in the first case we say well, if we
+got
+a some of x then we match f of x in turn.
+If we, again, get a some of y we give you
+g of y and we keep a none.
+So what that is, if we look at things in
+reverse, it's just f of x flatMap g.
+Because if we expand flatMap g, then that
+expansion
+in turn gives us exactly that pattern
+match here.
+And if we look at that expression in turn,
+then we see that it's
+just another instance of a flatMap, this
+time the flatMap is with this function
+here.
+So we say well it's the function that
+says,
+given an x, it will return this expression
+here.
+So we get opt flatMap x arrow f of x
+flatMap
+g and that's exactly the right hand side
+of our original equation
+that we wanted to prove.
+So option is a monad because those three
+laws hold as we have just shown.
+You might ask well why should I care about
+the Monads Laws?
+What significance do they have for
+programming practice.
+Well, one answer to that is that they give
+a
+justification for certain refactorings of,
+for expressions that are quite intuitive.
+The Associative Law
+says essentially that one can inline
+nested for expressions.
+So if I have a for expression like that,
+where the first generator is in turn a for
+expression.
+What I can do is I can essentially inline
+the two generators here.
+In one large for expression, and the
+result would always be the
+same, provided that the type in question
+satisfies the Monad Associativity Law.
+The right unit law also has a significance
+for, for expressions.
+It essentially says that the trivial for
+expression here where I generate x and
+immediately return it, is the same as the
+original value that you see here.
+For the left unit law, though, I haven't
+found an analogue like that for, for
+expressions.
+So it seems that as what concerns behavior
+for,
+for expressions, only associativity and
+right unit is important.
+So here's another type that might or might
+not be a monad.
+We'll find out.
+And that type will be important in the
+later parts of this course.
+The type is named Try, and it resembles
+option.
+Except that instead of some and none,
+there
+are two cases which are named success and
+failure.
+The success case returns a value, just
+like some
+does, but the failure case returns
+something, namely an exception.
+So the idea is that try will be used in
+cases where we want to.
+Propagate exceptions not at the call
+stack, but say between
+different threads of different processes,
+or even between different computers.
+So in, in a sense we want to bottle up an
+exception in a value that we can then
+freely pass around.
+Here's a definition of the Try class.
+It's an abstract class Try with a T
+parameter, just like Option.
+The Success case extends Try and gives you
+simply a value of type T.
+The second case, failure, contains an
+exception and extends Try of Nothing.
+As you've seen in the functional
+programming
+course, nothing is the Bottom type in
+scala.
+Know where nothing doesn't have any value,
+and it
+typically refers to something that is
+either a missing
+value in the exception or a computation
+that does not return normally.
+Because maybe the computation throws an
+exception or it loops infinitely.
+So a typical way to create try values is
+using.
+Try of expressions, so you can wrap an
+arbitrary expression in a try.
+And that is achieved by making try an
+object in the standard library that has
+an apply method.
+So, you've seen that anything that has an
+apply method can be applied just like a
+function.
+The same holds for objects such as try.
+So what is the definition of the supply
+method?
+Well, it would take an expression, a
+computation, and return a try of the
+type of that computation, and what it
+would do is it would use a Java try.
+So a try that
+you know from the jvn that's written, in
+lowercase try.
+So we try to compute the value of
+expression and rapid inner success.
+If the computation here throws an
+exception
+that will be caught here in the block
+and the exception will then be wrapped in
+a failure value and returned as a result.
+That happens for any exception that is non
+fatal.
+Non fatal
+is a fairly technical thing essentially
+and exception is fatal if
+it doesn't make sense to export this
+beyond a single thread there.
+Couple of exceptions that are.
+But the vast majority of all exceptions,
+both
+run time exceptions, and normal
+exceptions, are non fatal.
+What's important here is that the
+expression is passed as a by
+name parameter because otherwise, of
+course,
+we would already have our value here.
+So there wouldn't be a computation that
+could throw an exception.
+So that's why you have the type arrow t
+indicating call by name parameters here.
+Just like with option, try value
+computation can be composed in for
+expressions.
+So, for instance, you could write for x
+taken from some computation compute
+x, y taken from some computation compute
+y, yield the result
+f applied to x and y wherever f is some
+function that takes an x and a y value.
+So, what that means is that, if compute x
+and compute y both succeed.
+So, they give you result, success x and
+success y, respectively.
+That would return a success value with the
+value f of xy.
+But if either computation fails with an
+exception, this will return failure with
+the first
+exception that got drawn.
+So to support this kind of notation
+all we need to do is define map and
+flatMap the right way on the Try type.
+Here the definitions of flatMap and map on
+the Try type.
+Let's look at flatMap first.
+So flatMap takes a function from the
+domain T, gives us a try of U.
+And what it would do is, it would say if
+we start out with a success, so we have a
+value x, then let's apply f to x.
+That would give us the result value.
+But on the other hand if the function f
+itself throws an exception
+which is not fatal, then let's package
+this up in a failure value.
+Because there is a principle that we will
+never leak non-fatal exception from a
+trial computation.
+On the
+other hand, if we started out with already
+a failure, and
+an exception, then that gets propagated
+into the result and returned here.
+What about map?
+So map just takes a simple function from T
+to U and we have to wrap it up in a try.
+The way this is done is again, pattern
+match on success and failure.
+If we have a success x, then let's apply f
+to x and submit it to the try constructor
+so that again, would if f throws an
+exception, give us a failure,
+if f returns a value, then we will drop
+that in a success.
+And, as before, failures get propagated in
+the result.
+So if we look at the relationship between
+flatMap and map, then that's what we have
+here.
+A try value of mapped with a function f.
+It's the same thing as a flatMap
+where the function f gets applied to x,
+and then the
+result gets trapped in a try because
+that's how map was defined.
+And if I rewrite that expression here, I
+get t flatMap f and then try.
+So t map f is the same thing as flatMap f
+and then try.
+So having map and flatMap defined like
+this, some try values suggest that try
+might be a monad where the unit is the try
+constructor itself.
+Is it?
+Possible answers would be yes, it is, or
+it isn't.
+And in that case I would also like to know
+why
+it isn't, so it couldn't, it might not be
+a monad
+because the Associative Law fails, or the
+left unit or the
+right unit law fail, or maybe two or more
+Monad Laws fail.
+What do you think?
+Well, if you check the laws, then you find
+out that, in fact, the left unit law
+fails.
+Let's see why.
+So, what's the left unit law for Tries?
+It says that the unit, so that would
+be Try, applied to an expression, flatMap,
+a function
+f, would have to be the same as f apply
+directly to the expression on the left.
+But it isn't.
+We have a non equality here.
+And why is that?
+Well, the left hand side, here as we've
+seen, will never raise a non fatal
+exception.
+Neither try nor flatMap would.
+Where as, of course the right hand side
+will raise
+any exception that's thrown by the either
+f or expression.
+So that means that the left unit law
+cannot possibly hold
+for a good implementation of Try and,
+otherwise put the Try,
+in a sense, trades one monad law for
+another law.
+Which in this context is more useful.
+That other law, I call it the bullet-proof
+principle, would be that an expression
+composed from Try, map, and flatMap will
+never throw a non-fatal exception.
+So to conclude, we've seen that for
+expressions are useful not only for
+collections.
+Many other types also define map, flatMap,
+and
+withFilter, and that enables with them
+for, for expressions.
+For expressions can be written over these
+types then.
+The examples we've seen are where
+generator.
+Option and try.
+We've seen that many of the types that
+have a flatMap and map functions
+are in fact monads.
+That means that we can also give a unit a
+constructor, and we can verify that they
+satisfy the monad laws.
+You might ask what about filter?
+We haven't seen filter so far.
+Well, it turns out that if these
+monad's define also with filter and
+satisfy certain
+additional laws, they are called monads
+with
+zero which is somewhat richer category
+than monads.
+The three monad laws that we have seen
+give useful guidance in the design of
+library APIs, but as always of every law,
+you also have to know when to break it.
+We've seen that the laws do apply to
+option and
+are very useful there, but they don't all
+apply to try.
+the left unit law fails.
+on the other hand, we've also seen that
+the
+left unit law itself doesn't really have a
+good explanation
+in terms of for-expressions.
+So that would mean that while try is not a
+monad, it is
+still a type that can be used in a
+perfectly safe and reasonable way.
+As they carry a type of a for-expression.
+

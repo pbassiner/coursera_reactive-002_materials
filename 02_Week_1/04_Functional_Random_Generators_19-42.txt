@@ -1,0 +1,544 @@
+In the last unit you've seen the concept
+of a for expression.
+What we are going to do now is use for
+expressions
+in another and interesting application,
+namely, the generation of random values.
+So far we have seen four expressions
+operating on lists, on sets.
+in the previous course we have also seen
+them on databases and options.
+All these things are collections of data
+items in some sense.
+So the question is are for expressions
+good
+only for collections and interestingly the
+answer is no.
+All that is required is some
+interpretation of the map, flat map, and
+with filter
+functions that make sense for the type in
+question.
+There are many domains outside collections
+that have such an interpretation, and an
+example that we are going to see the now
+are random value generators.
+So what are random value generators?
+You know about random numbers from a
+language
+like java, here you would in port java
+util,
+to random.
+Create a new, random number generator,
+take
+the next random number of the nextInt.
+My question now is, is there a systematic
+way to get random values for other
+domains?
+For instance, we want random booleans,
+random
+strings, random pairs, lists, sets, or
+trees.
+So here's a way to do that.
+We define a trait generator,
+with some element type T, and that would
+generate random values of type T.
+Here's the outline of the trait, so it's
+Generator here's the type
+of values that get generated, and here's
+the function; generate, that does that.
+Let's look at some instances of this type.
+The first instance generates random
+integers.
+So that will now be packaged as follows.
+the integers generated
+as a new random generator, of type int.
+It defers to the Java integer, gen-,
+generator, and its generator method just
+picks off the next random number from
+rand, the Java generate random number
+generator.
+What about Booleans?
+Well, once we have a generator for
+integers, Booleans is easy.
+We create a new generator Boolean.
+Its generator method just generates a
+random number using the integers
+generator and asks whether that random
+number is greater than 0.
+If it is, we return true.
+If not, we return false.
+What about pairs?
+Well, here's a generator that gives you
+pairs of integers.
+Its generate method calls generate twice
+on
+the integers generator, and packs the
+results
+in a pair.
+Now all this works, but it's also a bit
+cumbersome.
+Each time we have to setup a new anonymous
+class
+of type generator to find a generate
+method and so on.
+Question is, can we do it without all that
+boilerplate?
+Ideally what we would like to write is
+something like this.
+To get booleans which are, say for x taken
+from the integers then generator,
+yield x greater than zero.
+Well for pairs we would like to say that,
+let's have two generators of two arbitrary
+types t and u, call them
+lower case t and u, let x be taken from t,
+y be taken from u.
+Return the pair of x and y.
+As you want to do that, then a good
+question is, what does the compiler expand
+this to?
+Here's what it would do.
+Booleans would be expanded to a call to
+map, and
+pairs would be expanded to a call to flat
+map
+followed by a call to map according to the
+expansions
+of for expressions that we have seen in
+the last unit.
+So you see that as long as we have map and
+flat map defined
+on the generator class we can actually
+use the convenient syntax with four
+expressions.
+So let's see how we would define map and
+flat map on the generator class.
+Let's start with map.
+So here's the type of map.
+It takes a function from the random value
+type T to a new random value type S.
+Gives you a generator of S, and the way it
+would do that,
+it would generate random numbers of type T
+using its own generate method.
+Then apply
+f to those random numbers and those give
+you the random numbers on the S type.
+There's a twist here in the call to
+self.generate.
+If we had written just generate,
+that would be according to th Expansion
+rules and scholar, this.generate.
+But this is this new anonymous class would
+refer to current method that we define
+here.
+So it would be a recursive call
+to the generate method, which would not
+terminate.
+What we need instead is we want to call
+the generate method of the object one
+further out.
+That's this generate method here.
+And the way that we can achieve that is
+that we define an alias for this
+value of this object out here using the
+syntax self error.
+So that would define an alias name for
+what,
+for the this term of the class over here.
+So writing then self generate would defer
+to this method over here.
+Another way that could be
+achieved in both Java and also Scala would
+be to
+prefix the this with the name of the
+class, so we could have written
+generator.this.generate, and that would
+have done the same thing.
+So the second thing we have to do is
+define flatmap on generators.
+Here it is.
+again it's useful to compare
+with map, so flatmap would give us back
+now a generator of S from the function F.
+So it takes a random value to a whole
+sequence of random values to a generator.
+And its result type is, again, generator
+of S.
+Its generate method is implemented, as you
+see here.
+So, what we would do is: first, generate
+a random vary of type T using self
+generators
+as before.
+Apply the function F to it, so that it now
+gives us a complete generator on the new
+domains S.
+And to pick a random value in that domain,
+we invoke generate here again.
+Now that we have defined the general
+machinery that we needed
+on class generator, we can look at some
+specific generators again.
+So booleans, here is our syntax list for.
+what does that expand to?
+Well, the compiler would expand it to our
+map, and if you look
+at the map operation and generator then
+that's what it comes down to.
+It would say while the function f, that's
+this close
+right here and you see it here gets
+applied to
+the generate method from the random number
+generator on the
+left-hand side of the map, the receiver of
+the map.
+And that of course can be simplified by
+just doing the so-called beta reduction.
+So we apply the function to the argument,
+and we'd
+use it in one step, to what you see here.
+So that's exactly the Boolean, generator
+for Booleans that we started with.
+Let's try the same thing with pairs.
+So here's the, already the expanded syntax
+of the for expression for pairs.
+if we expand the map then that's what we
+get here.
+If we expand the flat map we get this
+expression
+here so lets look at this in a bit more
+detail.
+We get a generator for pairs from t of t
+and u.
+Its generator method gives you the
+generator here that does generation
+of the pairs like that and then we call
+generator again
+on this method generator.
+If we simplify that expression then we
+get, again,
+the expression we started with, a pair
+where we
+generate on the t and generate a value on
+the u generator and collect the two in a
+pair.
+Let's have a look at some of the building
+blocks for generators.
+A useful, even though very simple building
+block is the single generator
+That is in the sense a borderline case, in
+that
+it always gives you back the same random
+value T.
+So the value is not that random after all.
+So you get the value that you want
+to return and generate each time returns
+that value.
+Another building block is that chose
+generator that would give
+you an integer in the interval between low
+and high.
+The way it would do that, it would take an
+arbitrary
+random value from the integers and would
+normalize it to be in the
+interval between low and high using this
+modular expression here.
+The last generator one of can pick an
+arbitrary value from a list a choices.
+So you can call it for instance like this,
+one of three colors red blue you know,
+would give you a random color that can be
+red, blue or yellow.
+OneOf takes a VARARG argument, T star,
+which means that
+you can give it as many choices as you
+want.
+And would, what it would do then is it
+would choose an integer between zero and a
+number
+of choices that we have passed, and it
+would,
+you pick the choice, which is at this
+index
+in the list of choices that are passed by
+t star.
+So with these building blocks we can now
+set out
+to write random value generators for some
+more structured types.
+Let's start with lists.
+How would you generate a random list?
+Well one way to do it, is first to flip
+a coin where the list should be empty or
+not empty.
+That's done with this generator here,
+because with
+the Booleans we record the result and it's
+empty.
+Then, if the coin gave us that the
+list should be empty, we always return
+the emptyList, otherwise we return a
+nonEmptyList.
+So how would we return always the
+emptyList?
+Well, that's just the generator single
+that always returns a Nil.
+How would we get a generator that
+generates a nonEmptyList?
+Well that's another for where we say now
+for, getting a non-empty list of integers,
+we have to pick a random integer, here
+in the head and left arrow integers
+generator.
+And then, we have to follow that with a
+random list.
+So we have here a call, a recursive call
+to the list generator.
+The random value that comes out of that is
+called tail.
+And we, all that is left is that we need
+to compose the head random integer with
+the tail random list.
+So, here's an exercise for you.
+Can you implement a generator that creates
+random Tree objects?
+Such objects would be type, Tree.
+and the Tree trait would have two case
+classes, to cases.
+a Tree could either be an Inner node
+consisting of two sub-trees or it could be
+a Leaf consisting of an integer.
+So let's open a worksheet
+to see how we would do this.
+I've opened the worksheet generators which
+contains the base,
+some basic generators that need, the
+integers and the booleans.
+what we will do now is go bottom up, so
+how to do a generator for leafs.
+Well that's, that one is simple.
+We just say, well, we need a random
+number.
+And for each random number that we get, we
+produce a leaf with
+that random number.
+So that covered leafs.
+How about inner nodes?
+Here's a generator for an inner node.
+What we do is we generate a random tree,
+call it l.
+Generate a random tree, call it r.
+And produce a new inner node, call it l,
+inner of l and r.
+Now finally the trees generator.
+This, you see here.
+So, as in the
+case of lists, we flip a coin whether we
+want
+a leaf or an in and out, that's done here.
+If we want a leaf then we turn to the
+leafs generator
+to produce a random value, otherwise we
+return to the inners generator.
+Let's see how this would work in action.
+So we take the trees generator and
+generate a random value.
+So what did we get here?
+Well, we got a tree that
+consists of two leaves, and an inner node,
+and then they themselves are
+the left tree of another, other inner node
+with a leaf on the right.
+That's just one possible random trees.
+The next time I run this operation then of
+course I would get a different node.
+So this time the tree I got was, was much
+smaller.
+Let's try a third time.
+Now, it was much bigger.
+So you see, what you get is
+really real random values in the tree
+domain.
+An important application of random value
+generators is random testing.
+So you know about tests, in particular,
+unit tests.
+They're the ideas.
+You come up with inputs to a program
+function, or a set of program functions.
+And then you have an assertion or a post
+condition
+that should hold when these functions are
+on, on the input.
+So the post condition is a property of the
+expected result.
+And then you run the tests to verify that
+the program satisfies the post condition.
+But the point is, after all the tests
+pass, hopefully, and you
+only know that the program satisfies the
+post-conditions on these test inputs.
+There might be others where the program
+still could fail.
+So typically, you would need to be smart
+about finding
+a lot of good test inputs that exercise
+the program in
+all possible program paths.
+So the question is can we do it without
+all the hassle of finding all these test
+inputs.
+Can we do completely without the test
+samples.
+And the answer is yes in some cases at
+least.
+If we can simply generate random test
+inputs.
+So all the hard work of coming up with the
+input
+values we leave to the random number, to
+the random value generator.
+So here's an example of how we can do
+that with the generators that we have
+defined so far.
+Here is a test function, it takes a
+generator,
+that it gives us input values in some
+domain
+T, and it takes the number of times we
+want to run the test on different randomly
+generated values.
+And then it takes a test function that
+returns
+true, or false, or the idea is returns
+true
+if the test pass and false when it fails.
+And would it would do then, is it would
+for
+I from zero to number of times, generate a
+random
+value and then assert that the test
+function returns true,
+and if not, we will give you this
+assertion error.
+If everything goes well, then it would
+print
+that we have passed the number of times
+test.
+So here's an use case of this test
+function so we would apply it to
+the generator that gives us pairs of
+lists, and then the function would say,
+well, given two randoms lists, xs, ys, two
+arbitrary lists, xs and ys, is the length
+of the concordination, always longer than
+the length of the list xs itself.
+Question to you, does that
+property always hold?
+Well, one way to answer this question is
+to simply try it out.
+We have all the random number generators.
+We have the test function.
+I have assembled them in another worksheet
+where you see all the generators here,
+and finally we have the test function that
+you see here at the end.
+let me just, run this test on pairs of
+lists.
+And the function would be that, given two
+arbitrary lists,
+xs and ys.
+We want to postulate that the length of
+the concatenation is greater than the
+length of just xs.
+[SOUND]
+And what do we get?
+Well, we get a counter example and
+insertion error which says
+the test failed for and here you have to
+count example.
+The first is a list consisting of a single
+element, It's,
+you see that's a random value that we have
+on here.
+the second list is empty and in that case,
+of course, the length of these two
+lists is one, and where it's the length of
+xs is also one, so the two lengths
+are equal and the assertion fails.
+So the answer to this question here
+is obviously, the property does not always
+hold.
+We have just found a counter-example.
+Now the idea of these random tests and
+random value generators is embodied
+in a very useful tool that we can use for
+your Scala programs.
+The tool is called ScalaCheck, and it is
+modeled to
+a latch degree after a tool called
+QuickCheck, which exists in the, for Haska
+programs and variance of quick check have
+been developed for quite a few other
+languages.
+Alan is one example and in the formal
+scholar check.
+Also for scala.
+So the idea is just as you've seen quick
+check would come up with random.
+Value generators.
+It's a bit smarter than what you have seen
+in that it
+can actually generate, sometimes the
+random values if you just give it a type.
+So it knows how to generate random values
+for types that have a certain form
+and then you would run tests similarly to
+what you have seen with the test function.
+Only in scholar check its called for all
+so
+you would just write for all and then you
+would have the predicate that says well on
+which
+domains do you wish to run your test in
+this
+case two lists of ints.
+And what property should hold, so that's a
+property that you want to test here.
+And the test works similarly to what
+you've seen,
+run a prescribed number of times, which
+you can configure.
+Scholar check is quite a bit smarter then
+what we've seen also, in
+the sense that if a test fails, it can
+minimize the counter example.
+We can take sample you saw was a
+list with a rather large random number
+that was
+the first one it found that falsified the
+the test.
+Whereas what QuickCheck and ScalaCheck
+would do in
+this case is they would then try
+repeatedly to
+find smaller and smaller examples I'm told
+the
+example is something that is essentially a
+local optimum.
+So, it would, typically, such a small
+example would be easier to understand as
+a counterexample than just an arbitrary
+random value.
+If you want to find out more about
+ScalaCheck, then there's a tutorial on the
+course page.
+And ScalaCheck will also be used in the
+first
+assignment that you are going to do in
+this course.
+
