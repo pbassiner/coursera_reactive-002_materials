@@ -1,0 +1,1370 @@
+1
+00:00:02,060 --> 00:00:05,760
+In the last section,
+we have seen how to use a very simple
+
+2
+00:00:05,760 --> 00:00:09,790
+API of signal-send wires for
+functional reactive programming.
+
+3
+00:00:09,790 --> 00:00:12,920
+In this unit, we are going to
+take a look under the covers and
+
+4
+00:00:12,920 --> 00:00:16,120
+see how that simple API
+could be implemented.
+
+5
+00:00:18,100 --> 00:00:21,940
+We're going to develop step by step
+a simple implementation of Signals and
+
+6
+00:00:21,940 --> 00:00:26,710
+Vars whic, as you have seen from
+the basis of our approach to frp.
+
+7
+00:00:27,900 --> 00:00:32,550
+We the two classes of Signal and
+Var are assumed to be in a package frp.
+
+8
+00:00:33,590 --> 00:00:39,010
+We will start with summarizing the APIs as
+we have seen them in the module last week.
+
+9
+00:00:40,140 --> 00:00:41,940
+So here's the API of class signal.
+
+10
+00:00:41,940 --> 00:00:46,480
+Signal takes as an argument T expression
+that constitutes the signal and
+
+11
+00:00:46,480 --> 00:00:50,680
+it exposes a method apply which gives
+you the current value of the signal for
+
+12
+00:00:50,680 --> 00:00:53,770
+the moment we have left
+out its implementation.
+
+13
+00:00:53,770 --> 00:00:58,490
+There's also an object signal which has
+its own apply method, you'll recall that
+
+14
+00:00:58,490 --> 00:01:03,830
+if object has an apply method then
+they enable a syntax like this.
+
+15
+00:01:03,830 --> 00:01:08,450
+That we can write signal and
+then some expression like that and
+
+16
+00:01:08,450 --> 00:01:13,650
+that would be the form that maps all
+the signals or creates constant signals.
+
+17
+00:01:13,650 --> 00:01:17,660
+So apply takes a binding parameter
+expression which is this expression
+
+18
+00:01:17,660 --> 00:01:21,380
+here that can be evaluated at
+multiple points in the future.
+
+19
+00:01:21,380 --> 00:01:23,960
+And it simply creates a signal
+with that expression.
+
+20
+00:01:25,150 --> 00:01:31,060
+So we've also used Vars so
+a Var is a subclass of signal
+
+21
+00:01:31,060 --> 00:01:34,150
+and it adds one more method and
+
+22
+00:01:34,150 --> 00:01:39,340
+that's the update method which takes the
+expression to be evaluated from now on.
+
+23
+00:01:39,340 --> 00:01:43,885
+This is our type is unit and
+we have again left out the implementation.
+
+24
+00:01:43,885 --> 00:01:48,600
+Like signals var have an apply method
+which allows us to create new vars with
+
+25
+00:01:48,600 --> 00:01:51,796
+the same syntax as for signals like that.
+
+26
+00:01:54,880 --> 00:01:59,480
+So now that we have the APIs,
+let's see how we could implement them.
+
+27
+00:01:59,480 --> 00:02:06,040
+Here's the central implementation idea,
+each signal maintains three data attempts.
+
+28
+00:02:06,040 --> 00:02:09,180
+The first one is the current
+value of the signal.
+
+29
+00:02:09,180 --> 00:02:13,990
+The second one is the expression defining
+the signal at the present time so
+
+30
+00:02:13,990 --> 00:02:17,540
+that will be used if you have
+to re-evaluate the signal.
+
+31
+00:02:17,540 --> 00:02:20,000
+And the third one is a set of observers.
+
+32
+00:02:20,000 --> 00:02:22,640
+The observers are all
+the other signals would
+
+33
+00:02:22,640 --> 00:02:24,910
+depend on the value of the current signal.
+
+34
+00:02:26,066 --> 00:02:30,880
+The idea then is if the signal
+changes be it because its updated or
+
+35
+00:02:30,880 --> 00:02:34,480
+it depends on another signal that changes,
+so
+
+36
+00:02:34,480 --> 00:02:38,265
+if the signal changes then all
+the observers will be re-evaluated.
+
+37
+00:02:39,690 --> 00:02:42,600
+So that brings us to the question
+of dependency maintenance.
+
+38
+00:02:42,600 --> 00:02:45,050
+How do we record
+dependencies in observers?
+
+39
+00:02:46,350 --> 00:02:49,040
+When we evaluate
+a signal-valued expression,
+
+40
+00:02:49,040 --> 00:02:53,325
+we need to know which signal caller gets
+defined or updated by the expression.
+
+41
+00:02:53,325 --> 00:02:59,210
+If we know that then we can add that
+caller to the observers of the signal when
+
+42
+00:02:59,210 --> 00:03:03,060
+the signal is evaluated, that means when
+we take the current value of the signal.
+
+43
+00:03:04,750 --> 00:03:09,660
+If we have added the caller to the
+observer set then we can re-evaluated it
+
+44
+00:03:09,660 --> 00:03:12,120
+each time the signal's value changes.
+
+45
+00:03:12,120 --> 00:03:15,540
+So each time a signal's value changes,
+all previously observing signals
+
+46
+00:03:15,540 --> 00:03:21,970
+are re-evaluated and what we also do then,
+we clear the set of sig.observers.
+
+47
+00:03:21,970 --> 00:03:25,200
+Because when we re-evaluate an observer,
+
+48
+00:03:25,200 --> 00:03:29,450
+if the observer still depends on
+the value of the current signal then
+
+49
+00:03:29,450 --> 00:03:33,130
+it will automatically be
+re-entered into the observer set.
+
+50
+00:03:34,170 --> 00:03:38,400
+But of course it might not depend on
+the current signal anymore because maybe
+
+51
+00:03:38,400 --> 00:03:41,370
+another signal has changed which
+is a boolean condition which
+
+52
+00:03:41,370 --> 00:03:45,219
+makes the execution of the signal go
+into a different branch than before.
+
+53
+00:03:46,850 --> 00:03:49,970
+So that's the central idea,
+there's the tricky issue,
+
+54
+00:03:49,970 --> 00:03:54,340
+how do we find out on whose behalf
+a signal expression is evaluated?
+
+55
+00:03:54,340 --> 00:03:57,890
+So when you, we evaluate the signal
+expression, how do we know which other
+
+56
+00:03:57,890 --> 00:04:02,290
+signal is currently updated or
+defined with a signal constructor?
+
+57
+00:04:03,640 --> 00:04:06,740
+We will first look at one
+very simple way to do this,
+
+58
+00:04:06,740 --> 00:04:09,090
+you might say simplistic way to do this.
+
+59
+00:04:09,090 --> 00:04:12,580
+And that is to maintain a global
+data structure that refers simply to
+
+60
+00:04:12,580 --> 00:04:17,890
+the current caller and that we will
+update as we evaluate signals.
+
+61
+00:04:17,890 --> 00:04:21,690
+We'll just come back to that later and
+discuss the wisdom of doing this and
+
+62
+00:04:21,690 --> 00:04:23,220
+possible alternatives.
+
+63
+00:04:23,220 --> 00:04:26,850
+The caller data structure is in
+fact accessed in a stack-like
+
+64
+00:04:26,850 --> 00:04:31,150
+fashion because one evaluation of
+a signal might trigger the update or
+
+65
+00:04:31,150 --> 00:04:33,050
+redefinition of other signals.
+
+66
+00:04:34,750 --> 00:04:38,990
+So, the way we express this
+is in defining a class for
+
+67
+00:04:38,990 --> 00:04:41,680
+stackable variables that
+can be accessed like this.
+
+68
+00:04:41,680 --> 00:04:43,530
+So here, we would have a global variable,
+
+69
+00:04:43,530 --> 00:04:48,620
+a value caller which is a stackable
+variable with some initial signal.
+
+70
+00:04:48,620 --> 00:04:54,520
+And then we could update the color in a
+scoped fashion by saying color with value.
+
+71
+00:04:54,520 --> 00:04:59,000
+Some other signal and then some expression
+that while the expression evaluates
+
+72
+00:04:59,000 --> 00:05:01,700
+the color would the value other signal.
+
+73
+00:05:01,700 --> 00:05:06,470
+And we could get the value out of the
+color simply with the syntax color.value.
+
+74
+00:05:06,470 --> 00:05:09,990
+So those are the use cases,
+here's the implementation.
+
+75
+00:05:09,990 --> 00:05:15,310
+It's rather simple, so the cast stackable
+variable has a type around of T and
+
+76
+00:05:15,310 --> 00:05:18,770
+of valid parameter which
+gives it's initial value.
+
+77
+00:05:18,770 --> 00:05:24,370
+It here's the stack maintained
+as a list of values the current
+
+78
+00:05:24,370 --> 00:05:30,280
+value is the head of the list and
+this value operation takes a new value.
+
+79
+00:05:30,280 --> 00:05:35,210
+And then operation to the perform that
+would have this new value as the top this
+
+80
+00:05:35,210 --> 00:05:39,960
+stack, so what it does is it puts
+the new value on the top of the list.
+
+81
+00:05:39,960 --> 00:05:44,060
+It executes the operation and
+when it's done with that it
+
+82
+00:05:44,060 --> 00:05:47,650
+pops the value of the list, so
+the list becomes it own tail.
+
+83
+00:05:48,740 --> 00:05:50,870
+So let's look at the setup
+in object signal,
+
+84
+00:05:51,980 --> 00:05:56,030
+you see here that in addition to the apply
+method the object signal has now
+
+85
+00:05:56,030 --> 00:05:59,590
+a value caller which is
+a stackable variable.
+
+86
+00:05:59,590 --> 00:06:03,970
+The type parameter of the stackable
+variable is of type signal
+
+87
+00:06:03,970 --> 00:06:06,300
+with an underscore as a parameter.
+
+88
+00:06:06,300 --> 00:06:11,260
+That means that stackable variables
+can take signals of any value type.
+
+89
+00:06:11,260 --> 00:06:14,600
+Let's have a look at the initial value,
+what should that be?
+
+90
+00:06:14,600 --> 00:06:19,410
+Well initially there is no caller so
+we have to express that somehow and
+
+91
+00:06:19,410 --> 00:06:24,240
+we choose to express it with a so called
+sentinel object that we call NoSignal.
+
+92
+00:06:24,240 --> 00:06:29,030
+So NoSignal is a special signal,
+it doesn't have a value at all so
+
+93
+00:06:29,030 --> 00:06:31,350
+it extends Signal[Nothing].
+
+94
+00:06:31,350 --> 00:06:34,660
+And it doesn't have
+an implementation either so
+
+95
+00:06:34,660 --> 00:06:39,410
+we can pass the triple question marks
+which essentially just mean unimplemented
+
+96
+00:06:39,410 --> 00:06:42,440
+as the expression value for
+unknown signal.
+
+97
+00:06:45,020 --> 00:06:49,250
+So now that we have done with the setup
+let's have a look at the signal class.
+
+98
+00:06:49,250 --> 00:06:54,190
+As we have mentioned before the signal
+class has three items in its state.
+
+99
+00:06:54,190 --> 00:06:57,410
+They are represented by
+three private variables.
+
+100
+00:06:57,410 --> 00:07:01,800
+The first one is the current expression
+which is called here my expression.
+
+101
+00:07:01,800 --> 00:07:06,180
+Second is the current value of
+the signal which is called my value.
+
+102
+00:07:06,180 --> 00:07:11,500
+And the third is the set of observers,
+the initial values of my expression and
+
+103
+00:07:11,500 --> 00:07:14,140
+my value are both uninitialized.
+
+104
+00:07:14,140 --> 00:07:17,930
+The initial value of the set
+of observers is the empty set.
+
+105
+00:07:17,930 --> 00:07:21,540
+So how do we initialize myExpr and
+myValue?
+
+106
+00:07:21,540 --> 00:07:25,510
+Well that will be done in
+the initial call to the update
+
+107
+00:07:25,510 --> 00:07:27,180
+function that we are going to see next.
+
+108
+00:07:29,080 --> 00:07:33,330
+So the update method gets called during
+the initialization of the signal and
+
+109
+00:07:33,330 --> 00:07:36,700
+whenever somebody assigns
+a new value to the signal.
+
+110
+00:07:36,700 --> 00:07:40,300
+It takes the expression to
+evaluate the new signal,
+
+111
+00:07:40,300 --> 00:07:46,130
+assigns it to my expression and
+computes the current value of the signal.
+
+112
+00:07:46,130 --> 00:07:50,740
+So we have to look at compute value next,
+here it is.
+
+113
+00:07:50,740 --> 00:07:53,910
+For now, we use a simplified
+version of compute value.
+
+114
+00:07:53,910 --> 00:07:59,720
+There will be more to add later
+where compute value simply evaluates
+
+115
+00:07:59,720 --> 00:08:04,800
+the current expression with
+the current signal as the color and
+
+116
+00:08:04,800 --> 00:08:06,900
+assigns the result into my value.
+
+117
+00:08:09,250 --> 00:08:12,400
+So the last part of the signal
+class is the apply method,
+
+118
+00:08:12,400 --> 00:08:14,390
+here is it's implementation.
+
+119
+00:08:14,390 --> 00:08:18,170
+Apply simply returns the current
+value of the signal but
+
+120
+00:08:18,170 --> 00:08:23,110
+before it does that it adds the current
+caller to the set of observers.
+
+121
+00:08:23,110 --> 00:08:27,702
+And the third part of apply is
+an assertion which says that we should
+
+122
+00:08:27,702 --> 00:08:32,240
+avoid defining cyclic signals
+that depend on themselves.
+
+123
+00:08:32,240 --> 00:08:38,400
+So, as we have seen in an example here,
+a signal like this is an error.
+
+124
+00:08:38,400 --> 00:08:43,980
+[SOUND] So that error condition
+gets caught by this assert
+
+125
+00:08:43,980 --> 00:08:51,589
+which says that the observers of a signal
+may not contain the signal itself.
+
+126
+00:08:51,589 --> 00:08:59,275
+So here, evaluating this expression here
+would be done with the current caller s.
+
+127
+00:08:59,275 --> 00:09:04,970
+So that would mean that s gets added into
+the observers of the signal s itself.
+
+128
+00:09:04,970 --> 00:09:08,660
+So this as assert would be triggered and
+you would detect a cyclic,
+
+129
+00:09:08,660 --> 00:09:10,590
+a signal definition.
+
+130
+00:09:10,590 --> 00:09:13,510
+If the assert wasn't there the error
+would still be detected but
+
+131
+00:09:13,510 --> 00:09:16,390
+it would be a stack overflow error,
+
+132
+00:09:16,390 --> 00:09:20,790
+you would get an infinite recursion which
+is much less informative than the subset.
+
+133
+00:09:22,960 --> 00:09:26,250
+So, if you've followed so
+far then you should notice that
+
+134
+00:09:26,250 --> 00:09:30,130
+there's one bit of the implementation
+of class signals still missing.
+
+135
+00:09:30,130 --> 00:09:30,890
+Which is it?
+
+136
+00:09:30,890 --> 00:09:32,780
+Is it error handling?
+
+137
+00:09:32,780 --> 00:09:35,380
+Or reevaluating the callers?
+
+138
+00:09:35,380 --> 00:09:37,605
+Or constructing the observers set?
+
+139
+00:09:42,561 --> 00:09:46,566
+Well in fact, the missing piece
+is reevaluating the callers.
+
+140
+00:09:46,566 --> 00:09:47,820
+Let's have a look at that next.
+
+141
+00:09:50,820 --> 00:09:53,460
+So, we've seen that a signal's
+current value can change when
+
+142
+00:09:53,460 --> 00:09:56,360
+somebody calls an update
+operation on the Var or
+
+143
+00:09:56,360 --> 00:09:59,980
+the value of a signal that
+the signal depends on changes.
+
+144
+00:09:59,980 --> 00:10:01,180
+And in the second case,
+
+145
+00:10:01,180 --> 00:10:06,970
+we need to detect these changes and
+propagate them to the observing signal.
+
+146
+00:10:06,970 --> 00:10:09,950
+The propagation will be
+done in compute value so
+
+147
+00:10:09,950 --> 00:10:15,590
+we will now refine the implementation of
+that method, that's what it was before.
+
+148
+00:10:15,590 --> 00:10:19,800
+You simply evaluate my expression
+with the current caller and
+
+149
+00:10:19,800 --> 00:10:21,300
+assign the result to my value.
+
+150
+00:10:23,240 --> 00:10:28,380
+And that's a new implementation of com,
+compute value, this part is as before but
+
+151
+00:10:28,380 --> 00:10:34,650
+now we stole the result of evaluating
+my expression in a new value, newValue.
+
+152
+00:10:34,650 --> 00:10:37,710
+And if that new value is
+different from the current value
+
+153
+00:10:37,710 --> 00:10:40,480
+then we perform
+the following actions here.
+
+154
+00:10:40,480 --> 00:10:44,820
+We assign the newValue to myValue,
+that's the same as before but
+
+155
+00:10:44,820 --> 00:10:51,680
+we also take the observers into a local
+value obs, clear the set of observers.
+
+156
+00:10:51,680 --> 00:10:55,540
+And for each element of ops,
+we do a compute value.
+
+157
+00:10:55,540 --> 00:11:00,500
+That will then in turn,
+by re-evaluating the signal we
+
+158
+00:11:00,500 --> 00:11:03,710
+add the observer into the observer set.
+
+159
+00:11:03,710 --> 00:11:08,460
+So, because that will happen down here,
+we should clear the observer set before.
+
+160
+00:11:10,980 --> 00:11:14,770
+So that was the core of it there
+are some little bits still to be done.
+
+161
+00:11:14,770 --> 00:11:20,270
+One concerns NoSignal in NoSignal,
+we have seen that NoSignal doesn't
+
+162
+00:11:20,270 --> 00:11:25,450
+really have an expression associated with
+it so we can't really compute its value.
+
+163
+00:11:25,450 --> 00:11:29,480
+Because if we would try to evaluate
+the type of question mark we would
+
+164
+00:11:29,480 --> 00:11:31,370
+get an unimplemented exception.
+
+165
+00:11:31,370 --> 00:11:33,330
+So we overwrite compute value and
+
+166
+00:11:33,330 --> 00:11:37,815
+no signal to be the empty expression
+that returns unit directly.
+
+167
+00:11:37,815 --> 00:11:43,675
+So a second bit of functionality
+still missing concerns Vars.
+
+168
+00:11:43,675 --> 00:11:47,935
+We call that a Var is a Signal that
+can be updated by the client program.
+
+169
+00:11:47,935 --> 00:11:52,340
+And in fact, all the functionality we
+need for that is already present in class
+
+170
+00:11:52,340 --> 00:11:56,385
+Signal because in fact signal does
+have already an update method.
+
+171
+00:11:57,670 --> 00:12:01,700
+Here you see the update method essentially
+does the right thing, it assigns
+
+172
+00:12:01,700 --> 00:12:06,310
+the expression to be the current
+expression and it recomputes the value.
+
+173
+00:12:06,310 --> 00:12:11,126
+But it is protected in class signal which
+means only subclasses can get at it.
+
+174
+00:12:11,126 --> 00:12:16,190
+Whereas clients of signal cannot which
+of course is intended because we
+
+175
+00:12:16,190 --> 00:12:21,740
+want to make signal immutable clients of
+signal should not be able to call update.
+
+176
+00:12:21,740 --> 00:12:25,590
+But of course clients of var should be
+able to call updates, so the way we
+
+177
+00:12:25,590 --> 00:12:30,590
+achieve this is that we override
+the update method, make it public in var.
+
+178
+00:12:30,590 --> 00:12:34,745
+And the implementation of that update
+would simply be a call to the super class,
+
+179
+00:12:34,745 --> 00:12:36,700
+super.update(expr).
+
+180
+00:12:36,700 --> 00:12:40,730
+So that way essentially,
+we reuse the same implementation but
+
+181
+00:12:40,730 --> 00:12:42,860
+we now expose it publicly.
+
+182
+00:12:42,860 --> 00:12:46,790
+So this is it, I would argue that
+our implementation of functional
+
+183
+00:12:46,790 --> 00:12:50,670
+reactive programming is quite
+stunning in its simplicity.
+
+184
+00:12:50,670 --> 00:12:54,250
+But you might object that it's
+a little bit too simplistic.
+
+185
+00:12:54,250 --> 00:12:55,670
+In particular, you might say well,
+
+186
+00:12:55,670 --> 00:12:59,400
+this makes use of the worse kind
+of state named the global state.
+
+187
+00:12:59,400 --> 00:13:02,290
+Indeed in the object signal
+which is a global object,
+
+188
+00:13:02,290 --> 00:13:06,210
+we have this value caller which
+is a StackableVariable and
+
+189
+00:13:06,210 --> 00:13:11,520
+that's caller is accessed by all the code
+in an application using signals.
+
+190
+00:13:12,610 --> 00:13:16,880
+One particular problem here is,
+what happens if we try to evaluate sev,
+
+191
+00:13:16,880 --> 00:13:19,780
+several signal expressions in parallel?
+
+192
+00:13:19,780 --> 00:13:23,680
+Then multiple threads could access
+caller at the same time and
+
+193
+00:13:23,680 --> 00:13:26,420
+could also update caller and
+stackable variable.
+
+194
+00:13:26,420 --> 00:13:29,425
+So without protection in
+terms of synchronization or
+
+195
+00:13:29,425 --> 00:13:33,441
+something we would get raised
+conditions and unpredictable results.
+
+196
+00:13:41,500 --> 00:13:46,206
+So one way to get around the problem of
+concurrent accesses to global state such
+
+197
+00:13:46,206 --> 00:13:48,570
+as collier is to use synchronization.
+
+198
+00:13:49,720 --> 00:13:53,660
+But synchronization has its own set of
+problems because it blocks threads,
+
+199
+00:13:53,660 --> 00:13:58,070
+so bleds, threads might wait
+indefinitely long it can be slow and
+
+200
+00:13:58,070 --> 00:13:59,950
+it can lead to deadlocks.
+
+201
+00:13:59,950 --> 00:14:02,820
+Another solution that is
+more appropriate here
+
+202
+00:14:02,820 --> 00:14:06,302
+is to replace global state
+by Thread-Local State.
+
+203
+00:14:06,302 --> 00:14:10,575
+So thread-local state means that
+each thread in an application
+
+204
+00:14:10,575 --> 00:14:13,425
+accesses its own copy of the variable.
+
+205
+00:14:13,425 --> 00:14:17,855
+So the variable is global for the thread
+but it's not shared between threads.
+
+206
+00:14:17,855 --> 00:14:23,900
+Thread-local state is supported in Java
+through Java neutral thread-local and
+
+207
+00:14:23,900 --> 00:14:30,292
+that's wrapped in Scala through
+class scala.util.DynamicVariable.
+
+208
+00:14:30,292 --> 00:14:33,920
+And we have engineered
+that in fact the API of
+
+209
+00:14:33,920 --> 00:14:38,940
+StackableVariable matches exactly
+the API of DynamicVariable.
+
+210
+00:14:38,940 --> 00:14:43,500
+So we can simply swap out
+StackableVariable, the global state
+
+211
+00:14:43,500 --> 00:14:48,840
+that we want to avoid for DynamicVariable
+which gives us the thread-local state.
+
+212
+00:14:48,840 --> 00:14:53,467
+So the signal now would read
+caller equals new DynamicVariable
+
+213
+00:14:53,467 --> 00:14:57,403
+with the same type parameter and
+initial value.
+
+214
+00:15:00,388 --> 00:15:05,218
+So, replacing stackable variable with
+dynamic variable's a definite improvement
+
+215
+00:15:05,218 --> 00:15:09,720
+because we avoid the raised conditions
+that the global variable would entail.
+
+216
+00:15:09,720 --> 00:15:13,900
+Otherwise, if you have
+a multithreaded application but
+
+217
+00:15:13,900 --> 00:15:17,140
+it comes with a number
+of other disadvantages.
+
+218
+00:15:17,140 --> 00:15:20,010
+Well the first one is actually shared
+with the global state and that's,
+
+219
+00:15:20,010 --> 00:15:23,520
+that essentially the state is imperative.
+
+220
+00:15:23,520 --> 00:15:28,210
+We have imperative state that's indirectly
+accessed by the whole application.
+
+221
+00:15:28,210 --> 00:15:32,410
+So this gives essentially a high
+degree of entanglement of
+
+222
+00:15:32,410 --> 00:15:36,850
+dependencies that are not
+made explicit in the types or
+
+223
+00:15:36,850 --> 00:15:40,450
+input output results of functions and
+that are, therefore, problematic.
+
+224
+00:15:40,450 --> 00:15:44,340
+So that's essentially,
+the problem of all imperative state but
+
+225
+00:15:44,340 --> 00:15:46,770
+the more global that state is,
+the worse the problem.
+
+226
+00:15:48,080 --> 00:15:50,900
+The second shortcoming of
+thread-local state is,
+
+227
+00:15:50,900 --> 00:15:54,830
+is that it's not terribly efficient
+because every access to its thread-local
+
+228
+00:15:54,830 --> 00:15:58,790
+variable in fact involves
+a global hash table lookup.
+
+229
+00:15:58,790 --> 00:16:02,500
+So the JDK stores essentially
+all thread-local variables
+
+230
+00:16:02,500 --> 00:16:05,490
+in a hash table that's associated
+with the current thread.
+
+231
+00:16:05,490 --> 00:16:08,580
+And accessing that hash table is
+
+232
+00:16:08,580 --> 00:16:12,870
+not as fast as if you just
+select that variable directly.
+
+233
+00:16:13,880 --> 00:16:17,240
+And the third possible
+disadvantage is that if
+
+234
+00:16:17,240 --> 00:16:21,690
+you have situations where you don't have
+a straightforward multi-threaded solution.
+
+235
+00:16:21,690 --> 00:16:25,959
+But where you, let's say, you multiplex
+frets over executors or tasks so
+
+236
+00:16:25,959 --> 00:16:30,233
+your threads have become worker's
+threads and thread-local doesn't work so
+
+237
+00:16:30,233 --> 00:16:33,315
+well because one task might run for
+a while in one thread.
+
+238
+00:16:33,315 --> 00:16:36,082
+And then it might switch
+to a different thread and
+
+239
+00:16:36,082 --> 00:16:40,810
+I would like to take thread-local variable
+with it but of course the thread-local
+
+240
+00:16:40,810 --> 00:16:46,070
+variable gets locked to the current state
+so in that case it wouldn't be a solution.
+
+241
+00:16:46,070 --> 00:16:52,450
+So to summarize, thread-local state is an
+improvement of unprotected global state.
+
+242
+00:16:52,450 --> 00:16:54,450
+But it has its own set of problems,
+
+243
+00:16:54,450 --> 00:16:59,540
+it's fragile plays well only with
+some approaches to concurrency.
+
+244
+00:16:59,540 --> 00:17:03,240
+And it has still the problem
+that it is fundamentally
+
+245
+00:17:03,240 --> 00:17:06,500
+state that is shared by a large
+part of the application.
+
+246
+00:17:08,450 --> 00:17:12,770
+There's actually another possible solution
+which is much cleaner and that is to
+
+247
+00:17:12,770 --> 00:17:18,410
+simply pass down the current caller into
+all the signal evaluated expressions.
+
+248
+00:17:18,410 --> 00:17:22,930
+Now if you do that explicitly it would
+produce a lot of overhead essentially
+
+249
+00:17:22,930 --> 00:17:26,800
+every signal of every expression
+has to have another parameter.
+
+250
+00:17:26,800 --> 00:17:29,960
+And these parameters have to be
+threaded through everything.
+
+251
+00:17:29,960 --> 00:17:32,610
+But if you make the parameter
+impressive then
+
+252
+00:17:32,610 --> 00:17:35,900
+a lot of that burden can
+actually be avoided.
+
+253
+00:17:35,900 --> 00:17:39,440
+So the idea is that instead of
+maintaining a thread-local variable,
+
+254
+00:17:39,440 --> 00:17:44,120
+we pass its current value into a signal
+expression as an implicit parameter.
+
+255
+00:17:44,120 --> 00:17:47,060
+And it's purely functional but
+it currently requires
+
+256
+00:17:47,060 --> 00:17:49,595
+still some more boilerplate
+than the thread-local solution.
+
+257
+00:17:49,595 --> 00:17:53,335
+Because essential
+expressions have to close,
+
+258
+00:17:53,335 --> 00:17:56,555
+have to take this implicit
+value as a parameter.
+
+259
+00:17:56,555 --> 00:17:59,685
+Future versions of Scala might
+actually solve that problem so
+
+260
+00:17:59,685 --> 00:18:03,555
+we're going to be tinkering with some
+ideas of how that could be streamlined.
+
+261
+00:18:05,805 --> 00:18:08,505
+So to conclude, we've given a quick
+tour of functional reactive
+
+262
+00:18:08,505 --> 00:18:12,970
+programing with some user examples and
+full implementation.
+
+263
+00:18:12,970 --> 00:18:15,770
+This is just a taste though there's
+much more to be discovered.
+
+264
+00:18:15,770 --> 00:18:19,650
+In particular, we've only covered one
+particular style of functional reactive
+
+265
+00:18:19,650 --> 00:18:24,720
+programming the style that treats discrete
+signals that are changed by events.
+
+266
+00:18:24,720 --> 00:18:27,890
+There are other variants of functional
+reactive programming that treat
+
+267
+00:18:27,890 --> 00:18:32,160
+continuous signals sometimes just
+continuous, and sometimes continuous,
+
+268
+00:18:32,160 --> 00:18:34,120
+and just quick together.
+
+269
+00:18:34,120 --> 00:18:37,100
+So a continuous sequence
+signal can not be broken up
+
+270
+00:18:37,100 --> 00:18:41,750
+in to a sequence of events because it's
+changes its value at each time interval.
+
+271
+00:18:42,760 --> 00:18:46,630
+What we do instead typically in
+touch systems is use sampling
+
+272
+00:18:46,630 --> 00:18:48,430
+instead of event propocation.
+
+273
+00:18:48,430 --> 00:18:55,090
+So that means we have signals that are
+continues over the real time values but
+
+274
+00:18:55,090 --> 00:19:00,040
+what we'd need to do is not compute
+the signal at each possible point in time.
+
+275
+00:19:00,040 --> 00:19:04,630
+But we can actually sample it at
+as needed by the application with
+
+276
+00:19:04,630 --> 00:19:06,180
+sufficient density.
+
+277
+00:19:06,180 --> 00:19:10,350
+So, fascinating subjects for
+further exploration.
+
+278
+00:19:10,350 --> 00:19:12,910
+What we will do in the next week and
+
+279
+00:19:12,910 --> 00:19:16,590
+the week after is take
+a slightly different tact.
+
+280
+00:19:16,590 --> 00:19:21,580
+Eric Myer will take over and
+tell you about futures and observables.
+
+281
+00:19:21,580 --> 00:19:25,170
+Observables are another
+form of event stream
+
+282
+00:19:25,170 --> 00:19:29,300
+that is related to functional reactive
+programming but it can asynchronous and
+
+283
+00:19:29,300 --> 00:19:32,349
+it can be non-deterministic.
+

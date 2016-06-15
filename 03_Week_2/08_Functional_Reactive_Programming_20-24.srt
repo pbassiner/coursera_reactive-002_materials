@@ -1,0 +1,1334 @@
+1
+00:00:01,170 --> 00:00:04,970
+So in this session we are going
+to look at a different take of
+
+2
+00:00:04,970 --> 00:00:10,070
+event handling programs, a functional
+view of events that's embodied in
+
+3
+00:00:10,070 --> 00:00:11,940
+functional reactive programming.
+
+4
+00:00:11,940 --> 00:00:16,330
+You've seen that reactive programming is
+all about reacting to some sequences of
+
+5
+00:00:16,330 --> 00:00:18,090
+events that happen in time.
+
+6
+00:00:19,250 --> 00:00:23,430
+The functional view is that we can
+actually take such a sequence of events
+
+7
+00:00:23,430 --> 00:00:25,940
+and aggregate it into a signal.
+
+8
+00:00:25,940 --> 00:00:30,370
+So, a signal is a value
+that changes over time, and
+
+9
+00:00:30,370 --> 00:00:34,600
+it's represented as a function from
+the time domain to the value domain.
+
+10
+00:00:35,850 --> 00:00:40,750
+That means that instead of propagating
+updates to mutable state one by one,
+
+11
+00:00:40,750 --> 00:00:43,880
+we define new signals in
+terms of existing ones.
+
+12
+00:00:43,880 --> 00:00:44,990
+In a single operation,
+
+13
+00:00:44,990 --> 00:00:50,180
+we can define a new signal in terms of
+signals that we have already defined.
+
+14
+00:00:50,180 --> 00:00:52,740
+So let's make this
+concretely as an example.
+
+15
+00:00:52,740 --> 00:00:55,300
+Let's say we want to
+track mouse positions or
+
+16
+00:00:55,300 --> 00:00:57,620
+here we'll substitute
+the mouse with my pen.
+
+17
+00:00:58,645 --> 00:01:04,270
+An user moves the mouse,
+usually a sequence of events is fired.
+
+18
+00:01:04,270 --> 00:01:06,250
+Each time the mouse is at a new position,
+
+19
+00:01:06,250 --> 00:01:10,689
+the application gets a mouse moved event
+with the current position of the mouse.
+
+20
+00:01:11,740 --> 00:01:16,040
+And it would have to handle that event
+by updating its internal state and
+
+21
+00:01:16,040 --> 00:01:19,060
+all these updates would
+typically be imperative.
+
+22
+00:01:19,060 --> 00:01:22,550
+How can I list this into
+a functional view point?
+
+23
+00:01:22,550 --> 00:01:26,480
+So, the core idea is
+that I define a signal,
+
+24
+00:01:26,480 --> 00:01:30,920
+call it also mousePosition,
+which is now a signal of position,
+
+25
+00:01:30,920 --> 00:01:34,440
+which at any point in time represents
+the current mouse position.
+
+26
+00:01:34,440 --> 00:01:38,910
+So, it's a function from the domain
+of time values to this curve.
+
+27
+00:01:38,910 --> 00:01:43,040
+At the initial time value the position
+was here, and then it would go
+
+28
+00:01:43,040 --> 00:01:47,560
+progressively until the fin, at the final
+time value the position was here.
+
+29
+00:01:47,560 --> 00:01:51,340
+That gives me a function from
+time values to positions.
+
+30
+00:01:51,340 --> 00:01:54,580
+Functional Reactive Programming
+started in 1997 with the paper
+
+31
+00:01:54,580 --> 00:01:59,070
+Functional Reactive Animation by
+Conal Elliot and Paul Hudak, and
+
+32
+00:01:59,070 --> 00:02:02,620
+Conal also wrote a,
+a language called Fran,
+
+33
+00:02:02,620 --> 00:02:05,610
+which was implemented as
+an embedded library in Haskell.
+
+34
+00:02:06,750 --> 00:02:11,040
+There have been quite a few FRP systems
+since, both standalone languages and
+
+35
+00:02:11,040 --> 00:02:12,440
+embedded libraries.
+
+36
+00:02:12,440 --> 00:02:15,870
+The list is too long to give you a,
+a complete picture, so
+
+37
+00:02:15,870 --> 00:02:18,220
+I just give you some examples.
+
+38
+00:02:18,220 --> 00:02:19,880
+Flapjax is one.
+
+39
+00:02:19,880 --> 00:02:23,200
+Elm, Bacon.js both target JavaScript.
+
+40
+00:02:23,200 --> 00:02:29,380
+React4J is a Java library that does
+a minimal reactive programming framework.
+
+41
+00:02:29,380 --> 00:02:30,060
+Related but
+
+42
+00:02:30,060 --> 00:02:35,320
+not quite the same are the event streaming
+data flow programming systems such as Rx.
+
+43
+00:02:35,320 --> 00:02:38,600
+In fact we will see Rx more in two weeks.
+
+44
+00:02:38,600 --> 00:02:40,750
+They're related to FRP but
+
+45
+00:02:40,750 --> 00:02:44,440
+commonly the FRP in the strict
+sense is not used for this.
+
+46
+00:02:45,450 --> 00:02:50,110
+We will introduce FRP not with one of
+the existing frameworks but with a really
+
+47
+00:02:50,110 --> 00:02:55,010
+minimal class, which we will define
+ourselves, which we call frp.signal, and
+
+48
+00:02:55,010 --> 00:03:01,088
+we'll explain the implementation of
+frp.signal at the end of the next module.
+
+49
+00:03:01,088 --> 00:03:05,940
+frp.signal is modeled after the library
+Scala.react, which is described
+
+50
+00:03:05,940 --> 00:03:10,410
+in the paper Deprecating the Observer
+Pattern by Ingo Maier and myself.
+
+51
+00:03:10,410 --> 00:03:16,740
+And in fact the React4J librariy's also
+influenced by the Scala.react library so
+
+52
+00:03:16,740 --> 00:03:21,250
+it has abstractions that are a bit
+similar to what we are going to see here.
+
+53
+00:03:21,250 --> 00:03:23,610
+So let's have a closer look at signals.
+
+54
+00:03:23,610 --> 00:03:26,910
+There are two fundamental
+operations over signal.
+
+55
+00:03:26,910 --> 00:03:31,068
+First, I can obtain the value
+of a signal at the current time.
+
+56
+00:03:31,068 --> 00:03:34,600
+In our frp.signal library
+that's expressed by appli,
+
+57
+00:03:34,600 --> 00:03:37,690
+applying the signal to
+an empty parameter list.
+
+58
+00:03:37,690 --> 00:03:41,998
+So mousePosition open parenths closed
+parenths would give us the mouse position
+
+59
+00:03:41,998 --> 00:03:43,460
+at the current time.
+
+60
+00:03:43,460 --> 00:03:48,660
+The second fundamental operation is to
+define a signal in terms of other signals.
+
+61
+00:03:48,660 --> 00:03:52,380
+In our library that's expressed
+by the signal constructor.
+
+62
+00:03:52,380 --> 00:03:53,830
+So let's do an example.
+
+63
+00:03:53,830 --> 00:03:56,160
+Let's say I have drawn my curve.
+
+64
+00:03:58,680 --> 00:04:03,530
+And I have given the rectangle like this.
+
+65
+00:04:04,966 --> 00:04:08,330
+And I want to define a new
+signal which is either true or
+
+66
+00:04:08,330 --> 00:04:13,980
+false depending on whether the curve of
+the mouse was in the rectangle or not.
+
+67
+00:04:13,980 --> 00:04:17,820
+So that new signal would
+look something this,
+
+68
+00:04:17,820 --> 00:04:22,463
+would start with false and at this
+point in time it would jump to true and
+
+69
+00:04:22,463 --> 00:04:25,960
+it would stay true for a while and
+it would go back to false.
+
+70
+00:04:25,960 --> 00:04:27,830
+So that's false.
+
+71
+00:04:27,830 --> 00:04:28,370
+That's true.
+
+72
+00:04:29,440 --> 00:04:32,240
+So it's a discrete signal with two states.
+
+73
+00:04:33,560 --> 00:04:35,060
+Here's how I would define it.
+
+74
+00:04:35,060 --> 00:04:40,580
+I would define the signal inRectangle
+which takes its parameters the coordinates
+
+75
+00:04:40,580 --> 00:04:45,670
+of the rectangle given as a lower left
+corner and an upper right corner.
+
+76
+00:04:45,670 --> 00:04:49,940
+As it's defined by this expression here.
+
+77
+00:04:49,940 --> 00:04:54,970
+So what that says is that at each
+point in time I return the signal
+
+78
+00:04:54,970 --> 00:04:59,980
+that looks at the mouse position at the
+same point in time, at the current point
+
+79
+00:04:59,980 --> 00:05:04,810
+in time, and returns whether that
+position is between the lower left, and
+
+80
+00:05:04,810 --> 00:05:06,790
+the upper right corners.
+
+81
+00:05:06,790 --> 00:05:11,760
+So, we've seen the signal syntax to define
+the rectangle signal in terms of the mouse
+
+82
+00:05:11,760 --> 00:05:13,110
+position signal.
+
+83
+00:05:13,110 --> 00:05:17,180
+But it can also be used to define
+a signal that has no dependencies and
+
+84
+00:05:17,180 --> 00:05:19,210
+always defines the same value.
+
+85
+00:05:19,210 --> 00:05:24,450
+So, for instance, Signal(3) would define
+the signal that was constant three,
+
+86
+00:05:24,450 --> 00:05:26,950
+that was always the number three.
+
+87
+00:05:26,950 --> 00:05:31,560
+So we've constant signals, but how do we
+define the signal that varies in time.
+
+88
+00:05:31,560 --> 00:05:35,760
+Well, we've seen already some of these
+varying signals are defined externally,
+
+89
+00:05:35,760 --> 00:05:39,880
+something like mousePosition
+that the system could give us.
+
+90
+00:05:39,880 --> 00:05:44,040
+We could also map over the external
+defined signals that vary in time and
+
+91
+00:05:44,040 --> 00:05:46,830
+that gives us new signals
+that vary in time.
+
+92
+00:05:46,830 --> 00:05:50,290
+Or the other way is that we can use a var.
+
+93
+00:05:50,290 --> 00:05:54,690
+A var is a subclass of signal
+that we are going to see next.
+
+94
+00:05:54,690 --> 00:05:58,310
+So far,
+all values of type signal are immutable.
+
+95
+00:05:58,310 --> 00:06:02,089
+A signal is an immutable function
+from time to the signal values.
+
+96
+00:06:03,100 --> 00:06:07,100
+But in fact our library also defines
+a subclass Var of Signals for
+
+97
+00:06:07,100 --> 00:06:08,920
+signals that can be changed.
+
+98
+00:06:08,920 --> 00:06:14,390
+The change is done by means of an update
+operation, which Var provides.
+
+99
+00:06:14,390 --> 00:06:18,650
+And that updater operation
+allows to redefine the value
+
+100
+00:06:18,650 --> 00:06:22,260
+of a Var signal from the current time on.
+
+101
+00:06:22,260 --> 00:06:27,260
+So if we look at this example here,
+we define sig to be a Var 3,
+
+102
+00:06:27,260 --> 00:06:31,480
+so that's a signal that, for
+now, is always the constant 3,
+
+103
+00:06:31,480 --> 00:06:35,660
+until the point where I define
+an update operation on that signal.
+
+104
+00:06:35,660 --> 00:06:39,080
+From that point on,
+it will always be 5, until, of course,
+
+105
+00:06:39,080 --> 00:06:42,340
+there's a next update operation,
+maybe happening in the future.
+
+106
+00:06:44,120 --> 00:06:49,050
+So, the update operation uses the name
+update for a reason because in fact in
+
+107
+00:06:49,050 --> 00:06:55,250
+Scala update calls can be rewritten as
+assignments using some syntactic sugar.
+
+108
+00:06:56,320 --> 00:07:00,380
+You've probably known,
+seen it already when working with arrays.
+
+109
+00:07:00,380 --> 00:07:04,870
+For array arr,
+you would write arr(i) equals 0.
+
+110
+00:07:04,870 --> 00:07:07,790
+And what actually happens
+here is that this expression,
+
+111
+00:07:07,790 --> 00:07:12,662
+that this assignment is
+translated to arr.update(i, 0).
+
+112
+00:07:12,662 --> 00:07:16,040
+And that would call the update method
+
+113
+00:07:16,040 --> 00:07:19,530
+in class Array which has
+this definition here.
+
+114
+00:07:19,530 --> 00:07:24,290
+So, update takes an index and the value
+of the element type of the array and
+
+115
+00:07:24,290 --> 00:07:25,630
+returns unit.
+
+116
+00:07:25,630 --> 00:07:27,140
+So, under the covers,
+
+117
+00:07:27,140 --> 00:07:32,200
+when you write an index assignment like
+that you really can't call to update.
+
+118
+00:07:32,200 --> 00:07:37,070
+Generally, an indexed assignment
+like f of E1 to En equals E
+
+119
+00:07:37,070 --> 00:07:41,170
+is translated by the scala
+compiler to f.update E1, En, E.
+
+120
+00:07:41,170 --> 00:07:45,150
+And that works not just for
+arrays, but for
+
+121
+00:07:45,150 --> 00:07:48,860
+all types that define an update
+method of the right error pin.
+
+122
+00:07:48,860 --> 00:07:51,759
+And that also works if n equals 0.
+
+123
+00:07:51,759 --> 00:07:56,988
+So if there are no indices, that means
+that we call f open parenthesis,
+
+124
+00:07:56,988 --> 00:08:01,270
+close parens equals E is a shorthand for
+f.update(E).
+
+125
+00:08:01,270 --> 00:08:07,283
+So since we have such an update method
+on signal, it means that sig.update 5,
+
+126
+00:08:07,283 --> 00:08:12,160
+a call like that can be abbreviated
+to simply sig () equals 5.
+
+127
+00:08:12,160 --> 00:08:17,800
+You probably notice that signals of type
+Var look a bit like mutable variables,
+
+128
+00:08:17,800 --> 00:08:22,830
+where sig() is dereferencing,
+reading the variable.
+
+129
+00:08:22,830 --> 00:08:28,250
+And sig() equals new|Value is
+writing the variable corrupted.
+
+130
+00:08:28,250 --> 00:08:31,290
+But there's a crucial difference
+we can map over signals,
+
+131
+00:08:31,290 --> 00:08:35,980
+which gives us a relation between two
+signals that's maintained automatically,
+
+132
+00:08:35,980 --> 00:08:38,030
+at all future points in time.
+
+133
+00:08:38,030 --> 00:08:40,810
+Whereas for variables,
+no such mechanisms exists.
+
+134
+00:08:40,810 --> 00:08:47,920
+You have to update all variables manually
+whenever some dependent variable changes.
+
+135
+00:08:47,920 --> 00:08:50,910
+So, for instance, if we have a variable a,
+
+136
+00:08:53,360 --> 00:08:57,040
+initialized to 2 and
+then b would be 2 times a.
+
+137
+00:08:57,040 --> 00:09:02,000
+And then we would update
+a equals a plus 1.
+
+138
+00:09:02,000 --> 00:09:08,540
+And the value of b does not automatically
+get updated together with the value of a.
+
+139
+00:09:08,540 --> 00:09:13,250
+So, b would still be four even after that
+assignment, we'd have to up update it
+
+140
+00:09:13,250 --> 00:09:20,360
+manually to say while b is now again
+two times a, so that would give it six.
+
+141
+00:09:20,360 --> 00:09:24,250
+Where as if we take the same thing with
+signals, it would looks like this.
+
+142
+00:09:24,250 --> 00:09:30,620
+So we would have a signal which is
+assumed to be a var signal, constant two.
+
+143
+00:09:30,620 --> 00:09:34,950
+The signal b,
+it's assumed to be 2 times a and that,
+
+144
+00:09:36,620 --> 00:09:41,830
+assignment would establish already
+essentially the relationship between b and
+
+145
+00:09:41,830 --> 00:09:43,150
+a forever in the future.
+
+146
+00:09:43,150 --> 00:09:50,050
+So if now a is defined to be 3 then,
+
+147
+00:09:50,050 --> 00:09:55,355
+the signal b would be
+automatically updated to 6.
+
+148
+00:09:55,355 --> 00:09:58,830
+We're going to repeat now the BankAccount
+example we've seen in the last section
+
+149
+00:09:58,830 --> 00:09:59,930
+with signals.
+
+150
+00:09:59,930 --> 00:10:04,480
+We'll add a signal called balance to
+BankAccounts and we will define a function
+
+151
+00:10:04,480 --> 00:10:10,230
+consolidated which produces the sum of
+all balances of a given list of accounts.
+
+152
+00:10:10,230 --> 00:10:13,740
+So I have on screen my
+class BankAccount from
+
+153
+00:10:13,740 --> 00:10:16,990
+essentially the original example
+without any event rendering.
+
+154
+00:10:18,070 --> 00:10:21,400
+Deposit and withdraw method and
+this variable balance.
+
+155
+00:10:21,400 --> 00:10:26,510
+How do we make this into
+a source of an FRP signal?
+
+156
+00:10:26,510 --> 00:10:31,440
+Well, one approach would be to say
+well let's make balance a signal.
+
+157
+00:10:31,440 --> 00:10:37,880
+So, it would be a val, and
+that would be a Var of 0,
+
+158
+00:10:37,880 --> 00:10:43,080
+so our balance is still a variable,
+but now it's a signal.
+
+159
+00:10:43,080 --> 00:10:48,180
+So now, we say, well if the deposit
+method would update that signal,
+
+160
+00:10:48,180 --> 00:10:49,940
+let's just write it like this for now.
+
+161
+00:10:52,030 --> 00:10:57,700
+And the amount method
+would test that signal,
+
+162
+00:10:57,700 --> 00:11:04,230
+sorry, and the withdraw method would test
+the signal and again, update it like this.
+
+163
+00:11:08,970 --> 00:11:13,280
+So, that's how a straw man for a bank
+account with signals, that was easy.
+
+164
+00:11:13,280 --> 00:11:16,660
+Right?
+We just change the Var balance into
+
+165
+00:11:16,660 --> 00:11:19,670
+a variable signal and
+brought everything over.
+
+166
+00:11:20,860 --> 00:11:22,530
+So let's test that with a worksheet.
+
+167
+00:11:22,530 --> 00:11:24,570
+I have written a worksheet accounts and
+
+168
+00:11:24,570 --> 00:11:29,560
+have given already the header of function
+consolidated which should return the sum
+
+169
+00:11:29,560 --> 00:11:34,270
+of all the balances of the accounts and
+just lists here, so.
+
+170
+00:11:34,270 --> 00:11:39,990
+So, the type of the consolidated
+would be then the signal event and
+
+171
+00:11:39,990 --> 00:11:44,484
+it's the finished end would
+be to define a signal and
+
+172
+00:11:44,484 --> 00:11:50,101
+the signal is defined by means of
+mapping over all our accounts for
+
+173
+00:11:50,101 --> 00:11:53,189
+each one we would take the balance.
+
+174
+00:11:56,330 --> 00:11:59,820
+And we take the sum of the whole thing.
+
+175
+00:11:59,820 --> 00:12:03,020
+And of course, we have to take
+the balance at the current time.
+
+176
+00:12:03,020 --> 00:12:04,330
+So it'll be written like this.
+
+177
+00:12:07,230 --> 00:12:10,120
+So that gives us
+the function consolidated.
+
+178
+00:12:10,120 --> 00:12:17,691
+What we do now is we define,
+
+179
+00:12:17,691 --> 00:12:23,288
+as before, a number
+
+180
+00:12:23,288 --> 00:12:28,615
+of bank accounts.
+
+181
+00:12:28,615 --> 00:12:35,046
+[SOUND] Then we want to find out
+the total balance in consolidated so
+
+182
+00:12:35,046 --> 00:12:39,410
+the value of consolidated
+at the current time.
+
+183
+00:12:39,410 --> 00:12:42,200
+All right, so we get zero as expected.
+
+184
+00:12:42,200 --> 00:12:47,890
+Let's deposit some amount in A and
+try again.
+
+185
+00:12:51,050 --> 00:12:53,250
+Oops, we got an insertion error.
+
+186
+00:12:53,250 --> 00:12:56,510
+So what does it read here, it says cyclic.
+
+187
+00:12:57,610 --> 00:12:59,180
+Let me just bring that up.
+
+188
+00:12:59,180 --> 00:13:04,040
+Cyclic definition, cyclic signal
+definition, that's what it says.
+
+189
+00:13:04,040 --> 00:13:05,490
+So, what have we done wrong?
+
+190
+00:13:05,490 --> 00:13:09,530
+So, it must be in the bank account.
+
+191
+00:13:09,530 --> 00:13:12,030
+Let's bring that bank account up again.
+
+192
+00:13:12,030 --> 00:13:15,400
+So in fact the arrow
+appeared at this line here.
+
+193
+00:13:15,400 --> 00:13:20,650
+And if you look at this line then you
+must conclude that indeed it does,
+
+194
+00:13:20,650 --> 00:13:22,830
+makes no sense whatsoever.
+
+195
+00:13:22,830 --> 00:13:27,040
+What we've done here is to say, well, the
+signal balance which is a function over
+
+196
+00:13:27,040 --> 00:13:33,540
+time, is the same as itself plus amount,
+where amount is greater than 0.
+
+197
+00:13:33,540 --> 00:13:36,700
+So, obviously an equation
+like that has no solution.
+
+198
+00:13:36,700 --> 00:13:40,310
+You can't define a function
+that at each point in time,
+
+199
+00:13:40,310 --> 00:13:44,600
+is the value of the function
+itself plus amount.
+
+200
+00:13:44,600 --> 00:13:46,010
+So, that didn't work.
+
+201
+00:13:46,010 --> 00:13:48,510
+And, in fact,
+the system has called us out by
+
+202
+00:13:49,610 --> 00:13:53,480
+throwing an insertion which says
+there was a cyclic signal definition.
+
+203
+00:13:53,480 --> 00:13:56,280
+We have defined balance
+in terms of itself.
+
+204
+00:13:57,570 --> 00:13:58,970
+So how do we fix it?
+
+205
+00:13:58,970 --> 00:14:03,660
+Well, what we need to fix, what we need
+to do to fix it, is we have to pull out
+
+206
+00:14:03,660 --> 00:14:10,390
+the balance signal into
+a separate definition here that
+
+207
+00:14:10,390 --> 00:14:15,020
+pulls out the current value of balance and
+then just does this thing here.
+
+208
+00:14:17,170 --> 00:14:19,010
+And we do the same thing here, so.
+
+209
+00:14:22,060 --> 00:14:27,860
+Val b equals balance and
+balance equals b plus amount.
+
+210
+00:14:31,600 --> 00:14:33,670
+So how is that different?
+
+211
+00:14:33,670 --> 00:14:39,640
+Well, what we do now is to say we
+take the current value of balance,
+
+212
+00:14:39,640 --> 00:14:45,670
+call it b, and then define the new balance
+after that to be that value plus amount.
+
+213
+00:14:45,670 --> 00:14:49,150
+So what we did,
+do now is not define a cyclic definition,
+
+214
+00:14:49,150 --> 00:14:53,630
+not to have a cyclic definition, but
+indeed define a constant function which
+
+215
+00:14:53,630 --> 00:14:58,840
+will return at all points in the future,
+the value of this expression here.
+
+216
+00:15:00,100 --> 00:15:02,750
+So you see that
+the interaction of state and
+
+217
+00:15:02,750 --> 00:15:07,590
+functions is very subtle as we have
+observed at several points before.
+
+218
+00:15:07,590 --> 00:15:09,270
+It makes an obvious difference but
+
+219
+00:15:09,270 --> 00:15:14,430
+the balance here is defined as the right
+hand side of a signal definition.
+
+220
+00:15:14,430 --> 00:15:16,590
+Or pulled out into its own [INAUDIBLE].
+
+221
+00:15:16,590 --> 00:15:20,110
+Let's redo the worksheet
+with that example.
+
+222
+00:15:22,230 --> 00:15:29,810
+And in fact, now we get,
+the correct result, the a deposit as 20.
+
+223
+00:15:29,810 --> 00:15:38,095
+Let's deposit as before 30 in, b.
+
+224
+00:15:38,095 --> 00:15:40,710
+Call it again.
+
+225
+00:15:40,710 --> 00:15:43,909
+And that would give, give us this here.
+
+226
+00:15:43,909 --> 00:15:48,471
+Let's go a little bit further and
+say we want to have another signal,
+
+227
+00:15:48,471 --> 00:15:51,100
+which defines an exchange rate.
+
+228
+00:15:51,100 --> 00:15:52,145
+Let's call
+
+229
+00:15:58,530 --> 00:16:05,991
+Let's say the exchange rate is first 246,
+let's say, dollars for Bitcoins.
+
+230
+00:16:08,870 --> 00:16:13,961
+And let's say our value, our total sum is
+
+231
+00:16:13,961 --> 00:16:19,199
+inDollars is then what we had before,
+
+232
+00:16:19,199 --> 00:16:25,621
+a signal that takes c times
+the signal xchange rate.
+
+233
+00:16:37,608 --> 00:16:42,350
+And now we would have a different Signal
+inDollar which has this value here.
+
+234
+00:16:42,350 --> 00:16:47,940
+Now if we changed, let's say,
+b again, b withdraw 10,
+
+235
+00:16:47,940 --> 00:16:53,410
+and look at the result inDollar.
+
+236
+00:16:53,410 --> 00:16:58,768
+Then you, then you see that the deduction
+in b is reflected in our inDollar results.
+
+237
+00:16:58,768 --> 00:17:02,260
+So at the first the signal c got updated,
+and
+
+238
+00:17:02,260 --> 00:17:05,270
+then the signal inDollar got updated,
+as well.
+
+239
+00:17:07,480 --> 00:17:12,320
+So that was the bank account example
+redone with signals instead of
+
+240
+00:17:12,320 --> 00:17:13,730
+subscribers.
+
+241
+00:17:13,730 --> 00:17:18,277
+If you compared the two solutions then
+you will notice that the solution with
+
+242
+00:17:18,277 --> 00:17:20,132
+signals is much shorter.
+
+243
+00:17:20,132 --> 00:17:24,861
+And you could also argue much cleaner
+because there is much less state updates
+
+244
+00:17:24,861 --> 00:17:28,709
+than in the observer solution,
+which is inherently imperative.
+
+245
+00:17:29,900 --> 00:17:32,690
+We've also seen in the example that
+there's an important difference
+
+246
+00:17:32,690 --> 00:17:36,070
+between variable assignments
+such as this one here, and
+
+247
+00:17:36,070 --> 00:17:39,740
+a signal update,
+such that the one that you see here.
+
+248
+00:17:39,740 --> 00:17:42,940
+In, in the first case that,
+in that variable assignment,
+
+249
+00:17:42,940 --> 00:17:47,710
+the new value of v is
+the old value of v plus 1.
+
+250
+00:17:47,710 --> 00:17:52,680
+So implicitly, there is a notion of
+old value vers, versus new values.
+
+251
+00:17:52,680 --> 00:17:55,160
+When you update a signal,
+there's no such notion.
+
+252
+00:17:55,160 --> 00:18:00,090
+So what you are trying to say here is
+that in fact, in fact that the signal s
+
+253
+00:18:00,090 --> 00:18:03,870
+is the same as the signal s plus 1,
+which obviously makes no sense.
+
+254
+00:18:06,520 --> 00:18:08,760
+So here's an exercise for you.
+
+255
+00:18:08,760 --> 00:18:11,020
+Consider those two code fragments.
+
+256
+00:18:11,020 --> 00:18:14,240
+The first one says num equals Var(1).
+
+257
+00:18:14,240 --> 00:18:18,920
+And we have a signal that is num times 2,
+and then we update num to be 2.
+
+258
+00:18:18,920 --> 00:18:24,377
+And the second one is quite similar, so
+we start with a var num equals Var(1).
+
+259
+00:18:24,377 --> 00:18:27,018
+The signal twice is as before.
+
+260
+00:18:27,018 --> 00:18:32,460
+But finally,
+we define num to be equal Var(2).
+
+261
+00:18:32,460 --> 00:18:35,070
+Are those two code fragments equivalent?
+
+262
+00:18:35,070 --> 00:18:38,590
+That means do, would they yield
+the same final value for twice?
+
+263
+00:18:38,590 --> 00:18:42,180
+So if I evaluate twice here and
+I evaluate twice here,
+
+264
+00:18:42,180 --> 00:18:44,830
+would I get the same value, yes or no?
+
+265
+00:18:48,480 --> 00:18:52,210
+So let's visualize how these
+two code fragments behave.
+
+266
+00:18:52,210 --> 00:18:57,615
+In the first case, I have the num signal,
+
+267
+00:18:57,615 --> 00:19:00,556
+which is constant 1.
+
+268
+00:19:00,556 --> 00:19:06,210
+And the twice signal, which is constant 2.
+
+269
+00:19:08,868 --> 00:19:16,004
+Then at some point, I change num to 2 and
+twice will consequently jump to 4.
+
+270
+00:19:17,390 --> 00:19:21,060
+So that's the update of
+the first code fragment.
+
+271
+00:19:21,060 --> 00:19:22,850
+Let's have a look at the second one.
+
+272
+00:19:22,850 --> 00:19:30,999
+So again, I have num equals Var(1).
+
+273
+00:19:30,999 --> 00:19:38,790
+And twice is 2.
+
+274
+00:19:38,790 --> 00:19:42,972
+But what I do now is I
+define a new signal,
+
+275
+00:19:42,972 --> 00:19:45,230
+num, and assign it to the variable.
+
+276
+00:19:45,230 --> 00:19:49,820
+So after this point here, num in fact is,
+
+277
+00:19:49,820 --> 00:19:55,470
+points to a new signal
+that is has the value 2.
+
+278
+00:19:55,470 --> 00:20:00,203
+Whereas the twice signal, in fact,
+would still depend on this signal here
+
+279
+00:20:00,203 --> 00:20:04,510
+that I have created up here,
+so it would stay 2 forever.
+
+280
+00:20:04,510 --> 00:20:10,200
+So while I have here 2 as the final value,
+in the first code, my fragment, it was 4.
+
+281
+00:20:10,200 --> 00:20:13,040
+And the two fragments
+are indeed different.
+
+282
+00:20:13,040 --> 00:20:15,670
+It just shows a little bit the subtlety
+
+283
+00:20:15,670 --> 00:20:19,308
+that you have with signal
+update versus variables.
+
+284
+00:20:19,308 --> 00:20:22,330
+It gives you another aspect
+of that same difference.
+

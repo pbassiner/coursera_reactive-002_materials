@@ -1,0 +1,231 @@
+It turns out that the introduction of
+mutable
+state and changing objects has
+repercussions on object identity.
+That means the question, when are 2
+objects the same, or when are they
+different?
+You're going to look at this question in
+detail in this unit.
+So previously, we questioned whether two
+objects were
+the same, had often a rather easy answer.
+Let's say we have two value
+definitions, x equals E and y equals E
+where E is an arbitrary expression, and we
+don't consider any assignment, then it's
+reasonable to
+assume that x and y are the same.
+By that, we mean that we could also have
+written x equals E, and
+y equals x, and the two forms of
+definitions would mean the same thing.
+That property is usually called
+referential transparency.
+In fact, if we use the substitution model,
+then having
+written that, we would reduce in one step
+to a program
+like this because the rule for value
+references means that
+we replace a value reference, x, by it's
+right-hand side, E.
+So we arrive from here to here in one
+step.
+But it turns out that once we introduce
+assignments, the waters
+are considerably muddied, and we will see
+how in the next slide.
+So once we allow for assignments, the two
+formulations
+above, here and here, don't mean the same
+thing anymore.
+For instance, if we define two bank
+accounts in x and
+y, can we reasonably assume that x and y
+are the same?
+What do you think?
+So if you're like me, then I believe the
+answer to that would be
+clearly no because creating two bank
+accounts
+should give you two things that are
+different.
+But on what grounds, precisely, do you
+base it on?
+So, is there something that tells you
+clearly
+that now the answer if you create two
+definitions
+of the same right-hand sides that give you
+back
+something different, whereas before it was
+always the same?
+When do you make that decision in what
+direction?
+If I were to respond to that question more
+precisely, we
+need a theory of what it means to be the
+same.
+And the precise meaning of being the same,
+is defined by a property called
+operational equivalence.
+In a somewhat informal way, this property
+can be stated as follows.
+Let's say you have two
+definitions for x and y, and they are
+operationally
+equivalent if no possible test can
+distinguish between them.
+So let's see what mean by that, clarify
+that, we
+have to look at what can be a possible
+test.
+So to test if x and y are the same, what
+we can do is essentially put them in a
+black box
+that consists of the definition x and y.
+And then an arbitrary sequence
+of instructions that pokes into these two
+definitions in any way possible.
+So let's call this sequence of
+instructions, f and it, we say f
+of x and y because it can access both x
+and the y.
+So that was one part of the experiment.
+We create two bank accounts.
+We do some
+things with it.
+What we do is arbitrary, which we have the
+full
+choice of operations that we can use in
+the experiment.
+So then the second half of the experiment
+is to run
+the same sequence of operations on our two
+banks account definitions.
+But now we are only allowed to access the
+x.
+So where previously you would have a
+sequence
+that may be interleafed called x and y,
+now every access to y will
+be replaced by exactly the same access,
+but to the object x.
+If you can observe a difference from that
+sequence to that sequence,
+then the expressions x and y are clearly
+different because, what?
+It makes a difference whether you access
+one or the other.
+That's the meaning of being different.
+On the other hand, if every possible
+experiment,
+every possible pair of sequences, produces
+the same result,
+then we say that x and y are the
+same because there's no way you could
+distinguish them.
+They can't, they're not different because
+there is no test that can
+give a different outcome on the x and y or
+the x and
+x on the right-hand side.
+So that, in a nutshell, is the definition
+and the theory of operational equivalence.
+Let's put it to a test in our bank
+accounts example.
+So, we start with the expressions, lets x
+be a bank account and y
+be a bank account, and let's see whether
+they define values that are the same.
+Here's our test sequence.
+We deposit 30
+units into x and withdraw 20 units into y.
+What do we get?
+Well according to our definition of bank
+accounts,
+we get 30 currency units in the first
+line.
+Actually, there wouldn't be anything
+printed, it's just 30 currency units.
+And we get insufficient funds when we
+withdraw 20 currency units from y.
+Why?
+Because, well, the initial balance of y
+was zero, and x and y are different,
+so you can't withdraw 20 from an account
+with a balance of zero.
+So that was the first half of the
+experiment.
+In the second half, we rename every
+occurrence of
+y in in the sequence of operations to x.
+So now we have x deposit thirty, and x
+withdraw twenty.
+And yes, indeed, now, the second line
+would give
+us a result of 10, rather than an
+insufficient
+fund ex, exception.
+So the final results of both half of the
+experiment are different, and that means
+we can conclude that x and y are not the
+same, that they define different objects.
+On the other hand, if we now defined x
+equals new bank account, and y equals x,
+then it turns out that no sequence of
+operations can distinguish between the x
+and the y.
+So they are the same in this case.
+Now to prove that two objects are the
+same,
+and this theory is considerably harder
+than to prove
+that they are different because you have
+to show
+that no possible sequence of operations
+can distinguish between them.
+So, you have to argue about a possibly
+infinite number of possible experiments.
+Whereas to prove that 2 definitions are
+different, a single counter example is
+enough.
+Now, one thing the discussion so far shows
+is that our model of computation
+by substitution has become problematic, in
+fact that it cannot be used.
+Indeed, if we apply the Substitution Model
+to our bank account example, then we
+can always replace the name of a value by
+the expression that defines it.
+So for instance, if we have the,
+these two definitions, then by the
+Substitution Model,
+as we have seen, that rewrites in one step
+to the definitions on the right.
+So, instead of the reference to x here,
+I take the right-hand side, new bank
+account.
+But we have seen that, the, this change,
+this step
+from here to here, in fact leads to a
+different program.
+So, clearly going from here to here is not
+a valid step, and that means that the
+Substitution Model,
+as a whole, stops being valid once we add
+assignment to a language.
+It is possible to adapt the substitution
+model, for instance,
+by introducing a store that keeps track of
+all the references.
+But unfortunately, this becomes
+considerably more complicated.
+So, in the future, we will say with some
+regret, goodbye to
+the Substitution Model for all code that
+is not purely functional, and
+we will fall back on a more operational
+and sometimes intuitive reasoning instead.
+

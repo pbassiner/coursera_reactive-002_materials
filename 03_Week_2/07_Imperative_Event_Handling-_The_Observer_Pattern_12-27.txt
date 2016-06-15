@@ -1,0 +1,318 @@
+So, in this module we're going to look
+at some of the traditional ways to
+handle events.
+Event handling of course, is something
+very old almost as old software itself.
+We have already seen one instance where
+event handling played an important role,
+that was simulation and we are going to
+see now another, that's user interfaces.
+The traditional way to deal with user
+interfaces to handle the events there
+is based on what we call
+the observer pattern.
+We're going to explain what it is, and
+we are going to explain what it's good for
+and also what some of
+it's short comings are.
+That will lead us then in the next two
+modules to a different way to treat
+events in these programs which is
+called functional reactive programming,
+and where events are essentially
+summarized in signals.
+The observer pattern is commonly
+used when we have some sort of model
+that maintains the state of
+an application, and we need to have one or
+more views that essentially present
+the properties of the model in some way.
+Variants of the observer pattern
+are also called publish/subscribe,
+or model/view/controller.
+The idea is always that we
+have some sort of model which
+captures the state of an application, and
+we might have one or
+more views that present that state,
+and there would actually be
+a bearing number of views.
+So, views can announce themselves
+to the model with an operation
+which we call subscribe.
+And the model will then,
+whenever there's a change
+publish the fact that is new
+information to the views.
+If you can then inquire the model
+about what the new state is and
+change it's presentations.
+And because essentially,
+views announce themselves as published
+there can be more than one view.
+So, there could be another that also
+publishes subscribes itself and
+gets the same published information.
+Sometimes in using interfaces,
+we have a third component which is
+called a controller, which somehow
+manages the interactions
+between the model and the view.
+But the controller in fact, is optional.
+So let's see how we could
+put this into code.
+Here is a trait for publishers, so
+it's expected that every publisher would
+inherit from that trait to gain
+the functionality of a publisher.
+What is that functionality?
+Well, publishers maintain internally
+a set of subscribers which you see here.
+Initially that set is empty, so
+you can add a new subscriber by calling
+the subscribe method of a publisher which
+simply announces a given subscriber.
+That's another trait
+which we will see next.
+And it, what it does is it
+adds a subscriber to the set.
+With a plus, equals.
+The dual of subscribe of course is
+unsubscribe, so I subscribe I can also
+announce it's no longer interested in
+published info of that publisher, and then
+the implementation of that would simply
+remove the subscriber from that set.
+And finally,
+the publisher has a published methods.
+What that does is it simply goes
+through all subscriber and invokes for
+each subscriber a handler
+method that the scrub,
+subscriber must provide with
+the current publisher it's argument.
+So let's see the subscriber next.
+Subscribers have a simple all they need
+to have is this handler method, and
+we pass the publisher that published
+new information as a parameter
+to that handler.
+So let's go back to bank accounts which
+we have seen before in the module about
+functional programming instate you see
+the example of bank account that
+we have here again for recall.
+So a bank account has deposit and
+withdraw methods, and
+it maintains a private variable balance.
+And of course the deposit method adds some
+amount to the balance whereas the withdraw
+method's subtracts it.
+So what do we need to do to
+make bank account a publisher?
+I have already given you the extension so
+bank account now extends publisher.
+What we need to do of course is invoke
+publish because otherwise nobody would
+ever know about changes
+in the bank account.
+Where do we do that?
+Well, every time we change
+the state of the bank account, so
+I would propose you put a publish here.
+And then put another publish here.
+One in this, deposit the and
+the other withdraw.
+We're almost done.
+The one thing missing here is you, well
+once, we have published what is a view of
+the bank account, a subscriber,
+what it's suppose to do?
+Probably wants to access a important
+details about the bank account.
+And probably the most important
+one here is the balance.
+So right now, there's no way to access the
+balance directly because the balance is
+a private variable.
+So let's add an accessal
+method called current balance.
+It simply provides the current
+state of the variable.
+Of course, we could have made balance
+simply a public variable but that's not
+advisable because that would mean that
+everybody could not only read balance, but
+also write to it, and I believe a lot of
+banks would get very nervous if you could
+manipulate the balance of your accounts or
+anybody's accounts like that.
+So here, you see the complete
+picture of bank accounts,
+I have added all the things that
+I drew by hand to the code here.
+Current balance and the two publishers.
+So let's add a view to this picture.
+The thing I want to do is
+define a class Consolidator
+that observes a list of bank accounts and
+that would always be up to date with the
+total balance of all the bank accounts.
+So the sum of all the balances
+in the observed bank accounts.
+Consolidator is a subscriber.
+So what this Consolidator does initially
+is it subscribes itself to all observed
+bank accounts as an initialization action
+observed for each subscribe, this.
+What it needs to do then is maintain
+a variable which is the total and
+sum of the balances of
+all the bank accounts.
+I, I've written here private var
+total int equals underscore.
+That means that the variable
+is initially uninitialized,
+that's what the underscore does here.
+I initialize it by calling
+the compute method.
+So what does compute do?
+The compute method goes through all
+observed bank accounts, take the current
+balance of each and takes the sum of these
+balances, and stores the result in total.
+Compute is also called by the handler
+method of the subscriber.
+So whenever one of
+the bank account changes
+compute is invoked again to
+recompute the total balance.
+Of course, one could envision
+more efficient ways to do this,
+maybe take the difference of
+the balance of this account and
+apply that to the total variable.
+But for now we are doing
+the most straight forward and
+simple way even if it's
+not the most efficient.
+Finally, there's an access and method
+again total balance which gives you,
+gives you the current state
+of the total variable.
+So let's observe bank accounts
+with a little Scala worksheet.
+I've called it observers and
+I've put it in the package week
+two dot publish subscribe.
+Where I assume the bank
+account class is also located.
+So let's define a couple of bank accounts.
+We have a bank account a, bank account b.
+And now let's define a consolidator
+that takes the two bank accounts and
+always maintains the total balance.
+So we can, find out what the total balance
+is by just calling c.totalBalance.
+And of course the total
+balance initially is 0.
+So let's do something with the accounts.
+Let's say we want to deposit
+20 the currency units in a.
+And we want to find out
+what's the total balance now.
+[SOUND] And that would give us 20.
+Well no big surprise, but
+remember the total balance actually
+does not by itself always recompute.
+So it indeed,
+it only gives you the current
+variable total in the consolidator.
+So the consolidator has updated
+itself as you can see there.
+Let's do another step, let's deposit 30
+units in b and do total balance here.
+And we would get 50 as expected.
+So let's see how we would evaluate what
+we've done with the observer pattern.
+There's some good aspects, so
+one good thing is that we have views
+that are decoupled from the state.
+We can have a varying number
+of views of a given state,
+so that's good, and it was overall
+rather simple and intuitive to set up.
+But there are also some problematic
+parts to this design pattern.
+The first one is that we have seen that
+all the fundamental operations publish,
+subscribe, handle, they return unit as
+a result so they must be imperative.
+Everything they do has to
+be by imperative updates.
+The second problematic aspect is that,
+in fact, there are quite a few moving
+parts that need to be coordinated, so
+every subscriber has to announce itself
+to the publisher with subscribe.
+Then the publisher has to essentially
+handle these things in the data structure
+the, calls back and forth and so on.
+That also makes things more
+complicated when you add concurrency.
+One particular problem is
+if you have a single view
+that observes two different models
+that get updated both concurrently.
+In that case, the two models could call
+at the same time, the angle method
+of the view which gives us possible raised
+conditions that have to be handled.
+A fourth disadvantage is that views
+are still tightly bound to the state,
+that's represented in that model.
+Every view update is directly
+coupled to the state update.
+Once we update the state the view
+gets updated immediately.
+Sometimes we want to have a looser
+asynchronous relationship between a view
+and a model.
+There was one interesting study
+from Adobe from 2008 where they
+looked at the code base which
+is quite UI centric and
+they found that indeed event
+handling is a very important part.
+About one-third of the code in Adobe's
+desktop applications is devoted to
+event handling.
+And for the meter to code that uses that
+event handling is also quite integrate.
+So more than that share name maybe
+one-half of all the bugs in the code.
+Where related to event handling.
+So that shows that the conditional
+ways of doing events by workable and
+standard quite an industry
+standard right now.
+It's far from being perfect, it's quite
+bulky and it causes a lot of bugs.
+So in the rest of this course,
+we'll explore different ways in which we
+can improve upon the imperative view of
+reactive programming that's
+embodied in the observer pattern.
+In this week we are going to look at
+Functional Reactive Programming as
+an alternative to treat the whole,
+these event sequences in a functional way.
+In the next two weeks we
+will look at related but
+different ways of abstracting our events
+and event streams with futures and
+observables and in the last three weeks
+of this course we will tackle concurrency
+head on we will express concurrency and
+handle it using Actors.
+

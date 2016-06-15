@@ -1,0 +1,863 @@
+1
+00:00:01,240 --> 00:00:05,190
+So, in this module we're going to look
+at some of the traditional ways to
+
+2
+00:00:05,190 --> 00:00:06,520
+handle events.
+
+3
+00:00:06,520 --> 00:00:11,430
+Event handling of course, is something
+very old almost as old software itself.
+
+4
+00:00:11,430 --> 00:00:15,400
+We have already seen one instance where
+event handling played an important role,
+
+5
+00:00:15,400 --> 00:00:20,940
+that was simulation and we are going to
+see now another, that's user interfaces.
+
+6
+00:00:20,940 --> 00:00:25,740
+The traditional way to deal with user
+interfaces to handle the events there
+
+7
+00:00:25,740 --> 00:00:29,020
+is based on what we call
+the observer pattern.
+
+8
+00:00:29,020 --> 00:00:33,240
+We're going to explain what it is, and
+we are going to explain what it's good for
+
+9
+00:00:33,240 --> 00:00:36,070
+and also what some of
+it's short comings are.
+
+10
+00:00:36,070 --> 00:00:40,690
+That will lead us then in the next two
+modules to a different way to treat
+
+11
+00:00:40,690 --> 00:00:45,730
+events in these programs which is
+called functional reactive programming,
+
+12
+00:00:45,730 --> 00:00:51,040
+and where events are essentially
+summarized in signals.
+
+13
+00:00:51,040 --> 00:00:55,640
+The observer pattern is commonly
+used when we have some sort of model
+
+14
+00:00:55,640 --> 00:00:59,760
+that maintains the state of
+an application, and we need to have one or
+
+15
+00:00:59,760 --> 00:01:04,850
+more views that essentially present
+the properties of the model in some way.
+
+16
+00:01:04,850 --> 00:01:08,302
+Variants of the observer pattern
+are also called publish/subscribe,
+
+17
+00:01:08,302 --> 00:01:10,230
+or model/view/controller.
+
+18
+00:01:10,230 --> 00:01:14,770
+The idea is always that we
+have some sort of model which
+
+19
+00:01:14,770 --> 00:01:20,180
+captures the state of an application, and
+
+20
+00:01:20,180 --> 00:01:24,160
+we might have one or
+more views that present that state,
+
+21
+00:01:26,300 --> 00:01:31,430
+and there would actually be
+a bearing number of views.
+
+22
+00:01:31,430 --> 00:01:36,334
+So, views can announce themselves
+to the model with an operation
+
+23
+00:01:36,334 --> 00:01:38,304
+which we call subscribe.
+
+24
+00:01:41,728 --> 00:01:46,246
+And the model will then,
+whenever there's a change
+
+25
+00:01:46,246 --> 00:01:51,910
+publish the fact that is new
+information to the views.
+
+26
+00:01:51,910 --> 00:01:56,230
+If you can then inquire the model
+about what the new state is and
+
+27
+00:01:56,230 --> 00:01:58,110
+change it's presentations.
+
+28
+00:01:58,110 --> 00:01:59,190
+And because essentially,
+
+29
+00:01:59,190 --> 00:02:02,660
+views announce themselves as published
+there can be more than one view.
+
+30
+00:02:02,660 --> 00:02:07,500
+So, there could be another that also
+publishes subscribes itself and
+
+31
+00:02:07,500 --> 00:02:09,390
+gets the same published information.
+
+32
+00:02:10,720 --> 00:02:12,580
+Sometimes in using interfaces,
+
+33
+00:02:12,580 --> 00:02:19,270
+we have a third component which is
+called a controller, which somehow
+
+34
+00:02:19,270 --> 00:02:24,340
+manages the interactions
+between the model and the view.
+
+35
+00:02:24,340 --> 00:02:26,650
+But the controller in fact, is optional.
+
+36
+00:02:26,650 --> 00:02:29,650
+So let's see how we could
+put this into code.
+
+37
+00:02:29,650 --> 00:02:34,360
+Here is a trait for publishers, so
+it's expected that every publisher would
+
+38
+00:02:34,360 --> 00:02:38,820
+inherit from that trait to gain
+the functionality of a publisher.
+
+39
+00:02:38,820 --> 00:02:40,490
+What is that functionality?
+
+40
+00:02:40,490 --> 00:02:48,040
+Well, publishers maintain internally
+a set of subscribers which you see here.
+
+41
+00:02:48,040 --> 00:02:53,050
+Initially that set is empty, so
+you can add a new subscriber by calling
+
+42
+00:02:53,050 --> 00:02:58,620
+the subscribe method of a publisher which
+simply announces a given subscriber.
+
+43
+00:02:58,620 --> 00:03:01,150
+That's another trait
+which we will see next.
+
+44
+00:03:01,150 --> 00:03:04,275
+And it, what it does is it
+adds a subscriber to the set.
+
+45
+00:03:04,275 --> 00:03:06,301
+With a plus, equals.
+
+46
+00:03:06,301 --> 00:03:10,660
+The dual of subscribe of course is
+unsubscribe, so I subscribe I can also
+
+47
+00:03:10,660 --> 00:03:15,600
+announce it's no longer interested in
+published info of that publisher, and then
+
+48
+00:03:15,600 --> 00:03:19,950
+the implementation of that would simply
+remove the subscriber from that set.
+
+49
+00:03:19,950 --> 00:03:22,810
+And finally,
+the publisher has a published methods.
+
+50
+00:03:22,810 --> 00:03:27,340
+What that does is it simply goes
+through all subscriber and invokes for
+
+51
+00:03:27,340 --> 00:03:30,230
+each subscriber a handler
+method that the scrub,
+
+52
+00:03:30,230 --> 00:03:34,960
+subscriber must provide with
+the current publisher it's argument.
+
+53
+00:03:34,960 --> 00:03:37,120
+So let's see the subscriber next.
+
+54
+00:03:37,120 --> 00:03:42,370
+Subscribers have a simple all they need
+to have is this handler method, and
+
+55
+00:03:42,370 --> 00:03:46,190
+we pass the publisher that published
+new information as a parameter
+
+56
+00:03:46,190 --> 00:03:47,550
+to that handler.
+
+57
+00:03:47,550 --> 00:03:51,580
+So let's go back to bank accounts which
+we have seen before in the module about
+
+58
+00:03:51,580 --> 00:03:54,940
+functional programming instate you see
+
+59
+00:03:54,940 --> 00:03:59,270
+the example of bank account that
+we have here again for recall.
+
+60
+00:03:59,270 --> 00:04:03,680
+So a bank account has deposit and
+withdraw methods, and
+
+61
+00:04:03,680 --> 00:04:06,790
+it maintains a private variable balance.
+
+62
+00:04:06,790 --> 00:04:11,205
+And of course the deposit method adds some
+amount to the balance whereas the withdraw
+
+63
+00:04:11,205 --> 00:04:12,588
+method's subtracts it.
+
+64
+00:04:12,588 --> 00:04:15,680
+So what do we need to do to
+make bank account a publisher?
+
+65
+00:04:15,680 --> 00:04:21,370
+I have already given you the extension so
+bank account now extends publisher.
+
+66
+00:04:21,370 --> 00:04:25,730
+What we need to do of course is invoke
+publish because otherwise nobody would
+
+67
+00:04:25,730 --> 00:04:28,150
+ever know about changes
+in the bank account.
+
+68
+00:04:28,150 --> 00:04:29,130
+Where do we do that?
+
+69
+00:04:29,130 --> 00:04:33,094
+Well, every time we change
+the state of the bank account, so
+
+70
+00:04:33,094 --> 00:04:35,681
+I would propose you put a publish here.
+
+71
+00:04:38,085 --> 00:04:39,941
+And then put another publish here.
+
+72
+00:04:39,941 --> 00:04:43,510
+One in this, deposit the and
+the other withdraw.
+
+73
+00:04:46,340 --> 00:04:47,790
+We're almost done.
+
+74
+00:04:47,790 --> 00:04:52,230
+The one thing missing here is you, well
+once, we have published what is a view of
+
+75
+00:04:52,230 --> 00:04:55,400
+the bank account, a subscriber,
+what it's suppose to do?
+
+76
+00:04:55,400 --> 00:04:59,610
+Probably wants to access a important
+details about the bank account.
+
+77
+00:04:59,610 --> 00:05:01,840
+And probably the most important
+one here is the balance.
+
+78
+00:05:01,840 --> 00:05:06,630
+So right now, there's no way to access the
+balance directly because the balance is
+
+79
+00:05:06,630 --> 00:05:07,770
+a private variable.
+
+80
+00:05:07,770 --> 00:05:12,154
+So let's add an accessal
+method called current balance.
+
+81
+00:05:19,037 --> 00:05:22,880
+It simply provides the current
+state of the variable.
+
+82
+00:05:23,960 --> 00:05:28,585
+Of course, we could have made balance
+simply a public variable but that's not
+
+83
+00:05:28,585 --> 00:05:32,965
+advisable because that would mean that
+everybody could not only read balance, but
+
+84
+00:05:32,965 --> 00:05:37,605
+also write to it, and I believe a lot of
+banks would get very nervous if you could
+
+85
+00:05:37,605 --> 00:05:41,450
+manipulate the balance of your accounts or
+anybody's accounts like that.
+
+86
+00:05:41,450 --> 00:05:44,710
+So here, you see the complete
+picture of bank accounts,
+
+87
+00:05:44,710 --> 00:05:49,350
+I have added all the things that
+I drew by hand to the code here.
+
+88
+00:05:49,350 --> 00:05:51,800
+Current balance and the two publishers.
+
+89
+00:05:51,800 --> 00:05:54,850
+So let's add a view to this picture.
+
+90
+00:05:54,850 --> 00:05:58,425
+The thing I want to do is
+define a class Consolidator
+
+91
+00:05:58,425 --> 00:06:01,125
+that observes a list of bank accounts and
+
+92
+00:06:01,125 --> 00:06:05,855
+that would always be up to date with the
+total balance of all the bank accounts.
+
+93
+00:06:05,855 --> 00:06:09,495
+So the sum of all the balances
+in the observed bank accounts.
+
+94
+00:06:10,825 --> 00:06:13,425
+Consolidator is a subscriber.
+
+95
+00:06:13,425 --> 00:06:20,040
+So what this Consolidator does initially
+is it subscribes itself to all observed
+
+96
+00:06:20,040 --> 00:06:25,140
+bank accounts as an initialization action
+observed for each subscribe, this.
+
+97
+00:06:26,300 --> 00:06:30,780
+What it needs to do then is maintain
+a variable which is the total and
+
+98
+00:06:30,780 --> 00:06:33,570
+sum of the balances of
+all the bank accounts.
+
+99
+00:06:34,620 --> 00:06:38,480
+I, I've written here private var
+total int equals underscore.
+
+100
+00:06:38,480 --> 00:06:41,770
+That means that the variable
+is initially uninitialized,
+
+101
+00:06:41,770 --> 00:06:43,910
+that's what the underscore does here.
+
+102
+00:06:43,910 --> 00:06:47,360
+I initialize it by calling
+the compute method.
+
+103
+00:06:47,360 --> 00:06:48,670
+So what does compute do?
+
+104
+00:06:48,670 --> 00:06:52,380
+The compute method goes through all
+observed bank accounts, take the current
+
+105
+00:06:52,380 --> 00:06:58,010
+balance of each and takes the sum of these
+balances, and stores the result in total.
+
+106
+00:06:58,010 --> 00:07:01,700
+Compute is also called by the handler
+method of the subscriber.
+
+107
+00:07:01,700 --> 00:07:05,020
+So whenever one of
+the bank account changes
+
+108
+00:07:05,020 --> 00:07:10,680
+compute is invoked again to
+recompute the total balance.
+
+109
+00:07:10,680 --> 00:07:13,680
+Of course, one could envision
+more efficient ways to do this,
+
+110
+00:07:13,680 --> 00:07:17,490
+maybe take the difference of
+the balance of this account and
+
+111
+00:07:17,490 --> 00:07:19,790
+apply that to the total variable.
+
+112
+00:07:19,790 --> 00:07:23,590
+But for now we are doing
+the most straight forward and
+
+113
+00:07:23,590 --> 00:07:26,160
+simple way even if it's
+not the most efficient.
+
+114
+00:07:27,280 --> 00:07:31,170
+Finally, there's an access and method
+again total balance which gives you,
+
+115
+00:07:31,170 --> 00:07:34,150
+gives you the current state
+of the total variable.
+
+116
+00:07:34,150 --> 00:07:37,940
+So let's observe bank accounts
+with a little Scala worksheet.
+
+117
+00:07:37,940 --> 00:07:39,610
+I've called it observers and
+
+118
+00:07:39,610 --> 00:07:42,860
+I've put it in the package week
+two dot publish subscribe.
+
+119
+00:07:42,860 --> 00:07:46,490
+Where I assume the bank
+account class is also located.
+
+120
+00:07:46,490 --> 00:07:48,660
+So let's define a couple of bank accounts.
+
+121
+00:07:49,990 --> 00:07:52,670
+We have a bank account a, bank account b.
+
+122
+00:07:52,670 --> 00:07:57,640
+And now let's define a consolidator
+that takes the two bank accounts and
+
+123
+00:07:57,640 --> 00:08:00,600
+always maintains the total balance.
+
+124
+00:08:00,600 --> 00:08:06,075
+So we can, find out what the total balance
+
+125
+00:08:06,075 --> 00:08:11,087
+is by just calling c.totalBalance.
+
+126
+00:08:17,008 --> 00:08:20,387
+And of course the total
+balance initially is 0.
+
+127
+00:08:20,387 --> 00:08:23,320
+So let's do something with the accounts.
+
+128
+00:08:23,320 --> 00:08:28,680
+Let's say we want to deposit
+20 the currency units in a.
+
+129
+00:08:31,810 --> 00:08:36,665
+And we want to find out
+what's the total balance now.
+
+130
+00:08:36,665 --> 00:08:43,979
+[SOUND] And that would give us 20.
+
+131
+00:08:43,979 --> 00:08:46,060
+Well no big surprise, but
+
+132
+00:08:46,060 --> 00:08:51,170
+remember the total balance actually
+does not by itself always recompute.
+
+133
+00:08:51,170 --> 00:08:52,410
+So it indeed,
+
+134
+00:08:52,410 --> 00:08:56,420
+it only gives you the current
+variable total in the consolidator.
+
+135
+00:08:56,420 --> 00:09:00,670
+So the consolidator has updated
+itself as you can see there.
+
+136
+00:09:00,670 --> 00:09:07,590
+Let's do another step, let's deposit 30
+units in b and do total balance here.
+
+137
+00:09:11,560 --> 00:09:13,620
+And we would get 50 as expected.
+
+138
+00:09:14,640 --> 00:09:19,180
+So let's see how we would evaluate what
+we've done with the observer pattern.
+
+139
+00:09:19,180 --> 00:09:22,160
+There's some good aspects, so
+
+140
+00:09:22,160 --> 00:09:27,240
+one good thing is that we have views
+that are decoupled from the state.
+
+141
+00:09:27,240 --> 00:09:30,100
+We can have a varying number
+of views of a given state,
+
+142
+00:09:30,100 --> 00:09:35,450
+so that's good, and it was overall
+rather simple and intuitive to set up.
+
+143
+00:09:35,450 --> 00:09:38,900
+But there are also some problematic
+parts to this design pattern.
+
+144
+00:09:40,000 --> 00:09:46,487
+The first one is that we have seen that
+all the fundamental operations publish,
+
+145
+00:09:46,487 --> 00:09:52,780
+subscribe, handle, they return unit as
+a result so they must be imperative.
+
+146
+00:09:52,780 --> 00:09:56,190
+Everything they do has to
+be by imperative updates.
+
+147
+00:09:57,260 --> 00:09:59,430
+The second problematic aspect is that,
+
+148
+00:09:59,430 --> 00:10:03,420
+in fact, there are quite a few moving
+parts that need to be coordinated, so
+
+149
+00:10:03,420 --> 00:10:08,220
+every subscriber has to announce itself
+to the publisher with subscribe.
+
+150
+00:10:08,220 --> 00:10:11,600
+Then the publisher has to essentially
+handle these things in the data structure
+
+151
+00:10:12,620 --> 00:10:14,970
+the, calls back and forth and so on.
+
+152
+00:10:16,220 --> 00:10:21,050
+That also makes things more
+complicated when you add concurrency.
+
+153
+00:10:21,050 --> 00:10:26,050
+One particular problem is
+if you have a single view
+
+154
+00:10:26,050 --> 00:10:30,710
+that observes two different models
+that get updated both concurrently.
+
+155
+00:10:31,950 --> 00:10:37,240
+In that case, the two models could call
+at the same time, the angle method
+
+156
+00:10:37,240 --> 00:10:42,160
+of the view which gives us possible raised
+conditions that have to be handled.
+
+157
+00:10:43,410 --> 00:10:49,280
+A fourth disadvantage is that views
+are still tightly bound to the state,
+
+158
+00:10:49,280 --> 00:10:51,010
+that's represented in that model.
+
+159
+00:10:51,010 --> 00:10:55,670
+Every view update is directly
+coupled to the state update.
+
+160
+00:10:55,670 --> 00:10:58,850
+Once we update the state the view
+gets updated immediately.
+
+161
+00:10:58,850 --> 00:11:03,470
+Sometimes we want to have a looser
+asynchronous relationship between a view
+
+162
+00:11:03,470 --> 00:11:04,510
+and a model.
+
+163
+00:11:04,510 --> 00:11:08,850
+There was one interesting study
+from Adobe from 2008 where they
+
+164
+00:11:08,850 --> 00:11:12,050
+looked at the code base which
+is quite UI centric and
+
+165
+00:11:12,050 --> 00:11:15,822
+they found that indeed event
+handling is a very important part.
+
+166
+00:11:15,822 --> 00:11:20,710
+About one-third of the code in Adobe's
+desktop applications is devoted to
+
+167
+00:11:20,710 --> 00:11:22,230
+event handling.
+
+168
+00:11:22,230 --> 00:11:27,900
+And for the meter to code that uses that
+event handling is also quite integrate.
+
+169
+00:11:27,900 --> 00:11:32,380
+So more than that share name maybe
+one-half of all the bugs in the code.
+
+170
+00:11:32,380 --> 00:11:34,770
+Where related to event handling.
+
+171
+00:11:34,770 --> 00:11:38,870
+So that shows that the conditional
+ways of doing events by workable and
+
+172
+00:11:38,870 --> 00:11:41,990
+standard quite an industry
+standard right now.
+
+173
+00:11:41,990 --> 00:11:46,770
+It's far from being perfect, it's quite
+bulky and it causes a lot of bugs.
+
+174
+00:11:48,420 --> 00:11:49,800
+So in the rest of this course,
+
+175
+00:11:49,800 --> 00:11:54,290
+we'll explore different ways in which we
+can improve upon the imperative view of
+
+176
+00:11:54,290 --> 00:11:58,070
+reactive programming that's
+embodied in the observer pattern.
+
+177
+00:11:58,070 --> 00:12:01,540
+In this week we are going to look at
+Functional Reactive Programming as
+
+178
+00:12:01,540 --> 00:12:07,600
+an alternative to treat the whole,
+these event sequences in a functional way.
+
+179
+00:12:07,600 --> 00:12:10,890
+In the next two weeks we
+will look at related but
+
+180
+00:12:10,890 --> 00:12:15,370
+different ways of abstracting our events
+and event streams with futures and
+
+181
+00:12:15,370 --> 00:12:20,886
+observables and in the last three weeks
+of this course we will tackle concurrency
+
+182
+00:12:20,886 --> 00:12:25,290
+head on we will express concurrency and
+handle it using Actors.
+

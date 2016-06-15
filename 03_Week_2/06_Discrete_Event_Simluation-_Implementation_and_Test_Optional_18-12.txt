@@ -1,0 +1,460 @@
+In the third and final part of the
+discrete event simulation.
+We will look at the implementation of the
+call libraries, and then we will put
+everything together.
+And draw on a concrete simulation to
+demonstrate and test how everything works.
+All we have left to do now is to implement
+the simulation trait.
+The principle idea is to keep in every
+instance
+of the trait an agenda of actions to
+perform.
+The agenda would be a list of simulated
+events, and each event would
+consist of an action and the time when
+that action should be produced.
+We sort the agenda list in such a way that
+the actions to be performed first are in
+the beginning, that way we can simply pick
+them
+off the front of the list to execute them.
+That leads to the following start of the
+implementation
+of the trade simulation.
+There's the type action that takes an
+anti-parameter list to unit.
+Then we would have a class of events.
+For convenience we make into a case class,
+that way
+it's easy to pad a match on that an event
+would have a time when it should be
+executed and
+an action which gives us the function that
+should be executed.
+There's the agenda
+which is just a list of events, and
+there's the private
+variable agenda of type agenda, which is
+initially the empty list.
+To handle time, we do that with another
+private variable, call it curtime.
+That contains the current simulation time.
+And that one can be then be accessed with
+the getter function current time.
+So, the implementation of the method after
+delay, with a given
+delay and of given block, would then
+insert the task event at current time plus
+delay to the action that when invoked will
+perform the operations in the block.
+And, it would put that event into the
+agenda list at the right position.
+Here's the implementation of after delay,
+as we have
+seen it creates the event at the given
+time.
+With the given actions to perform, and it
+inserts it into the agenda.
+The implementation of the insert function
+is straightforward, remember what it needs
+to
+do is insert an event at the right place
+into, in the list.
+That it appears at the right position
+given its time, so
+we do that by doing a parent match on the
+agenda.
+If the agenda has a first
+element, that has a time, that is less or
+equal to the current items time.
+Then we insert the item in the rest of the
+list.
+Because we should still keep first as the
+first element.
+If that's not the case, that means the
+list is either empty, or the
+first element of the list should appear at
+a later time than the current item.
+In both of these cases we take the item as
+first
+element of the list and follow with the
+agenda.
+The last part of the simulation
+implementation
+has to do with actually running the
+event loop, so that event handling loop
+would remove successive elements from the
+agenda.
+That would be correct because we know that
+the
+agenda is already time sorted, and perform
+the associated actions.
+Here's the implementation of the event
+handling
+loop, it performs a para-match on agenda.
+If agenda is not empty, then it will strip
+off the first item from agenda, set the
+current time
+to the indicated time of that item,
+perform the
+item's action, and continue with the
+recursive call to loop.
+If the agenda is empty, then the
+simulation has ended and the function
+connects it.
+So to run the simulation we simply call
+loop, but before
+we do that we install our first action to
+be performed.
+And that action actually tells us that the
+simulation has started, and what the
+current time is.
+Before we can launch the simulation, we
+still need to
+wait to exam the changes of the signals on
+the wires.
+So far, the simulation doesn't give us any
+output.
+So we would be flying blind.
+To change that, we define a function,
+probe.
+So probe is something that you can attach
+to a wire
+Sort of like an oscillator that tracks a
+digital signal.
+Something like that.
+And the form it takes here is just like a
+gate or another component.
+So probe takes the form of a component,
+much like
+an AND gate or all the other components in
+the system.
+here's the function probe.
+You attach it to a wire.
+It has a name that is typically the name
+of the wire.
+It is an action.
+The action consists in printing the
+name of the wire, the current time, and
+the new signal on that wire.
+And what it would do on installation is,
+it would add this action to the wire.
+So, as always the action gets executed
+each time, the signal on the wire changes.
+What the example also shows is a neat
+feature of scala
+in string formatting, so you can write a
+string like this.
+You prefix it
+with an s, which means it's the standard
+string
+interpolator, and then you can write
+anything you want
+to embed in the string with a dollar and
+the name of the thing that you want to
+embed.
+Or if the thing that you want to embed is
+more than
+a single identifier, you can put it in
+braces and write that here.
+So the string that you see here, you
+could have done also by concatenating
+strings with plus.
+It would
+look something like this.
+Name, plus space,
+plus current time, plus value
+equals plus wire.getsignal.
+The
+tool would print to the same string, but
+of course the first one is far easier
+to understand what actually gets embedded
+where in the string, than the
+second version, that relies on the string
+concatenation.
+The last thing we have to do before we can
+start the simulation is define all the
+technology dependent parameters.
+Remember that our gates use constants in
+InverterDelay, AndGateDelay and
+OrGateDelay, which were abstract on the
+level of basic circuit simulations.
+we need to define
+them to fit the technology that we use in
+the simulation.
+A convenient way to do that is to pack
+them all in a
+separate trait, that can then be mixed in
+in the actual simulation object.
+So you could define trade parameters with
+the delays, and then the actual
+simulation object would extend the
+circuits class with parameters.
+If we look at the class diagrams, then
+there
+would be another trade called parameters
+that gets inherited
+from the concrete simulation objects.
+Let's try out a concrete simulation,
+before we do that in a work sheet.
+Let's take a tour of the classes that
+we've seen so far.
+So there's first the simulation class that
+you have seen here.
+With its Action type, its Event type, and
+the Simulation API.
+Which consists of the method after
+Delay run and Current time.
+You then have the label of Gates.
+Where we have the three delays as abstract
+methods.
+So these need to be filled in later on.
+And we have the definition of the wire
+class that you have seen.
+Of, and then of the gates, inverter gate,
+AND gate, and OR gate.
+And we also put for pro,
+convenience the probe method on that
+layer.
+Finally we have the layer of circuits
+which contains things
+like the half Adder that you've seen and
+the full Adder.
+And the last part is parameters, which is
+the trait that
+fixes the technology specific constants.
+So here we have taken two for inverted
+delay, three for the AND gate delay, and
+five for the OR Gate delay.
+With all that in place, let's launch
+a work sheet that does a concrete
+simulation.
+So I create a new scala work sheet, call
+it test.
+What I need to do is first create an
+object for the actual simulation, so that
+would extend the circuits that I have
+defined
+so far, and would mix in the parameters.
+I import everything in that object from,
+for convenience.
+Then I can get started by creating some
+wires for a half adder.
+Let's, call them in1.
+>> In2, and the output wires would be
+Sum, and Carry.
+So that would give us four wires that we
+see here.
+We next connect these wires, with a half
+adder.
+So we write half adder, in1, in2, sum and
+carry.
+And to see something, we put probes on the
+two output wires.
+So we would have a probe, sum, on the sum
+wire.
+And a probe carry
+on the carry wire.
+So, that already gives us immediately the
+values of the wires.
+Sum and carry would both be false.
+That's a side effect of immediately
+executing an action, once we install it.
+And, the action of the probe is simply to
+print the current value of the wire.
+To run a simulation, let's change a signal
+of one of the wires.
+So let's say, let's put a one on in
+one and run the simulation.
+What we see is the welcome message,
+simulation has started.
+The time 0 and at the time eight, the
+new-value of the sum would be true.
+The value of the carry has not changed, so
+we don't see anything there.
+We can continue by placing an input signal
+on in two, and running s, the simulation
+again.
+What you will see now is that the
+simulation has restarted at the
+time eight, the last time that we saw a
+signal change earlier.
+And now we see at time 11 the carry signal
+would get a new value,
+true, and sometimes later, at time 16, the
+sum would be false.
+We can now retract the signal on in1, and
+run the simulation a third time.
+And that would give us a time 19, that
+the new carry value is false and the sum
+value is again true at some later time.
+So I hope that gave you a little taste,
+what you can do with simulations.
+Of course, you could also, in the same
+way, simulate
+other circuits, and also create your own
+circuits to simulate them.
+Let's finish the simulation by studying a
+variant
+of the gates that we have seen so far.
+We have seen so far the OR gate
+in a manner completely analogous to the
+AND gate.
+it defines
+an action that gets installed from its
+input wires.
+But in fact another, an alternative way
+would be to construct
+an OR gate out of the AND gate and in the
+inverter.
+Because after all we can use, make use of
+the
+formula that a or b is the same as not not
+a and not b.
+So to implement that formula, inverters,
+and AND gates are enough.
+we can have a circuit like this one here.
+If the a and the b,
+then we invert both inputs.
+We make an AND gate and we invert the
+output.
+So, that leads to this circuit here where
+we have
+three internal wires, notIn1, notIn2, and
+notOut,
+replace the inverters and the AND gate as
+you see here.
+My question to you is if you replaced our
+implementation of OR
+gate by the alternative OR gate that
+you've just seen, what would happen.
+Would you compare to the earlier
+simulation would you see a change?
+Possible answers are no, nothing would
+happen, the two simulations behave the
+same.
+Or maybe the two simulations would produce
+the same events,
+but the indicated times are different.
+Or maybe the times are different, and also
+the alternative application of OR
+gate could produce additional events that
+you don't see in the original simulation.
+Or, as a fourth choice, the two
+simulations would produce completely
+different events all together.
+What do you think?
+Let's try this out.
+I have changed the alternative version of
+the OR gate to the standard one.
+And I renamed the first standard
+one to out.
+So let's launch
+the simulation again with this alternative
+version of the OR gate.
+And what we see is that initially we get
+some glitches on the sum value.
+So it changes value before we can
+stabilize.
+We see a, at the time five, it has a value
+of true, at ten it is false,
+and again at ten it is true, so there is
+some different behavior here.
+Let's see whether we can explain that.
+So what I've done here is I've placed the
+new version of the OR
+Gate into the half adder circuit, and
+let's see what happens.
+So initially, the value of this wire here
+would be zero.
+After two, time units the inverter would
+make
+that wire to be one, after again two time
+units,
+that inverter would make that wire to be
+one.
+So, after five time units, the AND gate
+here would return a true value, a one
+value.
+After ten current time units similarly the
+initial signal here, the zero here
+would propagate to be a one here a one
+here and everything would flip around.
+And again at the same time
+after ten time units, the final set value
+of the signal a would take place, and
+the propagation would chase each other and
+would
+produce the final value true for the sum
+signal.
+So the moral of this is that in these
+circuit simulations you
+have to give it some time to let the
+circuit stabilize itself.
+That's also true for the actual
+simulations
+so the initial results here can sometimes
+be misleading.
+So the answer which maybe was surprising
+to you would be the times are different.
+And the added version of OR gate can also
+produce additional events.
+Why?
+Because it's built from more components
+that take more time to stabilize
+themselves.
+So, to summarize, we've seen that adding
+state and
+assignments makes our mental model of
+computation more complicated.
+In particular, we lose the property
+of referential transparency which says
+that it
+doesn't matter whether we use a named or
+the thing it refers to.
+We've seen with the bank account example
+that it matters quite
+a lot whether we refer to it an existing
+bank account,
+or we create a new one.
+The other thing that we lose is the
+substitution model so we
+do not have anymore an easy way to trace
+computations by rewriting.
+On the other hand, assignments allow us to
+formulate some programs in an elegant and
+concise way.
+We've seen that with the example of
+discrete events simulation
+where a system was represented by a list
+of action.
+And that list was a mutable variable.
+It changed during the time of simulations.
+The effect of the actions when they're
+called would in turn change the state of
+objects, and they could also install other
+actions to be executed in the future.
+You've seen that in this way combining
+higher
+functions and assignments in state led to
+some very,
+very powerful techniques that let you
+express fundamentally complex computations
+in a concise and understandable way.
+So in the end it's a trade off.
+You get more expressiveness that helps you
+tackle
+certain problems in a simpler way, but on
+the other hand you loose tools for
+reasoning
+about your program, referential
+transparency, and the substitution model.
+So
+I guess the moral would be that you should
+stick to the purely
+functional model whenever you can, and you
+should use state responsibly when you
+must.
+

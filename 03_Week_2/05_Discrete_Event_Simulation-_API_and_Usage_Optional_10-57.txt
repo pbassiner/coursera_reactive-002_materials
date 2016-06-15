@@ -1,0 +1,281 @@
+In the second example of the Discrete
+Event
+Simulation case study, we will look at the
+APIs.
+The programming interfaces of the core
+libraries and how they are used.
+So we've seen in the last unit that the
+class wire and the functions inverter,
+AND gate, and OR gate, represent a small
+description language for digital circuits.
+What we need to do now
+is we need to give an implementation of
+the class
+wire and these functions which allow us to
+simulate circuits.
+And those implementations in turn are
+based on a simple API
+for discrete event simulation which we are
+going to study first.
+So what is discrete emu, event simulation?
+A discrete event simulator performs
+actions which are specified by the user to
+take place at a given moment.
+An action is simply a function that
+doesn't take any parameters, and which
+returns unit.
+So everything in action do, it does by its
+side side effect.
+And the time when an action is takes place
+is simulated.
+It has nothing to do with the actual wall
+clock time.
+It is the simulated time.
+So, concretely, we are going to write
+simulations
+inside objects that inherit from a trait
+called simulation.
+And that trait has the following
+signature.
+There's a function currentTime, which
+returns the current
+simulated time in the form of an integer.
+Then there's a function afterDelay, where
+the user gives can
+install a block of statements to be
+performed as an action.
+At a time that is delay time units after
+the current time.
+And finally, there's the function run,
+which lets the user start
+the simulation and execute all installed
+actions until no further actions remain.
+So let's take a look at the structure of a
+typical simulation application.
+It would be composed of several classes
+that are shown in this Class Diagram.
+At the top of the diagram you have the
+trait simulation,
+which we have just seen in its API.
+that trait would give, give you the
+necessary
+tools to do any kind of discrete event
+simulation.
+that trait would be inherited by something
+that is a little bit more
+special, namely that gives you the tools
+to the, do basic circuit simulation.
+In particular, it would contain the class
+wire, and the gates for
+AND, OR, and inverter.
+They would be defined on this level here.
+one level further down you would have a
+trait
+that gives you more complex circuits, call
+it circuits.
+And here, you would find things like the
+half adder and b adder.
+And, then finally you would have the
+concrete objects that the user wants to
+simulate.
+Call this maybe my simulation, so that
+would typically be an object that
+can obtain all of the functionality and
+discrete event simulation.
+The gates and the circuits, by inheriting
+from these traits.
+So that's a structure of a typical
+application.
+We have already seen simulation.
+Let's look at the interface of this gates
+layer next.
+So indicates layer.
+You have first have the class of wires.
+To be simulated a wire should support
+three basic operations.
+The first operation is get signal.
+That should return the current value of
+the signal that's transported
+by the w, wire.
+Current means, at the current simulated
+time.
+Then there should be a way to change the
+signal
+of a wire, that's done by the method set
+signal.
+And that modifies the va, value of the
+signal that's transported by the wire.
+And finally there's a third method called
+add action, which let's us add an action.
+To be performed every time the signal
+of a wire changes.
+Here the idea would be when the signal
+of a wire changes, then certain things
+should happen.
+The things that should happen can be
+installed
+so to speak with a call to add action.
+So, here's an implementation of these
+ideas for wires.
+So, a wire then would have a private
+variable,
+sigVal which is the value of the current
+signal from
+the wire, and it would have also private
+variable actions which are the actions
+to be performed when that signal changes.
+GetSignal simply returns sigVal.
+The set signal method would take a new
+signal value.
+If it's different from the old one, the
+old, the current signal value is updated.
+And all actions are executed.
+So that's done by calling the foreach
+method on each action.
+And what, what is being done
+is that the action is simply run by
+applying it to the unit parameter.
+If we use a for loop for the same
+signification we would write it like this.
+So that would expand into exactly this
+code over here.
+For a taken from action run a.
+The last method is called addAction, and
+what it simply does is it prefixes
+the current action to all of actions that
+are all ready stored in the wire.
+And what it also does it turns out to
+be technically necessary to get the
+simulation off the
+ground is.
+Once we add an action we immediately
+perform it a first time because otherwise
+it turns out that the simulation would
+essentially rest in an inert state
+forever.
+So we have to perform the action the first
+time to get things off the ground.
+So to summarize, the state of a wire
+is modeled by two variables, sigVal which
+represents the
+current value of the signal and actions
+that represents
+the actions that are currently attached to
+the wire.
+So, once we have wires we can look at
+gates.
+Let's look at the inverter first.
+So, the inverter is implemented by
+installing an action on its input wire.
+That way, that action would be performed
+each time the input write changes.
+And what would the action do?
+Well, it would produce the inverse of the
+input
+signal, but not immediately but only after
+a certain delay.
+Call that InverterDelay, units of
+simulated time.
+So that's the idea, let's see how that
+would be put in code.
+Here's the inverter method.
+It takes an input wire and an output wire.
+And here's the inversion action.
+So, what to invert, the input wire, what
+we would
+do is we would take the signal of the
+input wire.
+And then we would set the output to the
+negation of the
+input signal, but we would do that only
+after a certain delay.
+So we'll use this method from the
+simulation API.
+After delay it says, perform this block
+here,
+invert the delay time units after the
+current time.
+So that's the invert action, and this
+action
+should be performed every time the input
+wire
+changes it's signal.
+So we achieve that by adding this invert
+action to the input wire, so that way the
+wire itself would perform this action
+every time it's signal changes.
+The AND gate is implemented in a similar
+way.
+The action of the AND gate then would
+produce the
+AND, the conjunction of the input signals
+of the output wire.
+And it would happen after a certain
+delay, call it AndGateDelay, units of
+simulated time.
+So that gives us the following
+implementation here,
+AND gate takes two inputs and one output.
+The AND action we take
+the values of the two input signal, after
+AND gate delay.
+We set the output to the logical AND of
+the two values of the input signals.
+And when should this action be performed?
+Well, it should be performed anytime the
+signal
+of one of the two input wires changes.
+So we add that AND action to both input
+one and input two.
+That way we're sure
+that whenever one of the two input
+changes, the output signal would be
+recomputed.
+As to the OR gate, that's implemented
+quite analogously to
+the AND gate, so here you still see the
+AND gate.
+To go to the OR gate we simply change the
+action in
+orAction from the logical conjunction to
+logical disjunction.
+The order of the two input signals, and
+otherwise everything is exactly as in the
+AND Gate.
+So to test the understanding, let's have a
+look at the way the signals are computed.
+So we take the getSignal for, for input
+one and input two
+before we run the code in afterDelay in a
+separate val definition.
+So the question to you is what happens if
+we compute the two signals in1Sig and
+in2Sig inline, that means inside the
+afterDelay call,
+instead of before writing them in value
+definitions.
+Would the new definition of OR gate, call
+it orGate2, have the same
+behavior as the previous one, or would
+orGate2 not model OR gates faithfully.
+So, let's analyze what would happen.
+In the new program, once an input signal
+changes, we would wait OR gate delay time
+units, and then set the output to the,
+this junction of the sampled two signals.
+But, the sampling would take place at the
+time after OR gate delay,
+and the output change in the sampling
+would appear at exactly the same time.
+In the original orGate
+of course we would sample first, then wait
+orGateDelay time units and then set the
+output afterwards.
+So you have seen that it does make a big
+difference whether the signals are
+computed outside after delay, or inside
+and
+consequently orGate2 does not model OR
+Gates faithfully.
+[BLANK_AUDIO]
+

@@ -1,0 +1,483 @@
+So in this session we are going
+to look at a different take of
+event handling programs, a functional
+view of events that's embodied in
+functional reactive programming.
+You've seen that reactive programming is
+all about reacting to some sequences of
+events that happen in time.
+The functional view is that we can
+actually take such a sequence of events
+and aggregate it into a signal.
+So, a signal is a value
+that changes over time, and
+it's represented as a function from
+the time domain to the value domain.
+That means that instead of propagating
+updates to mutable state one by one,
+we define new signals in
+terms of existing ones.
+In a single operation,
+we can define a new signal in terms of
+signals that we have already defined.
+So let's make this
+concretely as an example.
+Let's say we want to
+track mouse positions or
+here we'll substitute
+the mouse with my pen.
+An user moves the mouse,
+usually a sequence of events is fired.
+Each time the mouse is at a new position,
+the application gets a mouse moved event
+with the current position of the mouse.
+And it would have to handle that event
+by updating its internal state and
+all these updates would
+typically be imperative.
+How can I list this into
+a functional view point?
+So, the core idea is
+that I define a signal,
+call it also mousePosition,
+which is now a signal of position,
+which at any point in time represents
+the current mouse position.
+So, it's a function from the domain
+of time values to this curve.
+At the initial time value the position
+was here, and then it would go
+progressively until the fin, at the final
+time value the position was here.
+That gives me a function from
+time values to positions.
+Functional Reactive Programming
+started in 1997 with the paper
+Functional Reactive Animation by
+Conal Elliot and Paul Hudak, and
+Conal also wrote a,
+a language called Fran,
+which was implemented as
+an embedded library in Haskell.
+There have been quite a few FRP systems
+since, both standalone languages and
+embedded libraries.
+The list is too long to give you a,
+a complete picture, so
+I just give you some examples.
+Flapjax is one.
+Elm, Bacon.js both target JavaScript.
+React4J is a Java library that does
+a minimal reactive programming framework.
+Related but
+not quite the same are the event streaming
+data flow programming systems such as Rx.
+In fact we will see Rx more in two weeks.
+They're related to FRP but
+commonly the FRP in the strict
+sense is not used for this.
+We will introduce FRP not with one of
+the existing frameworks but with a really
+minimal class, which we will define
+ourselves, which we call frp.signal, and
+we'll explain the implementation of
+frp.signal at the end of the next module.
+frp.signal is modeled after the library
+Scala.react, which is described
+in the paper Deprecating the Observer
+Pattern by Ingo Maier and myself.
+And in fact the React4J librariy's also
+influenced by the Scala.react library so
+it has abstractions that are a bit
+similar to what we are going to see here.
+So let's have a closer look at signals.
+There are two fundamental
+operations over signal.
+First, I can obtain the value
+of a signal at the current time.
+In our frp.signal library
+that's expressed by appli,
+applying the signal to
+an empty parameter list.
+So mousePosition open parenths closed
+parenths would give us the mouse position
+at the current time.
+The second fundamental operation is to
+define a signal in terms of other signals.
+In our library that's expressed
+by the signal constructor.
+So let's do an example.
+Let's say I have drawn my curve.
+And I have given the rectangle like this.
+And I want to define a new
+signal which is either true or
+false depending on whether the curve of
+the mouse was in the rectangle or not.
+So that new signal would
+look something this,
+would start with false and at this
+point in time it would jump to true and
+it would stay true for a while and
+it would go back to false.
+So that's false.
+That's true.
+So it's a discrete signal with two states.
+Here's how I would define it.
+I would define the signal inRectangle
+which takes its parameters the coordinates
+of the rectangle given as a lower left
+corner and an upper right corner.
+As it's defined by this expression here.
+So what that says is that at each
+point in time I return the signal
+that looks at the mouse position at the
+same point in time, at the current point
+in time, and returns whether that
+position is between the lower left, and
+the upper right corners.
+So, we've seen the signal syntax to define
+the rectangle signal in terms of the mouse
+position signal.
+But it can also be used to define
+a signal that has no dependencies and
+always defines the same value.
+So, for instance, Signal(3) would define
+the signal that was constant three,
+that was always the number three.
+So we've constant signals, but how do we
+define the signal that varies in time.
+Well, we've seen already some of these
+varying signals are defined externally,
+something like mousePosition
+that the system could give us.
+We could also map over the external
+defined signals that vary in time and
+that gives us new signals
+that vary in time.
+Or the other way is that we can use a var.
+A var is a subclass of signal
+that we are going to see next.
+So far,
+all values of type signal are immutable.
+A signal is an immutable function
+from time to the signal values.
+But in fact our library also defines
+a subclass Var of Signals for
+signals that can be changed.
+The change is done by means of an update
+operation, which Var provides.
+And that updater operation
+allows to redefine the value
+of a Var signal from the current time on.
+So if we look at this example here,
+we define sig to be a Var 3,
+so that's a signal that, for
+now, is always the constant 3,
+until the point where I define
+an update operation on that signal.
+From that point on,
+it will always be 5, until, of course,
+there's a next update operation,
+maybe happening in the future.
+So, the update operation uses the name
+update for a reason because in fact in
+Scala update calls can be rewritten as
+assignments using some syntactic sugar.
+You've probably known,
+seen it already when working with arrays.
+For array arr,
+you would write arr(i) equals 0.
+And what actually happens
+here is that this expression,
+that this assignment is
+translated to arr.update(i, 0).
+And that would call the update method
+in class Array which has
+this definition here.
+So, update takes an index and the value
+of the element type of the array and
+returns unit.
+So, under the covers,
+when you write an index assignment like
+that you really can't call to update.
+Generally, an indexed assignment
+like f of E1 to En equals E
+is translated by the scala
+compiler to f.update E1, En, E.
+And that works not just for
+arrays, but for
+all types that define an update
+method of the right error pin.
+And that also works if n equals 0.
+So if there are no indices, that means
+that we call f open parenthesis,
+close parens equals E is a shorthand for
+f.update(E).
+So since we have such an update method
+on signal, it means that sig.update 5,
+a call like that can be abbreviated
+to simply sig () equals 5.
+You probably notice that signals of type
+Var look a bit like mutable variables,
+where sig() is dereferencing,
+reading the variable.
+And sig() equals new|Value is
+writing the variable corrupted.
+But there's a crucial difference
+we can map over signals,
+which gives us a relation between two
+signals that's maintained automatically,
+at all future points in time.
+Whereas for variables,
+no such mechanisms exists.
+You have to update all variables manually
+whenever some dependent variable changes.
+So, for instance, if we have a variable a,
+initialized to 2 and
+then b would be 2 times a.
+And then we would update
+a equals a plus 1.
+And the value of b does not automatically
+get updated together with the value of a.
+So, b would still be four even after that
+assignment, we'd have to up update it
+manually to say while b is now again
+two times a, so that would give it six.
+Where as if we take the same thing with
+signals, it would looks like this.
+So we would have a signal which is
+assumed to be a var signal, constant two.
+The signal b,
+it's assumed to be 2 times a and that,
+assignment would establish already
+essentially the relationship between b and
+a forever in the future.
+So if now a is defined to be 3 then,
+the signal b would be
+automatically updated to 6.
+We're going to repeat now the BankAccount
+example we've seen in the last section
+with signals.
+We'll add a signal called balance to
+BankAccounts and we will define a function
+consolidated which produces the sum of
+all balances of a given list of accounts.
+So I have on screen my
+class BankAccount from
+essentially the original example
+without any event rendering.
+Deposit and withdraw method and
+this variable balance.
+How do we make this into
+a source of an FRP signal?
+Well, one approach would be to say
+well let's make balance a signal.
+So, it would be a val, and
+that would be a Var of 0,
+so our balance is still a variable,
+but now it's a signal.
+So now, we say, well if the deposit
+method would update that signal,
+let's just write it like this for now.
+And the amount method
+would test that signal,
+sorry, and the withdraw method would test
+the signal and again, update it like this.
+So, that's how a straw man for a bank
+account with signals, that was easy.
+Right?
+We just change the Var balance into
+a variable signal and
+brought everything over.
+So let's test that with a worksheet.
+I have written a worksheet accounts and
+have given already the header of function
+consolidated which should return the sum
+of all the balances of the accounts and
+just lists here, so.
+So, the type of the consolidated
+would be then the signal event and
+it's the finished end would
+be to define a signal and
+the signal is defined by means of
+mapping over all our accounts for
+each one we would take the balance.
+And we take the sum of the whole thing.
+And of course, we have to take
+the balance at the current time.
+So it'll be written like this.
+So that gives us
+the function consolidated.
+What we do now is we define,
+as before, a number
+of bank accounts.
+[SOUND] Then we want to find out
+the total balance in consolidated so
+the value of consolidated
+at the current time.
+All right, so we get zero as expected.
+Let's deposit some amount in A and
+try again.
+Oops, we got an insertion error.
+So what does it read here, it says cyclic.
+Let me just bring that up.
+Cyclic definition, cyclic signal
+definition, that's what it says.
+So, what have we done wrong?
+So, it must be in the bank account.
+Let's bring that bank account up again.
+So in fact the arrow
+appeared at this line here.
+And if you look at this line then you
+must conclude that indeed it does,
+makes no sense whatsoever.
+What we've done here is to say, well, the
+signal balance which is a function over
+time, is the same as itself plus amount,
+where amount is greater than 0.
+So, obviously an equation
+like that has no solution.
+You can't define a function
+that at each point in time,
+is the value of the function
+itself plus amount.
+So, that didn't work.
+And, in fact,
+the system has called us out by
+throwing an insertion which says
+there was a cyclic signal definition.
+We have defined balance
+in terms of itself.
+So how do we fix it?
+Well, what we need to fix, what we need
+to do to fix it, is we have to pull out
+the balance signal into
+a separate definition here that
+pulls out the current value of balance and
+then just does this thing here.
+And we do the same thing here, so.
+Val b equals balance and
+balance equals b plus amount.
+So how is that different?
+Well, what we do now is to say we
+take the current value of balance,
+call it b, and then define the new balance
+after that to be that value plus amount.
+So what we did,
+do now is not define a cyclic definition,
+not to have a cyclic definition, but
+indeed define a constant function which
+will return at all points in the future,
+the value of this expression here.
+So you see that
+the interaction of state and
+functions is very subtle as we have
+observed at several points before.
+It makes an obvious difference but
+the balance here is defined as the right
+hand side of a signal definition.
+Or pulled out into its own [INAUDIBLE].
+Let's redo the worksheet
+with that example.
+And in fact, now we get,
+the correct result, the a deposit as 20.
+Let's deposit as before 30 in, b.
+Call it again.
+And that would give, give us this here.
+Let's go a little bit further and
+say we want to have another signal,
+which defines an exchange rate.
+Let's call
+Let's say the exchange rate is first 246,
+let's say, dollars for Bitcoins.
+And let's say our value, our total sum is
+inDollars is then what we had before,
+a signal that takes c times
+the signal xchange rate.
+And now we would have a different Signal
+inDollar which has this value here.
+Now if we changed, let's say,
+b again, b withdraw 10,
+and look at the result inDollar.
+Then you, then you see that the deduction
+in b is reflected in our inDollar results.
+So at the first the signal c got updated,
+and
+then the signal inDollar got updated,
+as well.
+So that was the bank account example
+redone with signals instead of
+subscribers.
+If you compared the two solutions then
+you will notice that the solution with
+signals is much shorter.
+And you could also argue much cleaner
+because there is much less state updates
+than in the observer solution,
+which is inherently imperative.
+We've also seen in the example that
+there's an important difference
+between variable assignments
+such as this one here, and
+a signal update,
+such that the one that you see here.
+In, in the first case that,
+in that variable assignment,
+the new value of v is
+the old value of v plus 1.
+So implicitly, there is a notion of
+old value vers, versus new values.
+When you update a signal,
+there's no such notion.
+So what you are trying to say here is
+that in fact, in fact that the signal s
+is the same as the signal s plus 1,
+which obviously makes no sense.
+So here's an exercise for you.
+Consider those two code fragments.
+The first one says num equals Var(1).
+And we have a signal that is num times 2,
+and then we update num to be 2.
+And the second one is quite similar, so
+we start with a var num equals Var(1).
+The signal twice is as before.
+But finally,
+we define num to be equal Var(2).
+Are those two code fragments equivalent?
+That means do, would they yield
+the same final value for twice?
+So if I evaluate twice here and
+I evaluate twice here,
+would I get the same value, yes or no?
+So let's visualize how these
+two code fragments behave.
+In the first case, I have the num signal,
+which is constant 1.
+And the twice signal, which is constant 2.
+Then at some point, I change num to 2 and
+twice will consequently jump to 4.
+So that's the update of
+the first code fragment.
+Let's have a look at the second one.
+So again, I have num equals Var(1).
+And twice is 2.
+But what I do now is I
+define a new signal,
+num, and assign it to the variable.
+So after this point here, num in fact is,
+points to a new signal
+that is has the value 2.
+Whereas the twice signal, in fact,
+would still depend on this signal here
+that I have created up here,
+so it would stay 2 forever.
+So while I have here 2 as the final value,
+in the first code, my fragment, it was 4.
+And the two fragments
+are indeed different.
+It just shows a little bit the subtlety
+that you have with signal
+update versus variables.
+It gives you another aspect
+of that same difference.
+

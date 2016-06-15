@@ -1,0 +1,522 @@
+In the last section,
+we have seen how to use a very simple
+API of signal-send wires for
+functional reactive programming.
+In this unit, we are going to
+take a look under the covers and
+see how that simple API
+could be implemented.
+We're going to develop step by step
+a simple implementation of Signals and
+Vars whic, as you have seen from
+the basis of our approach to frp.
+We the two classes of Signal and
+Var are assumed to be in a package frp.
+We will start with summarizing the APIs as
+we have seen them in the module last week.
+So here's the API of class signal.
+Signal takes as an argument T expression
+that constitutes the signal and
+it exposes a method apply which gives
+you the current value of the signal for
+the moment we have left
+out its implementation.
+There's also an object signal which has
+its own apply method, you'll recall that
+if object has an apply method then
+they enable a syntax like this.
+That we can write signal and
+then some expression like that and
+that would be the form that maps all
+the signals or creates constant signals.
+So apply takes a binding parameter
+expression which is this expression
+here that can be evaluated at
+multiple points in the future.
+And it simply creates a signal
+with that expression.
+So we've also used Vars so
+a Var is a subclass of signal
+and it adds one more method and
+that's the update method which takes the
+expression to be evaluated from now on.
+This is our type is unit and
+we have again left out the implementation.
+Like signals var have an apply method
+which allows us to create new vars with
+the same syntax as for signals like that.
+So now that we have the APIs,
+let's see how we could implement them.
+Here's the central implementation idea,
+each signal maintains three data attempts.
+The first one is the current
+value of the signal.
+The second one is the expression defining
+the signal at the present time so
+that will be used if you have
+to re-evaluate the signal.
+And the third one is a set of observers.
+The observers are all
+the other signals would
+depend on the value of the current signal.
+The idea then is if the signal
+changes be it because its updated or
+it depends on another signal that changes,
+so
+if the signal changes then all
+the observers will be re-evaluated.
+So that brings us to the question
+of dependency maintenance.
+How do we record
+dependencies in observers?
+When we evaluate
+a signal-valued expression,
+we need to know which signal caller gets
+defined or updated by the expression.
+If we know that then we can add that
+caller to the observers of the signal when
+the signal is evaluated, that means when
+we take the current value of the signal.
+If we have added the caller to the
+observer set then we can re-evaluated it
+each time the signal's value changes.
+So each time a signal's value changes,
+all previously observing signals
+are re-evaluated and what we also do then,
+we clear the set of sig.observers.
+Because when we re-evaluate an observer,
+if the observer still depends on
+the value of the current signal then
+it will automatically be
+re-entered into the observer set.
+But of course it might not depend on
+the current signal anymore because maybe
+another signal has changed which
+is a boolean condition which
+makes the execution of the signal go
+into a different branch than before.
+So that's the central idea,
+there's the tricky issue,
+how do we find out on whose behalf
+a signal expression is evaluated?
+So when you, we evaluate the signal
+expression, how do we know which other
+signal is currently updated or
+defined with a signal constructor?
+We will first look at one
+very simple way to do this,
+you might say simplistic way to do this.
+And that is to maintain a global
+data structure that refers simply to
+the current caller and that we will
+update as we evaluate signals.
+We'll just come back to that later and
+discuss the wisdom of doing this and
+possible alternatives.
+The caller data structure is in
+fact accessed in a stack-like
+fashion because one evaluation of
+a signal might trigger the update or
+redefinition of other signals.
+So, the way we express this
+is in defining a class for
+stackable variables that
+can be accessed like this.
+So here, we would have a global variable,
+a value caller which is a stackable
+variable with some initial signal.
+And then we could update the color in a
+scoped fashion by saying color with value.
+Some other signal and then some expression
+that while the expression evaluates
+the color would the value other signal.
+And we could get the value out of the
+color simply with the syntax color.value.
+So those are the use cases,
+here's the implementation.
+It's rather simple, so the cast stackable
+variable has a type around of T and
+of valid parameter which
+gives it's initial value.
+It here's the stack maintained
+as a list of values the current
+value is the head of the list and
+this value operation takes a new value.
+And then operation to the perform that
+would have this new value as the top this
+stack, so what it does is it puts
+the new value on the top of the list.
+It executes the operation and
+when it's done with that it
+pops the value of the list, so
+the list becomes it own tail.
+So let's look at the setup
+in object signal,
+you see here that in addition to the apply
+method the object signal has now
+a value caller which is
+a stackable variable.
+The type parameter of the stackable
+variable is of type signal
+with an underscore as a parameter.
+That means that stackable variables
+can take signals of any value type.
+Let's have a look at the initial value,
+what should that be?
+Well initially there is no caller so
+we have to express that somehow and
+we choose to express it with a so called
+sentinel object that we call NoSignal.
+So NoSignal is a special signal,
+it doesn't have a value at all so
+it extends Signal[Nothing].
+And it doesn't have
+an implementation either so
+we can pass the triple question marks
+which essentially just mean unimplemented
+as the expression value for
+unknown signal.
+So now that we have done with the setup
+let's have a look at the signal class.
+As we have mentioned before the signal
+class has three items in its state.
+They are represented by
+three private variables.
+The first one is the current expression
+which is called here my expression.
+Second is the current value of
+the signal which is called my value.
+And the third is the set of observers,
+the initial values of my expression and
+my value are both uninitialized.
+The initial value of the set
+of observers is the empty set.
+So how do we initialize myExpr and
+myValue?
+Well that will be done in
+the initial call to the update
+function that we are going to see next.
+So the update method gets called during
+the initialization of the signal and
+whenever somebody assigns
+a new value to the signal.
+It takes the expression to
+evaluate the new signal,
+assigns it to my expression and
+computes the current value of the signal.
+So we have to look at compute value next,
+here it is.
+For now, we use a simplified
+version of compute value.
+There will be more to add later
+where compute value simply evaluates
+the current expression with
+the current signal as the color and
+assigns the result into my value.
+So the last part of the signal
+class is the apply method,
+here is it's implementation.
+Apply simply returns the current
+value of the signal but
+before it does that it adds the current
+caller to the set of observers.
+And the third part of apply is
+an assertion which says that we should
+avoid defining cyclic signals
+that depend on themselves.
+So, as we have seen in an example here,
+a signal like this is an error.
+[SOUND] So that error condition
+gets caught by this assert
+which says that the observers of a signal
+may not contain the signal itself.
+So here, evaluating this expression here
+would be done with the current caller s.
+So that would mean that s gets added into
+the observers of the signal s itself.
+So this as assert would be triggered and
+you would detect a cyclic,
+a signal definition.
+If the assert wasn't there the error
+would still be detected but
+it would be a stack overflow error,
+you would get an infinite recursion which
+is much less informative than the subset.
+So, if you've followed so
+far then you should notice that
+there's one bit of the implementation
+of class signals still missing.
+Which is it?
+Is it error handling?
+Or reevaluating the callers?
+Or constructing the observers set?
+Well in fact, the missing piece
+is reevaluating the callers.
+Let's have a look at that next.
+So, we've seen that a signal's
+current value can change when
+somebody calls an update
+operation on the Var or
+the value of a signal that
+the signal depends on changes.
+And in the second case,
+we need to detect these changes and
+propagate them to the observing signal.
+The propagation will be
+done in compute value so
+we will now refine the implementation of
+that method, that's what it was before.
+You simply evaluate my expression
+with the current caller and
+assign the result to my value.
+And that's a new implementation of com,
+compute value, this part is as before but
+now we stole the result of evaluating
+my expression in a new value, newValue.
+And if that new value is
+different from the current value
+then we perform
+the following actions here.
+We assign the newValue to myValue,
+that's the same as before but
+we also take the observers into a local
+value obs, clear the set of observers.
+And for each element of ops,
+we do a compute value.
+That will then in turn,
+by re-evaluating the signal we
+add the observer into the observer set.
+So, because that will happen down here,
+we should clear the observer set before.
+So that was the core of it there
+are some little bits still to be done.
+One concerns NoSignal in NoSignal,
+we have seen that NoSignal doesn't
+really have an expression associated with
+it so we can't really compute its value.
+Because if we would try to evaluate
+the type of question mark we would
+get an unimplemented exception.
+So we overwrite compute value and
+no signal to be the empty expression
+that returns unit directly.
+So a second bit of functionality
+still missing concerns Vars.
+We call that a Var is a Signal that
+can be updated by the client program.
+And in fact, all the functionality we
+need for that is already present in class
+Signal because in fact signal does
+have already an update method.
+Here you see the update method essentially
+does the right thing, it assigns
+the expression to be the current
+expression and it recomputes the value.
+But it is protected in class signal which
+means only subclasses can get at it.
+Whereas clients of signal cannot which
+of course is intended because we
+want to make signal immutable clients of
+signal should not be able to call update.
+But of course clients of var should be
+able to call updates, so the way we
+achieve this is that we override
+the update method, make it public in var.
+And the implementation of that update
+would simply be a call to the super class,
+super.update(expr).
+So that way essentially,
+we reuse the same implementation but
+we now expose it publicly.
+So this is it, I would argue that
+our implementation of functional
+reactive programming is quite
+stunning in its simplicity.
+But you might object that it's
+a little bit too simplistic.
+In particular, you might say well,
+this makes use of the worse kind
+of state named the global state.
+Indeed in the object signal
+which is a global object,
+we have this value caller which
+is a StackableVariable and
+that's caller is accessed by all the code
+in an application using signals.
+One particular problem here is,
+what happens if we try to evaluate sev,
+several signal expressions in parallel?
+Then multiple threads could access
+caller at the same time and
+could also update caller and
+stackable variable.
+So without protection in
+terms of synchronization or
+something we would get raised
+conditions and unpredictable results.
+So one way to get around the problem of
+concurrent accesses to global state such
+as collier is to use synchronization.
+But synchronization has its own set of
+problems because it blocks threads,
+so bleds, threads might wait
+indefinitely long it can be slow and
+it can lead to deadlocks.
+Another solution that is
+more appropriate here
+is to replace global state
+by Thread-Local State.
+So thread-local state means that
+each thread in an application
+accesses its own copy of the variable.
+So the variable is global for the thread
+but it's not shared between threads.
+Thread-local state is supported in Java
+through Java neutral thread-local and
+that's wrapped in Scala through
+class scala.util.DynamicVariable.
+And we have engineered
+that in fact the API of
+StackableVariable matches exactly
+the API of DynamicVariable.
+So we can simply swap out
+StackableVariable, the global state
+that we want to avoid for DynamicVariable
+which gives us the thread-local state.
+So the signal now would read
+caller equals new DynamicVariable
+with the same type parameter and
+initial value.
+So, replacing stackable variable with
+dynamic variable's a definite improvement
+because we avoid the raised conditions
+that the global variable would entail.
+Otherwise, if you have
+a multithreaded application but
+it comes with a number
+of other disadvantages.
+Well the first one is actually shared
+with the global state and that's,
+that essentially the state is imperative.
+We have imperative state that's indirectly
+accessed by the whole application.
+So this gives essentially a high
+degree of entanglement of
+dependencies that are not
+made explicit in the types or
+input output results of functions and
+that are, therefore, problematic.
+So that's essentially,
+the problem of all imperative state but
+the more global that state is,
+the worse the problem.
+The second shortcoming of
+thread-local state is,
+is that it's not terribly efficient
+because every access to its thread-local
+variable in fact involves
+a global hash table lookup.
+So the JDK stores essentially
+all thread-local variables
+in a hash table that's associated
+with the current thread.
+And accessing that hash table is
+not as fast as if you just
+select that variable directly.
+And the third possible
+disadvantage is that if
+you have situations where you don't have
+a straightforward multi-threaded solution.
+But where you, let's say, you multiplex
+frets over executors or tasks so
+your threads have become worker's
+threads and thread-local doesn't work so
+well because one task might run for
+a while in one thread.
+And then it might switch
+to a different thread and
+I would like to take thread-local variable
+with it but of course the thread-local
+variable gets locked to the current state
+so in that case it wouldn't be a solution.
+So to summarize, thread-local state is an
+improvement of unprotected global state.
+But it has its own set of problems,
+it's fragile plays well only with
+some approaches to concurrency.
+And it has still the problem
+that it is fundamentally
+state that is shared by a large
+part of the application.
+There's actually another possible solution
+which is much cleaner and that is to
+simply pass down the current caller into
+all the signal evaluated expressions.
+Now if you do that explicitly it would
+produce a lot of overhead essentially
+every signal of every expression
+has to have another parameter.
+And these parameters have to be
+threaded through everything.
+But if you make the parameter
+impressive then
+a lot of that burden can
+actually be avoided.
+So the idea is that instead of
+maintaining a thread-local variable,
+we pass its current value into a signal
+expression as an implicit parameter.
+And it's purely functional but
+it currently requires
+still some more boilerplate
+than the thread-local solution.
+Because essential
+expressions have to close,
+have to take this implicit
+value as a parameter.
+Future versions of Scala might
+actually solve that problem so
+we're going to be tinkering with some
+ideas of how that could be streamlined.
+So to conclude, we've given a quick
+tour of functional reactive
+programing with some user examples and
+full implementation.
+This is just a taste though there's
+much more to be discovered.
+In particular, we've only covered one
+particular style of functional reactive
+programming the style that treats discrete
+signals that are changed by events.
+There are other variants of functional
+reactive programming that treat
+continuous signals sometimes just
+continuous, and sometimes continuous,
+and just quick together.
+So a continuous sequence
+signal can not be broken up
+in to a sequence of events because it's
+changes its value at each time interval.
+What we do instead typically in
+touch systems is use sampling
+instead of event propocation.
+So that means we have signals that are
+continues over the real time values but
+what we'd need to do is not compute
+the signal at each possible point in time.
+But we can actually sample it at
+as needed by the application with
+sufficient density.
+So, fascinating subjects for
+further exploration.
+What we will do in the next week and
+the week after is take
+a slightly different tact.
+Eric Myer will take over and
+tell you about futures and observables.
+Observables are another
+form of event stream
+that is related to functional reactive
+programming but it can asynchronous and
+it can be non-deterministic.
+

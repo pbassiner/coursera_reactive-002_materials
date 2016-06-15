@@ -1,0 +1,400 @@
+So far, we have concentrated in this
+course on pure functional programming,
+that is we have always worked just with
+functions and immutable data.
+However in a reactive system of any size,
+there's sooner or later some state that
+needs
+to be changed and maintained, or some
+states
+changes that need to be signaled and
+propagated.
+To express this we are going to broaden
+now our notion
+of functions to work together with mutable
+state.
+We will see that this combinations has
+quite a few repercussions.
+On the one hand, it gives us powerful new
+ways to express ourselves in certain
+categories of systems.
+On the other hand it poses considerable
+challenges how to reason about the
+resulting systems.
+So until now, our programs have been side
+effect free, and one important
+consequence of this is that we will see
+that the concept of time wasn't important.
+How do I mean that?
+Well, for all programs that terminate, any
+sequence
+of action would have given the same
+result.
+And that was also reflected in the
+substitution model of computation.
+So let's quickly remember what that model
+was.
+In the substitution model, programs can be
+evaluated simply by rewriting the program
+text.
+There are a number of rules.
+The most important rewrite rule covers
+function applications.
+So here you see the rule.
+It says that if you have a function
+definition, say
+a function f with parameters x1 to xn and
+body b.
+And then later on, you have a call of the
+same function
+f, with actual values, v1 to vn.
+Then, the program
+can be rewritten by keeping the
+application and all the other program
+elements, but replacing the call by the
+body of the function, b.
+Where all the former parameters, x1 to xn
+are at the same time
+replaced by the actual values, v1 to vn.
+So that
+was the central rule that we had for the
+substitution model.
+Now, let's see that in an action, and in
+an example.
+Say you have two functions, iterate and
+square.
+Iterate would apply the given function, f.
+N times on the given argument x.
+And here you see it's right inside.
+Square is just the squaring function that
+takes an argument and multiplies it by
+itself.
+Let's now look at the call iterate of one
+square and three.
+That call can be rewritten as follows.
+The first thing you do is you take the
+right hand side of iterate,
+and you replace the actual arguments for
+the former parameters n, f, and x.
+So that would give you this line here.
+The next thing that happens is
+that you do two auxiliary reductions.
+The first one would simplify the
+arithmetic expression one equals zero to
+false.
+And then this next reduction would
+immediately simplify the if then else
+by saying, well if false something of
+something takes the else part.
+So, that's the part that you see here.
+In the next step then, we would have to
+rewrite the call square
+of three of the iterator application, so
+that would give you, obviously,
+three times three by simply expanding the
+right hand side of square.
+And arithmetic simplification gives you
+this line here, where
+the three times three has been reduced to
+nine.
+Now you would have another expansion of
+iterate, so the right hand
+side of iterate would again show up here,
+with the actual arguments
+replacing the formal parameters.
+And some subse, subsequent reductions on
+the
+if would finally give you, if zero equals
+zero, that's true, so you would return the
+then part, and that would be nine.
+One interesting observation here is that
+rewriting can be done anywhere
+in that term, and all rewritings that
+terminate would lead to the same solution.
+In fact, that's an important result of
+lambda
+calculus, which is the theory behind
+functional programming.
+So let's see that in an example.
+The first reduction, result of reduction
+in our iterate example was this line here.
+If one equals zero three else iterate one
+minus one square, square of three.
+And we rewrote it to this expression here.
+But that's not the only thing we could do
+with this expression.
+Alternatively, we could also have
+concentrated on
+the nested call here and rewritten that
+one.
+And if we had done that we would have
+gotten this expression here.
+So now we have two different terms that
+same, same term up here can rewrite too.
+And the important result here is that it
+doesn't matter which of the two we pick
+because in the end, both of these terms
+actually will give the same answer, nine.
+And that idea that I can rewrite anywhere
+in a term but finally all, all results
+yield
+the same result, is sometimes called
+confluence because
+these arrows, they flow together in the
+final result.
+And this confluence result has been
+discovered by Church and Rosser, so
+sometimes it's also called The
+Church-Rosser Theorem of lambda calculus.
+Now all of these observations hold in the
+world of pure functional programming.
+What I want us to do now is take
+a step outside that world and introduce
+state and objects.
+So, why would one want to do that.
+Well, normally, one describes the world as
+a set of objects.
+And some of these objects would have state
+that can change over the course of time.
+So what would, does that mean?
+An object has stated changes over the
+course of time?
+It turns out that a very abstract but
+accurate definition is that,
+an object has state if its behavior is
+influenced by its history.
+So for instance, if I take a bank account
+as an object, a bank account has state.
+Because the answer to the question, can I
+withdraw 100 Francs would depend on
+the previous history of the account.
+It would say true if I had deposited
+earlier enough money so
+that I could withdraw 100 Francs, and it
+would say false otherwise.
+So that was the abstract definition of
+state full objects.
+In practice, every form of mutable state
+is constructed from some variables.
+A variable definition in scala is written
+like a value
+definition, but with the key word var in
+place of val.
+So we, so you would write var x: String
+equals " abc".
+And that would give you a variable, x of
+type string, with initial
+value abc.
+So just like a value definition, a
+variable definition, associates a value
+with a name.
+But if you wrote var, so if you have a
+variable definition, that association can
+be changed later through an assignment.
+So, you could afterwards write x equals i,
+and give the new value
+to the variable x, or you could define a
+count to be 111.
+And then add one to the count as you used,
+in to do in imperative programming.
+So in practice objects with state are
+usually represented
+by objects that have some members that are
+variables.
+So for instance, here is a class that
+models a bank account.
+You have a class bank account, and here
+you
+see a variable balance initialized to
+zero, and the keyword
+private in front says that that balance
+variable can
+be accessed only from the methods within
+class bank account,
+but not from clients of that class.
+What methods are there in class bank
+account?
+Well, there's the deposit method, which
+allows one to deposit
+a given amount of currencies units, that
+amount must be positive.
+If it is, then it gets added to the
+accounts balance.
+And conversely, there's the withdrawment
+method that allows
+one to withdraw an amount that also must
+be positive, and furthermore, must be less
+than or equal to the current account
+balance.
+If that's not the case, if the, for
+instance the amount is bigger than the
+current balance, then the withdrawal
+method would
+throw an exception with the error,
+insufficient funds.
+So in summary, class bank account defines
+one private variable balance,
+and two methods that can be used to change
+that variable.
+To create bank accounts, we use the usual
+notation for object creation.
+So, you would write val account equals new
+BankAccount and that would give you a new
+account.
+So let's try out some of these concepts
+using a worksheet in the Scala IDE.
+What I've done is I've defined a project,
+Reactive2 for the second week of the
+reactive course.
+And in there I have defined the class
+BankAccount like you saw it on the slide.
+One thing you notice is in the
+syntax coloring, variables actually appear
+in red.
+Which is a good sign that means pay
+attention.
+Here's a feature that is, at the same
+time, very powerful, but also dangerous.
+So pay attention to that.
+So what we're going to do now is interact
+with bank accounts using a worksheet and
+this scala IDE.
+To do that I create a new worksheet, call
+it Account.
+And the first thing to do is create some
+account.
+And deposit some initial money, let's say
+50 currency units.
+And that now would respond that an account
+was created.
+And what I can do now is withdraw funds.
+Let's withdraw 20 currency units.
+So what I see here is the 30 that remain.
+Let's do that again.
+So now it's just ten that remain, and
+let's try
+to overdraw, and we get an error which
+says insufficient funds.
+So clearly, accounts are stateful objects,
+because when
+we perform the same operation, like
+withdraw here twice, the results differ.
+The first time we cut back 30, the second
+time we cut back ten.
+And of
+course that is because the effect of the
+withdraw method depends
+on the history of the object, what, what
+operations have been performed.
+Before on that object.
+So we've seen that statefulness is often
+connected to having variables.
+Let's see how strong or not strong this
+connection is in a couple of examples.
+The first example is an implementation of
+streams, that means lazy sequences
+that you have already seen in the previous
+course in week seven.
+We have a slight variation here that
+instead of using
+a lazy val, we implement non-empty streams
+using a mutable variable.
+Here you see how.
+So the idea is that we have a function
+cons, which, which will create a stream
+consisting of
+a head T, and a computation tail that
+gives
+you the rest of the stream when it's
+demanded.
+And the way it's done is that the cons
+function
+creates a new anonymous class of type
+stream of T.
+And it has in that object a variable tail
+opt and
+mutable variable of type option of stream
+of T, which is pre-initialized to none.
+Now, the tile operation on cons would
+query the variable tail opt,
+if it is has already some value x that
+value is tail.
+If it is still set to none, then the tail
+opt will be computed by
+calling tail, so this reference to tail
+will actually invoke this operation and
+wrapping it in a some and returning the
+result.
+So the question now is, is the result of
+cons a stateful object?
+If you hesitated in your answer, I don't
+blame you.
+Because in fact, in a sense, both the yes
+and the no are
+valid responses, depending on what
+assumptions you
+make on the rest of your system.
+One common assumption is that streams
+should only be
+defined over purely functional
+computations.
+So, the tail operation here should not
+have a side effect.
+In that case, the optimization to cache
+the first value
+of tlOPt and reuse it on all previous
+calls to
+tail is purely a optimization that avoids
+computations, but that
+does not have an observable effect outside
+the class of streams.
+So the answer would be that, no streams
+are not stateful objects.
+On the other hand, if you allow side
+effect in computations for tail, let's say
+tail could
+have a printing statement, then you would
+see that
+the second time tail is caught in this
+string.
+It would come straight out of the cache,
+so there would be no side effect
+performed.
+Whereas, the first time,
+it would be called the operation
+would be performed, including the printing
+statement.
+So that means clearly the operation tail
+depends on the previous history of the
+object.
+It would be different depending on whether
+a previous tail was performed or not.
+So in that sense, the answer would be cons
+is a stateful object, provided
+that you also allow imperative side effect
+in computations for tail.
+Here the second example to have you think
+about it.
+So here we have a class BankAccountProxy,
+and it does not contain any variable.
+Instead it takes a constructor argument a
+bank account, and
+its deposit and withdrawal operations
+would simply forward to that account.
+Question, are instances of
+BankAccountProxy stateful objects?
+So here the answer is actually more clear
+cut,
+even though BankAccountProxy doesn't
+contain any variable, its behavior
+is clearly stateful because it depends on
+the history.
+all that it does is it forwards to this
+other mutable bank account.
+So for instance, calling withdraw twice
+would give you
+different results just as the original
+withdraw would have done.
+So clearly the bank account proxies are
+stateful objects.
+
