@@ -1,0 +1,288 @@
+Hi, everybody.
+Welcome back to the lecture
+series on reactive extensions and
+this time, we're going to look
+at a few of the Rx Operators.
+And since observable and
+observer form a monet
+we have all the usual high order
+functions that we have seen for
+tried and we have seen for
+iterable and that we have seen for
+future and they are here also for
+observable of T.
+And flatMap, map, filter take and so on.
+And in this case, you see that
+all the operators are the same,
+the domain-specific ones
+are the same as for iterables,
+because observables are collections.
+Here to remind you is
+the marble diagram for map.
+Map takes a input stream.
+In this case, an input stream of marbles
+and turns each marble into a diamond.
+And as you see here, doesn't really
+matter what the stream represents.
+That's the beauty of
+these marble diagrams.
+This could be an iterable or
+an observable.
+But, you know,
+the map function behaves the same.
+Here is a marble diagram for a flatMap.
+A flatMap for observables is certainly
+different than flatMap for iterables.
+And the reason is that observable
+streams are asynchronous,
+which means that the function
+that you're flat mapping over
+your input stream will produce
+its values asynchronously.
+Now when you have an iterable,
+what happens when you flatMap is that you
+take the,
+you pull the first value out of the input,
+you apply it to the flatMap function
+to the function you pass into flatMap.
+You get another stream and
+that get pulled, you know, out.
+And when that's finishes and
+you pull for the next value,
+you pull for the next value in
+the in the outer input sequence.
+But with observables you're not pulling
+the sequences themselves
+push values at you.
+So the implem,
+implementation has to be different.
+And in this case, what happens
+is that every time a new value
+arrives on the input stream,
+the function is called and
+that one will produce
+the values asynchronously and
+all the results will be merged
+into the output stream.
+And if you look at this
+example here say that every,
+that the flatMap function takes a diamond.
+Sorry, a, a, a marble and
+turns that into a,
+a diamond and a square of the same color.
+And what you see here is that
+the output gets merged together, but
+the order of the individual
+streams is maintained.
+So you see, for
+example there the green diamond comes
+before the green square and
+that's always the case.
+So, if you look at the definition
+of map in observable,
+it's really defined as
+a map followed by a merge.
+Here's another example that explains how
+nested streams are merged and
+let's look at that.
+So what we start with a simple stream
+that has the values three, two, one.
+Then what we do is we
+create an interval of the,
+the, the length of the, of the number.
+So the first one, number three will send
+out the value three at each three seconds.
+And then the second stream
+will send out the value two,
+the green thing there, every two seconds.
+And then finally the blue one will
+be sent out every one second.
+And when you run this program and
+the code, by the way,
+will be available at the GitHub site.
+You will see that the output get merged.
+And that even though the green three was
+the first value in the input stream exist,
+it comes out after both the one and
+the first to have been emitted.
+All right.
+So this is merge as I said.
+It just takes two streams
+asynchronous streams and
+whenever a value appears,
+it will be copied on the.
+Some sense And nonderdim,
+nondeterministic merge of two streams.
+Now you can also use concat, that,
+that's more like how it works for
+iterables on observables, but
+this is a little bit dangerous.
+So, let's look at why it's dangerous
+by taking the same example and
+instead of merge,
+we're using concate, over here.
+Okay?
+So,
+instead of merging the resulting streams,
+we concatenate them.
+And concatenation means
+the same as concatenation.
+In iterables,
+you wait until the stream terminates and
+then you concatenate the other stream,
+the second stream to the first stream.
+And in this case,
+what that means is that you have to be,
+we start with the red three,
+which is emitted each three seconds.
+We can only start admitting the twos and
+ones after, you know, we have
+admitted the two threes and we can admit
+the ones after we admitted the two twos.
+Showing this comcat as
+the buffer internally and
+that makes comcats not streaming.
+Okay?
+So that's why you know you probably should
+never use comcat observable streams.
+Because it has to kind of, you know,
+remember the second stream until
+the first stream has terminated in
+order to, to concatenate it at the end.
+Here's the picture of concatenate and
+where you see this behavior very
+clearly the yellow marble there,
+comes before the last blue
+marble in the first stream.
+But we have to delay it when
+we concatenate it here,
+because it has to come after
+the blue marble of the first stream.
+And so this is a dangerous and
+expensive operation.
+Okay.
+Now, let's look at the,
+a little bit more practical example.
+Where we're taking earthquakes.
+Earthquakes are the ideal example
+of a asynchronous data stream.
+Because, you know,
+they get pushed at you and
+there's no way you can kind of
+stop them or, or whatever.
+They just come whenever they want to.
+And what we do here is we have
+a little wrapper that uses
+squares retrofit to wrap the US
+geological service earthquake service.
+And here is the kind of code.
+Again, it will be available on GitHub.
+And what we're going to do now is we're
+going to do some simple queries over
+earthquake streams.
+So the first thing that we want to do
+is we want to find out the location and
+the magnitude of all major earthquakes.
+So, in the previous example you saw
+that we had an enumeration that mapped
+the the number that you get from
+the geological earthquake thing into
+a magnitude.
+And here is what we do is we, we get our
+observable earthquakes, then we map.
+And what we do is we
+pick out the location and
+we grid a magnitude from this
+double into a magnitude value and
+then we filter out all the major
+earthquakes and then we just print them.
+Okay?
+So, it's very, very simple.
+We, we map and
+filter over these asynchronous streams.
+Now, imagine that we have another
+service the reverse GeoCode.
+Where given the GeoCoordinates,
+or lat, long, or
+some other GeoCoordinate and what we want
+to get back is a future of countries.
+And again, here we're using a future,
+because when you GeoCode,
+you get one results.
+So we encode that using a future and
+this example here shows how futures and
+observables can work together.
+So, in this case, what we're going to
+do is we're going to start with our
+earthquake stream and
+then we map over that.
+For each quake, we get a future
+that represents the location.
+And then what we do is
+we convert that future
+into an observable using the helper
+function observable from.
+So, observable from takes a future and
+turns it into an observable.
+And then what we can do is we get
+an observable of observables,
+because we do the map and all the flatMap.
+And then we have a choice whether we
+flatten the stream or comcat it or
+merge flatten and
+merge are synonyms or we comcat them.
+So here's what happens when
+we flatten the streams.
+In this case,
+the earthquakes get out of sync.
+So, the red earthquake, the GeoCode
+process might take a long time.
+Second earthquake comes in.
+There, the GeoCode intakes a little time.
+And what we see is then,
+that the, in the output now that
+the second earthquake comes
+before the first earthquake.
+And if you want to maintain
+the temporal order of the earthquakes,
+this is not a good situation.
+So, in that case,
+we will have to use comcat in order to
+make sure that the earthquakes
+remain in the right order.
+Now, as I said this is
+a little bit dangerous,.
+But in this case,
+since the future only returns one value,
+you only have to ever kind of
+buffer a couple of values and
+assuming that things are not too slow,
+this should work.
+But in general,
+you might have to kind of, you know,
+use some form of time out to
+avoid infinite buffering.
+All right.
+The last operator we're
+going to show is groupBy.
+So now that we have reverse
+GeoCoded our earthquakes from
+GPS locations into countries, we now want
+to group the earthquakes by country.
+And let's start with
+the merge earthquakes.
+And here you see, it's really simple.
+We just say,
+group the earthquakes by country and
+what we now get is a stream that have,
+as have a key a stream of streams
+with a key being the country and
+then a stream of the country And
+the earthquake.
+So you can do all the operations that
+you do on the regular collections on
+observable collections.
+So thank you so much.
+This was the end of the Rx Operators and
+see you after the break.
+

@@ -1,0 +1,236 @@
+Hi there,
+we just finished simplifying the two
+threads interval into one
+type that only has arrows,
+and the reason we did that is
+that we wanted to used our
+magic dualization trick to
+reverse the arrows, and
+that requires us to have a type that
+is just expressed in terms of arrows.
+So here's our type iterable.
+It's a factory of factories
+of values where the values can
+either be a single value or
+nothing, or the whole creation
+of the value might fail.
+And I love this type.
+I mean, this type,
+there's no noise of traits or anything.
+It's just the essence
+of what an iterable is.
+It's a factory of factories, and
+that's also beautiful by itself.
+But we're not going to talk
+about iterables anymore.
+We're going to talk about
+the dual of iterables.
+Namely a push based type
+where we can get sequences of
+values in an asynchronous way
+because here you see that here the,
+here you can see the synchrony.
+Right?
+I have a function from unit to try of T,
+and
+that function is going to block
+until the next value arrives.
+So let's turn the arrows around,
+flip the arrows around, and there we go.
+We just flipped the arrows around.
+And what we're going to do now is we're
+going to do the dual of simplification
+which is complexification, so
+we're going to take this type here and
+we're going to complexify it.
+I'm not going to try to understand
+what it means right now.
+The first thing I'm going to do is
+I'm going to complexify this type.
+And complexify means that just
+when we remove traits and
+turn them into functions we're going
+to now turn functions back into traits.
+All right?
+So that's what I mean by complification.
+So the first thing is to
+give this guy a name.
+And let's call this type observable of T.
+Fo, observable f,
+t is a setter of a setter, like this.
+Okay.
+Now, the first thing we're
+going to do is now look
+at what part of this we can
+turn into its own thing.
+And the first thing we're
+going to do here is to look at
+this ugly try of option of t.
+And, you know, as I said, it,
+it requires better matching, and
+all the complexity, and in the end,
+the way you look at a function that does
+pattern matching on a value of try of
+option of T, it will have three cases.
+The try case, so that's,
+you get a throwable.
+If it's not a throwable then there's
+two cases when there's nothing or
+where there's just a value.
+All right?
+So when we pattern match over
+a function that has an argument
+drive object of T really we get three
+cases, and those are the function.
+So we just split this into
+these three functions.
+So instead of tryOption of T to unit,
+we get three functions.
+Now we see three functions, so
+what are we going to do with that?
+Well, we're going to put those into its
+own type, and then substitute it in there.
+So what is an observable now?
+It's a function from observer to unit.
+And an observer is a triple of functions.
+Good, so
+now we have split the rope there and
+now we're going to continue to
+complexify because instead of
+having a triple of functions we're
+going to put those in a trait.
+Then what we're going to do at the same
+time is we're going to turn these
+functions Into definitions.
+All right.
+So this triple of three functions becomes
+one trade with three methods,
+onError, onCompleted and onNext.
+And nothing here changes, right?
+So the observable still
+takes an observer to unit.
+But I just want to leave this here to
+remind you that these three functions
+are now represented by that single trait.
+Okay, continue complexification.
+What we're going to do now is we're
+going to turn this observable Into it's
+rate as well, by introducing a method,
+and let's call that method subscribe,
+and that then takes an observer and
+returns unit, okay?
+So, all we have done is we have
+kind of split this complicated
+entry of option of T arrow
+unit into this trait.
+And then we have introduced a trait for
+observable as well that takes an observer.
+It's all straightforward,
+these things are all equal.
+So here is our type after dualization.
+And now it's time to
+interpret what this means.
+Well, And
+observable is something that I can feed
+a go back and
+that go back consists of three functions.
+What happens when there's a regular value?
+And the difference with futures is that
+this go back can be called many times,
+zero or more.
+And then the, so it represents a stream.
+And then the stream can either complete
+normally or complete with an error.
+All right?
+So really it's, it's a little bit like
+in Java where you have a button and
+a button has different call backs for
+clicks and mouseover and whatever.
+So the same here.
+There's an observable that
+takes a a trait that has
+callbacks for
+various different events that can happen.
+And, delivery of a value,
+the end of a stream or an exception.
+Now the truth is a little
+bit more complicated,
+because just like with a button where,
+where you have an event,
+you add an event handler or a call back,
+you might want to remove the call back.
+All right?
+And what we do here is we
+have that when you subscribe
+to an observable, with an observer,
+what you get back is a subscription.
+And a subscription is this thread
+that allows you to unsubscribe.
+It means,
+remove this observer from this observable.
+And, when you know JavaScript or
+any language that uses events or
+call backs like C# or
+as I said, JavaScript.
+You have the same mechanism you can
+add an event and earn and do it,
+and then you can remove it.
+And in this case we remove it is
+by returning a special object with
+a matter to remove it, and
+then you have a bouillon here as well that
+you can check whether the,
+the call back has been removed.
+All right, so
+let's put them side by side, and
+now you see here, observable,
+it has this notion of subscription.
+The onNext, onError, and
+onCompleted are really, kind of,
+you know, encoding of these two methods
+plus the fact that this can throw.
+And then you see here that
+the iterable and iterate.
+I'm sorry, the iterable and
+the observable are similar
+except that one returns an iterator and
+the other one takes an observer.
+Now, in .NET and in other languages
+the iterators,
+also have a notion of subscription.
+Because if you're iterating over
+a collection, the consumer might want to
+tell the producer I'm not
+interested in any more values.
+And in that case it can be
+that the iterable iterator,
+traits also have a notion of subscription.
+But in Scholar and
+in Java that's not the case.
+But if you look in Dart or
+C# there is the case.
+All right, so
+now we have seen all four effects.
+We started out with Try of T to make
+clear that computation could fail.
+Then we moved on to futures.
+Riches and monads that an effect,
+that tells you that a computation
+takes time, and can fail.
+We show that these two were
+connected via duralization.
+Then we looked at synchronous collections.
+So collections, of values where you pull,
+where you block.
+Just like, you know, when you have
+a function here that you block.
+And then we use the same dualization
+trick to go from here to here.
+All right.
+Thank you so much.
+Now we know how all these
+four effects are deeply
+connected via the magic
+of category theory.
+Thank you so much and see you next time.
+

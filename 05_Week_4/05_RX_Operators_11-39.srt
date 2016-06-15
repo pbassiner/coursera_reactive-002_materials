@@ -1,0 +1,776 @@
+1
+00:00:00,045 --> 00:00:01,628
+Hi, everybody.
+
+2
+00:00:01,628 --> 00:00:06,846
+Welcome back to the lecture
+series on reactive extensions and
+
+3
+00:00:06,846 --> 00:00:12,378
+this time, we're going to look
+at a few of the Rx Operators.
+
+4
+00:00:12,378 --> 00:00:17,617
+And since observable and
+observer form a monet
+
+5
+00:00:17,617 --> 00:00:23,370
+we have all the usual high order
+functions that we have seen for
+
+6
+00:00:23,370 --> 00:00:28,404
+tried and we have seen for
+iterable and that we have seen for
+
+7
+00:00:28,404 --> 00:00:32,753
+future and they are here also for
+observable of T.
+
+8
+00:00:32,753 --> 00:00:39,345
+And flatMap, map, filter take and so on.
+
+9
+00:00:39,345 --> 00:00:43,646
+And in this case, you see that
+all the operators are the same,
+
+10
+00:00:43,646 --> 00:00:47,703
+the domain-specific ones
+are the same as for iterables,
+
+11
+00:00:47,703 --> 00:00:51,027
+because observables are collections.
+
+12
+00:00:51,027 --> 00:00:56,461
+Here to remind you is
+the marble diagram for map.
+
+13
+00:00:56,461 --> 00:00:59,586
+Map takes a input stream.
+
+14
+00:00:59,586 --> 00:01:07,128
+In this case, an input stream of marbles
+and turns each marble into a diamond.
+
+15
+00:01:07,128 --> 00:01:11,045
+And as you see here, doesn't really
+matter what the stream represents.
+
+16
+00:01:11,045 --> 00:01:14,750
+That's the beauty of
+these marble diagrams.
+
+17
+00:01:14,750 --> 00:01:18,150
+This could be an iterable or
+an observable.
+
+18
+00:01:18,150 --> 00:01:23,591
+But, you know,
+the map function behaves the same.
+
+19
+00:01:23,591 --> 00:01:29,045
+Here is a marble diagram for a flatMap.
+
+20
+00:01:29,045 --> 00:01:35,086
+A flatMap for observables is certainly
+different than flatMap for iterables.
+
+21
+00:01:35,086 --> 00:01:40,616
+And the reason is that observable
+streams are asynchronous,
+
+22
+00:01:40,616 --> 00:01:45,655
+which means that the function
+that you're flat mapping over
+
+23
+00:01:45,655 --> 00:01:50,711
+your input stream will produce
+its values asynchronously.
+
+24
+00:01:50,711 --> 00:01:55,556
+Now when you have an iterable,
+what happens when you flatMap is that you
+
+25
+00:01:55,556 --> 00:01:59,107
+take the,
+you pull the first value out of the input,
+
+26
+00:01:59,107 --> 00:02:04,545
+you apply it to the flatMap function
+to the function you pass into flatMap.
+
+27
+00:02:04,545 --> 00:02:08,045
+You get another stream and
+that get pulled, you know, out.
+
+28
+00:02:08,045 --> 00:02:12,280
+And when that's finishes and
+you pull for the next value,
+
+29
+00:02:12,280 --> 00:02:17,128
+you pull for the next value in
+the in the outer input sequence.
+
+30
+00:02:17,128 --> 00:02:20,375
+But with observables you're not pulling
+
+31
+00:02:20,375 --> 00:02:23,629
+the sequences themselves
+push values at you.
+
+32
+00:02:23,629 --> 00:02:28,587
+So the implem,
+implementation has to be different.
+
+33
+00:02:28,587 --> 00:02:33,312
+And in this case, what happens
+is that every time a new value
+
+34
+00:02:33,312 --> 00:02:38,132
+arrives on the input stream,
+the function is called and
+
+35
+00:02:38,132 --> 00:02:42,669
+that one will produce
+the values asynchronously and
+
+36
+00:02:42,669 --> 00:02:47,414
+all the results will be merged
+into the output stream.
+
+37
+00:02:47,414 --> 00:02:51,750
+And if you look at this
+example here say that every,
+
+38
+00:02:51,750 --> 00:02:56,280
+that the flatMap function takes a diamond.
+
+39
+00:02:56,280 --> 00:02:59,797
+Sorry, a, a, a marble and
+turns that into a,
+
+40
+00:02:59,797 --> 00:03:02,878
+a diamond and a square of the same color.
+
+41
+00:03:02,878 --> 00:03:07,633
+And what you see here is that
+the output gets merged together, but
+
+42
+00:03:07,633 --> 00:03:11,795
+the order of the individual
+streams is maintained.
+
+43
+00:03:11,795 --> 00:03:16,352
+So you see, for
+example there the green diamond comes
+
+44
+00:03:16,352 --> 00:03:20,920
+before the green square and
+that's always the case.
+
+45
+00:03:20,920 --> 00:03:26,897
+So, if you look at the definition
+of map in observable,
+
+46
+00:03:26,897 --> 00:03:31,836
+it's really defined as
+a map followed by a merge.
+
+47
+00:03:31,836 --> 00:03:35,840
+Here's another example that explains how
+
+48
+00:03:35,840 --> 00:03:40,128
+nested streams are merged and
+let's look at that.
+
+49
+00:03:40,128 --> 00:03:44,211
+So what we start with a simple stream
+that has the values three, two, one.
+
+50
+00:03:44,211 --> 00:03:50,325
+Then what we do is we
+create an interval of the,
+
+51
+00:03:50,325 --> 00:03:55,753
+the, the length of the, of the number.
+
+52
+00:03:55,753 --> 00:04:03,795
+So the first one, number three will send
+out the value three at each three seconds.
+
+53
+00:04:03,795 --> 00:04:07,343
+And then the second stream
+will send out the value two,
+
+54
+00:04:07,343 --> 00:04:10,211
+the green thing there, every two seconds.
+
+55
+00:04:10,211 --> 00:04:15,670
+And then finally the blue one will
+be sent out every one second.
+
+56
+00:04:15,670 --> 00:04:19,370
+And when you run this program and
+the code, by the way,
+
+57
+00:04:19,370 --> 00:04:22,211
+will be available at the GitHub site.
+
+58
+00:04:22,211 --> 00:04:24,336
+You will see that the output get merged.
+
+59
+00:04:24,336 --> 00:04:28,933
+And that even though the green three was
+
+60
+00:04:28,933 --> 00:04:33,405
+the first value in the input stream exist,
+
+61
+00:04:33,405 --> 00:04:40,253
+it comes out after both the one and
+the first to have been emitted.
+
+62
+00:04:40,253 --> 00:04:41,295
+All right.
+
+63
+00:04:41,295 --> 00:04:43,920
+So this is merge as I said.
+
+64
+00:04:43,920 --> 00:04:48,469
+It just takes two streams
+asynchronous streams and
+
+65
+00:04:48,469 --> 00:04:54,295
+whenever a value appears,
+it will be copied on the.
+
+66
+00:04:54,295 --> 00:04:59,920
+Some sense And nonderdim,
+nondeterministic merge of two streams.
+
+67
+00:04:59,920 --> 00:05:05,827
+Now you can also use concat, that,
+that's more like how it works for
+
+68
+00:05:05,827 --> 00:05:11,378
+iterables on observables, but
+this is a little bit dangerous.
+
+69
+00:05:11,378 --> 00:05:16,154
+So, let's look at why it's dangerous
+by taking the same example and
+
+70
+00:05:16,154 --> 00:05:19,711
+instead of merge,
+we're using concate, over here.
+
+71
+00:05:19,711 --> 00:05:20,291
+Okay?
+So,
+
+72
+00:05:20,291 --> 00:05:23,753
+instead of merging the resulting streams,
+we concatenate them.
+
+73
+00:05:23,753 --> 00:05:27,894
+And concatenation means
+the same as concatenation.
+
+74
+00:05:27,894 --> 00:05:31,516
+In iterables,
+you wait until the stream terminates and
+
+75
+00:05:31,516 --> 00:05:37,003
+then you concatenate the other stream,
+the second stream to the first stream.
+
+76
+00:05:37,003 --> 00:05:41,280
+And in this case,
+what that means is that you have to be,
+
+77
+00:05:41,280 --> 00:05:46,378
+we start with the red three,
+which is emitted each three seconds.
+
+78
+00:05:46,378 --> 00:05:51,481
+We can only start admitting the twos and
+ones after, you know, we have
+
+79
+00:05:51,481 --> 00:05:57,295
+admitted the two threes and we can admit
+the ones after we admitted the two twos.
+
+80
+00:05:57,295 --> 00:06:01,439
+Showing this comcat as
+the buffer internally and
+
+81
+00:06:01,439 --> 00:06:04,578
+that makes comcats not streaming.
+
+82
+00:06:04,578 --> 00:06:05,461
+Okay?
+
+83
+00:06:05,461 --> 00:06:11,295
+So that's why you know you probably should
+never use comcat observable streams.
+
+84
+00:06:11,295 --> 00:06:16,609
+Because it has to kind of, you know,
+remember the second stream until
+
+85
+00:06:16,609 --> 00:06:22,296
+the first stream has terminated in
+order to, to concatenate it at the end.
+
+86
+00:06:22,296 --> 00:06:25,144
+Here's the picture of concatenate and
+
+87
+00:06:25,144 --> 00:06:29,978
+where you see this behavior very
+clearly the yellow marble there,
+
+88
+00:06:29,978 --> 00:06:33,962
+comes before the last blue
+marble in the first stream.
+
+89
+00:06:33,962 --> 00:06:37,947
+But we have to delay it when
+we concatenate it here,
+
+90
+00:06:37,947 --> 00:06:43,336
+because it has to come after
+the blue marble of the first stream.
+
+91
+00:06:43,336 --> 00:06:47,628
+And so this is a dangerous and
+expensive operation.
+
+92
+00:06:47,628 --> 00:06:49,628
+Okay.
+
+93
+00:06:49,628 --> 00:06:53,221
+Now, let's look at the,
+a little bit more practical example.
+
+94
+00:06:53,221 --> 00:06:55,086
+Where we're taking earthquakes.
+
+95
+00:06:55,086 --> 00:07:02,138
+Earthquakes are the ideal example
+of a asynchronous data stream.
+
+96
+00:07:02,138 --> 00:07:04,684
+Because, you know,
+they get pushed at you and
+
+97
+00:07:04,684 --> 00:07:07,836
+there's no way you can kind of
+stop them or, or whatever.
+
+98
+00:07:07,836 --> 00:07:10,727
+They just come whenever they want to.
+
+99
+00:07:10,727 --> 00:07:16,059
+And what we do here is we have
+a little wrapper that uses
+
+100
+00:07:17,481 --> 00:07:25,523
+squares retrofit to wrap the US
+geological service earthquake service.
+
+101
+00:07:25,523 --> 00:07:26,753
+And here is the kind of code.
+
+102
+00:07:26,753 --> 00:07:29,337
+Again, it will be available on GitHub.
+
+103
+00:07:29,337 --> 00:07:33,432
+And what we're going to do now is we're
+going to do some simple queries over
+
+104
+00:07:33,432 --> 00:07:34,670
+earthquake streams.
+
+105
+00:07:34,670 --> 00:07:40,371
+So the first thing that we want to do
+is we want to find out the location and
+
+106
+00:07:40,371 --> 00:07:43,712
+the magnitude of all major earthquakes.
+
+107
+00:07:43,712 --> 00:07:48,702
+So, in the previous example you saw
+that we had an enumeration that mapped
+
+108
+00:07:48,702 --> 00:07:53,690
+the the number that you get from
+the geological earthquake thing into
+
+109
+00:07:53,690 --> 00:07:54,996
+a magnitude.
+
+110
+00:07:54,996 --> 00:08:00,295
+And here is what we do is we, we get our
+observable earthquakes, then we map.
+
+111
+00:08:00,295 --> 00:08:03,271
+And what we do is we
+pick out the location and
+
+112
+00:08:03,271 --> 00:08:07,569
+we grid a magnitude from this
+double into a magnitude value and
+
+113
+00:08:07,569 --> 00:08:12,628
+then we filter out all the major
+earthquakes and then we just print them.
+
+114
+00:08:12,628 --> 00:08:15,253
+Okay?
+So, it's very, very simple.
+
+115
+00:08:15,253 --> 00:08:21,253
+We, we map and
+filter over these asynchronous streams.
+
+116
+00:08:21,253 --> 00:08:27,462
+Now, imagine that we have another
+service the reverse GeoCode.
+
+117
+00:08:27,462 --> 00:08:31,863
+Where given the GeoCoordinates,
+or lat, long, or
+
+118
+00:08:31,863 --> 00:08:38,295
+some other GeoCoordinate and what we want
+to get back is a future of countries.
+
+119
+00:08:38,295 --> 00:08:42,285
+And again, here we're using a future,
+because when you GeoCode,
+
+120
+00:08:42,285 --> 00:08:43,545
+you get one results.
+
+121
+00:08:43,545 --> 00:08:45,931
+So we encode that using a future and
+
+122
+00:08:45,931 --> 00:08:50,961
+this example here shows how futures and
+observables can work together.
+
+123
+00:08:50,961 --> 00:08:55,708
+So, in this case, what we're going to
+do is we're going to start with our
+
+124
+00:08:55,708 --> 00:08:59,170
+earthquake stream and
+then we map over that.
+
+125
+00:08:59,170 --> 00:09:06,920
+For each quake, we get a future
+that represents the location.
+
+126
+00:09:06,920 --> 00:09:10,586
+And then what we do is
+we convert that future
+
+127
+00:09:10,586 --> 00:09:15,545
+into an observable using the helper
+function observable from.
+
+128
+00:09:15,545 --> 00:09:19,961
+So, observable from takes a future and
+turns it into an observable.
+
+129
+00:09:19,961 --> 00:09:24,413
+And then what we can do is we get
+an observable of observables,
+
+130
+00:09:24,413 --> 00:09:27,420
+because we do the map and all the flatMap.
+
+131
+00:09:27,420 --> 00:09:32,587
+And then we have a choice whether we
+flatten the stream or comcat it or
+
+132
+00:09:32,587 --> 00:09:37,586
+merge flatten and
+merge are synonyms or we comcat them.
+
+133
+00:09:37,586 --> 00:09:41,128
+So here's what happens when
+we flatten the streams.
+
+134
+00:09:41,128 --> 00:09:45,170
+In this case,
+the earthquakes get out of sync.
+
+135
+00:09:45,170 --> 00:09:49,836
+So, the red earthquake, the GeoCode
+process might take a long time.
+
+136
+00:09:49,836 --> 00:09:51,212
+Second earthquake comes in.
+
+137
+00:09:51,212 --> 00:09:54,503
+There, the GeoCode intakes a little time.
+
+138
+00:09:54,503 --> 00:09:57,887
+And what we see is then,
+that the, in the output now that
+
+139
+00:09:57,887 --> 00:10:01,503
+the second earthquake comes
+before the first earthquake.
+
+140
+00:10:01,503 --> 00:10:05,789
+And if you want to maintain
+the temporal order of the earthquakes,
+
+141
+00:10:05,789 --> 00:10:07,711
+this is not a good situation.
+
+142
+00:10:07,711 --> 00:10:11,537
+So, in that case,
+we will have to use comcat in order to
+
+143
+00:10:11,537 --> 00:10:15,628
+make sure that the earthquakes
+remain in the right order.
+
+144
+00:10:15,628 --> 00:10:20,128
+Now, as I said this is
+a little bit dangerous,.
+
+145
+00:10:20,128 --> 00:10:24,700
+But in this case,
+since the future only returns one value,
+
+146
+00:10:24,700 --> 00:10:30,463
+you only have to ever kind of
+buffer a couple of values and
+
+147
+00:10:30,463 --> 00:10:34,961
+assuming that things are not too slow,
+this should work.
+
+148
+00:10:34,961 --> 00:10:39,281
+But in general,
+you might have to kind of, you know,
+
+149
+00:10:39,281 --> 00:10:44,086
+use some form of time out to
+avoid infinite buffering.
+
+150
+00:10:44,086 --> 00:10:44,586
+All right.
+
+151
+00:10:44,586 --> 00:10:48,594
+The last operator we're
+going to show is groupBy.
+
+152
+00:10:48,594 --> 00:10:53,608
+So now that we have reverse
+GeoCoded our earthquakes from
+
+153
+00:10:53,608 --> 00:10:59,712
+GPS locations into countries, we now want
+to group the earthquakes by country.
+
+154
+00:10:59,712 --> 00:11:04,462
+And let's start with
+the merge earthquakes.
+
+155
+00:11:04,462 --> 00:11:06,836
+And here you see, it's really simple.
+
+156
+00:11:06,836 --> 00:11:11,749
+We just say,
+group the earthquakes by country and
+
+157
+00:11:11,749 --> 00:11:14,794
+what we now get is a stream that have,
+
+158
+00:11:14,794 --> 00:11:20,298
+as have a key a stream of streams
+with a key being the country and
+
+159
+00:11:20,298 --> 00:11:24,753
+then a stream of the country And
+the earthquake.
+
+160
+00:11:24,753 --> 00:11:29,294
+So you can do all the operations that
+you do on the regular collections on
+
+161
+00:11:29,294 --> 00:11:31,045
+observable collections.
+
+162
+00:11:31,045 --> 00:11:32,378
+So thank you so much.
+
+163
+00:11:32,378 --> 00:11:37,503
+This was the end of the Rx Operators and
+see you after the break.
+

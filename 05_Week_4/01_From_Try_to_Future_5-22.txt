@@ -1,0 +1,124 @@
+Welcome back, everybody.
+Last few lectures we talked extensively
+about two of these four fundamental
+effects of programming.
+namely Try and Future.
+But maybe you got the feeling that,
+you know, we pulled Try and
+Future a little bit out of the hat
+like a rabbit, like a magician.
+All right?
+And what I'm going to do now is I'm
+going to show you that actually try and
+future are closely related and that you
+know you can derive one from the other.
+And then we're going to use that
+same trick on the other side where
+we will take interable and
+use this same trick to get observable.
+And what is this trick?
+[SOUND] Well, in order to do the trick
+we need to break down
+futures into their essence.
+Okay?
+So here is the type of Future and,
+just to remind you,
+Future has a on complete method.
+What we did before is we got, used unit
+here instead of u, for simplicity.
+But it takes a callback that takes
+a function from try to unit, and
+then return unit.
+[SOUND] All right, so
+if we simplify this all away, so
+we remove the trait, because this is
+a trait with just a single function.
+Then, [SOUND] what we're left with
+is this higher order function.
+So it's a Try of T to unit.
+Two units, all right?
+So all I've done is just
+removed the trait and
+turned that method in the trait
+into a standalone function.
+[SOUND] Now,
+the next thing we're going to do is,
+we're going to reverse all the arrows.
+So we're going to reverse all the arrows,
+so, try to units,
+to units, becomes, unit arrow,
+unit arrow Try of T.
+Now this is a kind of a little bit
+weird thing in Scala when you know,
+when you return here, unit You might
+also say that's going to, you know?
+That we are going to tank, change that on
+the left hand side into the empty tuple.
+Because there's no value of that unit
+that you can pass as a parameter.
+Okay?
+So we're kind of, you know,
+cleaning this up a little bit.
+And then, remember, that what we said.
+Is that a future only [SOUND]
+produces a single value.
+So, every time you call the future
+it will just return the same value
+whenever you put in a new call back.
+So those unit arrows in
+front of the Try of T
+really do nothing because there
+there cannot be any side effects.
+Because you're always
+getting the same value.
+So if we simplify that,
+then we get Try of T.
+So the magic here, is that we started
+with this simple version of future.
+We reversed the arrows.
+We simplified, and we got Try of T.
+And this trick of flipping
+the arrows is called duality.
+And here you see the duality in
+a slightly more intuitive form.
+If you look at a function
+[SOUND] of Type future of T.
+What is that?
+It's a function that
+receives a result of type.
+Type Try of T they are call back.
+All right.
+And so
+it's like asynchronous receives that.
+And a function that returns
+a Try of T directly
+blocks until the method's returned.
+So the duality here is between
+synchronous and asynchronous and
+the way we implement that is by kind
+of blocking or passing a callback.
+[SOUND] Now if you go to Wikipedia.
+And you search for duality, you get,
+like a, whole definition of duality.
+But the essence there is that
+you're flipping the arrows.
+[SOUND] And since this is not a full
+course on category theory I will
+kind of leave it here, but
+the thing is that when you use duality,
+it's like buy one get one free.
+And I'm Dutch, you know, you probably
+heard that from my accent, and
+Dutch people are cheap and we like,
+really like buy one get one free.
+So that's the reason I,
+I, I'm so attracted.
+To this notion of duality.
+[SOUND] All right, so that was our short
+derivation to go from Try to Future.
+And now we will go and,
+do intervals, and then at some point
+we'll use the same trick to
+dualize intervals to observables.
+So see you next time.
+

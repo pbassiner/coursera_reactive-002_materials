@@ -1,0 +1,768 @@
+1
+00:00:00,008 --> 00:00:01,984
+Hello, everybody.
+
+2
+00:00:01,984 --> 00:00:07,497
+Since, we have just a limited time to to
+
+3
+00:00:07,497 --> 00:00:14,505
+discuss a huge surface area,
+the Rx surface area.
+
+4
+00:00:14,505 --> 00:00:20,860
+We have no time to discuss all
+the intimate details about Rx, so
+
+5
+00:00:20,860 --> 00:00:25,790
+here what we're doing now is we're going
+to give you a little bit of a Potpourri of
+
+6
+00:00:25,790 --> 00:00:30,980
+kind of, small things concerning
+Rx that might be interesting.
+
+7
+00:00:32,070 --> 00:00:36,970
+But again, I would really advise you
+if you want to learn more about Rx, and
+
+8
+00:00:36,970 --> 00:00:41,392
+more in depth that you kind of
+you look at the Rx wiki, or
+
+9
+00:00:41,392 --> 00:00:46,570
+the ReactiveX io site,
+where you can find a lot more information.
+
+10
+00:00:47,960 --> 00:00:55,020
+All right, let's look at this example
+here in the earthquakes example,
+
+11
+00:00:55,020 --> 00:01:00,850
+we used this constructor, the Observable
+dot from that took a Future.
+
+12
+00:01:02,230 --> 00:01:07,140
+When we were doing the reverse geocoding,
+so that the reverse geocoding returned
+
+13
+00:01:07,140 --> 00:01:11,950
+a Future, and we wanted to turn that
+into an Observable, and I just kind of
+
+14
+00:01:11,950 --> 00:01:16,720
+use that without, you know, thinking
+too much, or saying too much about it.
+
+15
+00:01:16,720 --> 00:01:21,150
+But I think, it's interesting to see,
+how we can implement that, and
+
+16
+00:01:21,150 --> 00:01:25,960
+we're going to implement that using an,
+a sync subject,
+
+17
+00:01:25,960 --> 00:01:31,340
+which I said,
+was very much like a Future because
+
+18
+00:01:31,340 --> 00:01:35,410
+it has only one value, or very much like a
+promise, I should say, because, you know?
+
+19
+00:01:35,410 --> 00:01:38,200
+I can set it and it has only one value.
+
+20
+00:01:38,200 --> 00:01:44,240
+So, here's the code for
+using the the apply constructor for here
+
+21
+00:01:44,240 --> 00:01:49,560
+on Observables with overloading it with
+a Future, and we get back an Observable.
+
+22
+00:01:49,560 --> 00:01:53,500
+Since, we are in this case,
+
+23
+00:01:53,500 --> 00:01:59,650
+we want to remember the last
+value of our stream.
+
+24
+00:01:59,650 --> 00:02:04,940
+What we're going is we're going to create
+an AsyncSubject, and then when the Future
+
+25
+00:02:06,210 --> 00:02:09,860
+is complete,
+what were going to do is we're going to
+
+26
+00:02:11,060 --> 00:02:14,970
+look at the two cases if the Future
+completes with an error,
+
+27
+00:02:14,970 --> 00:02:18,710
+we're going to complete
+the AsyncSubject with an error.
+
+28
+00:02:18,710 --> 00:02:24,362
+If the future completes with success were
+going to call on next on the subject,
+
+29
+00:02:24,362 --> 00:02:26,809
+and then immediately complete it.
+
+30
+00:02:26,809 --> 00:02:31,473
+Now, what this gives us is
+the behavior that we want
+
+31
+00:02:31,473 --> 00:02:36,250
+from a Future is that it
+only executes once, right?
+
+32
+00:02:36,250 --> 00:02:40,120
+When you, when you, kind of,
+you know, pass a call back, the un,
+
+33
+00:02:40,120 --> 00:02:44,680
+the complete call back, the uncomplete
+call back to the Future, you know,
+
+34
+00:02:44,680 --> 00:02:49,580
+if you pass it multiple times, the
+underlying computation is run only once.
+
+35
+00:02:49,580 --> 00:02:53,650
+And that's the behavior that we get
+here by using the AsyncSubject.
+
+36
+00:02:53,650 --> 00:02:56,200
+So, if you subscribe to this subject,
+
+37
+00:02:56,200 --> 00:03:02,020
+it will always kind of give you the last
+value without rerunning the computations.
+
+38
+00:03:02,020 --> 00:03:03,360
+Right?
+It's a subtle
+
+39
+00:03:03,360 --> 00:03:05,150
+side effects are always subtle.
+
+40
+00:03:05,150 --> 00:03:09,660
+You have to think hard about them to make
+sure that they don't get duplicated, or
+
+41
+00:03:09,660 --> 00:03:11,800
+that things get run more than once.
+
+42
+00:03:11,800 --> 00:03:15,210
+So, this code here is quite subtle,
+
+43
+00:03:15,210 --> 00:03:20,550
+and therefore, you know,
+you shouldn't write these things yourself.
+
+44
+00:03:20,550 --> 00:03:27,610
+The Rx library has most of these operators
+where, you know, all the details
+
+45
+00:03:27,610 --> 00:03:31,480
+are taken care of, for you such that
+you don't have to worry about that.
+
+46
+00:03:32,900 --> 00:03:37,520
+Now, the other thing if we
+look at the class Try of T,
+
+47
+00:03:37,520 --> 00:03:41,420
+what we see is that really
+the two cases of success, and
+
+48
+00:03:41,420 --> 00:03:45,770
+failure were represented
+by data structures, okay?
+
+49
+00:03:45,770 --> 00:03:51,690
+And if you remember one of the very,
+very first lectures, where I said,
+
+50
+00:03:51,690 --> 00:03:56,530
+oh, but if you get a function
+that takes a Try of T as a,
+
+51
+00:03:56,530 --> 00:04:01,110
+a parameter, the first thing you're going
+to do is you're going to pattern match
+
+52
+00:04:01,110 --> 00:04:04,700
+on these two cases, and
+you're going to use to functions.
+
+53
+00:04:04,700 --> 00:04:11,830
+One that takes a T to unit, say, and the
+other one that takes a Throwable to unit.
+
+54
+00:04:11,830 --> 00:04:16,880
+So, instead, of materializing
+the Try of T into a data structure,
+
+55
+00:04:16,880 --> 00:04:19,920
+and then destructing it
+using pattern matching,
+
+56
+00:04:19,920 --> 00:04:23,620
+you might as well immediately
+pass the two functions.
+
+57
+00:04:23,620 --> 00:04:29,140
+But, of course, maybe in Rx,
+you want to do the same as Try of T.
+
+58
+00:04:29,140 --> 00:04:31,820
+You want to materialize the Notifications.
+
+59
+00:04:31,820 --> 00:04:36,850
+So, instead of, you know,
+passing three call backs,
+
+60
+00:04:36,850 --> 00:04:41,470
+you might want to get an Observable, just
+like you want to get the Future of Try,
+
+61
+00:04:41,470 --> 00:04:45,160
+you want to get an Observable
+of something that represents,
+
+62
+00:04:45,160 --> 00:04:48,160
+you know, OnNext,
+OnError, and OnCompleted.
+
+63
+00:04:48,160 --> 00:04:52,730
+And for that,
+we have the idea of a Notification, so
+
+64
+00:04:52,730 --> 00:04:58,311
+a Notification is either OnNext,
+OnError, and OnCompleted.
+
+65
+00:04:58,311 --> 00:05:02,350
+So, that's a data
+structure that represents
+
+66
+00:05:02,350 --> 00:05:08,170
+the signal that sent on an Observable.
+
+67
+00:05:08,170 --> 00:05:13,290
+And there's a function here materialize,
+that takes an observable of T, and
+
+68
+00:05:13,290 --> 00:05:16,890
+turns it into an Observable
+of Notification of T.
+
+69
+00:05:16,890 --> 00:05:18,070
+All right?
+
+70
+00:05:18,070 --> 00:05:21,970
+And now, when you subscribe to this thing,
+you get, you have to put,
+
+71
+00:05:21,970 --> 00:05:27,920
+your subscription has to pass a function
+from Notification of T to unit,
+
+72
+00:05:27,920 --> 00:05:31,150
+just as what you got toward the Future.
+
+73
+00:05:31,150 --> 00:05:31,780
+Okay?
+
+74
+00:05:31,780 --> 00:05:35,410
+So, you can always kind of
+move between these two things.
+
+75
+00:05:35,410 --> 00:05:38,850
+So, pattern matching, or
+passing the function separately.
+
+76
+00:05:38,850 --> 00:05:40,030
+It's all the same thing.
+
+77
+00:05:40,030 --> 00:05:42,709
+It's whatever you feel
+most comfortable with.
+
+78
+00:05:44,490 --> 00:05:46,700
+Okay, so here's a marble diagram for
+
+79
+00:05:46,700 --> 00:05:50,760
+materialize, and, you know,
+we materialize this thing.
+
+80
+00:05:50,760 --> 00:05:55,520
+We see we get two onNext
+followed by an onComplete, and
+
+81
+00:05:55,520 --> 00:05:58,190
+then the funny thing is that,
+that stream completes itself.
+
+82
+00:05:58,190 --> 00:06:02,070
+So, there's two onCompletes because
+there's the onComplete that's
+
+83
+00:06:02,070 --> 00:06:07,340
+materialized, but now,
+this materialized stream also completes.
+
+84
+00:06:09,380 --> 00:06:10,130
+Okay.
+
+85
+00:06:10,130 --> 00:06:16,360
+Now, the other things that we had
+with Futures was that we could block,
+
+86
+00:06:16,360 --> 00:06:20,910
+and remember, I said that was really bad,
+you should never block because once you
+
+87
+00:06:20,910 --> 00:06:25,095
+block, you know,
+all the asynchrony basically, evaporates.
+
+88
+00:06:25,095 --> 00:06:28,130
+And, the same is true for Observables,
+
+89
+00:06:29,320 --> 00:06:34,278
+once you are in Observable land everything
+should stream, you should never block.
+
+90
+00:06:34,278 --> 00:06:38,508
+But sometimes, you know, for
+whatever reason, probably, you want to do
+
+91
+00:06:38,508 --> 00:06:42,484
+debugging, or you want to do a little
+demo script, you want to block.
+
+92
+00:06:42,484 --> 00:06:47,166
+And for that,
+we have an operator called toBlocking.
+
+93
+00:06:47,166 --> 00:06:51,951
+And you know, really it should be called
+toBlocking is unsafe make sure that,
+
+94
+00:06:51,951 --> 00:06:55,796
+you know what you're doing,
+if you're using this operator,
+
+95
+00:06:55,796 --> 00:06:59,297
+something kind of ridiculous like that,
+but, you know?
+
+96
+00:06:59,297 --> 00:07:02,024
+We just called it toBlocking, and
+
+97
+00:07:02,024 --> 00:07:06,444
+what this returns is a blocking
+Observable that has ce,
+
+98
+00:07:06,444 --> 00:07:10,970
+certain kind of convenience
+methods defined on it.
+
+99
+00:07:10,970 --> 00:07:16,460
+And this kind of, you know, just blocks
+until the Observable is done and
+
+100
+00:07:16,460 --> 00:07:17,270
+here's an example.
+
+101
+00:07:17,270 --> 00:07:19,988
+So, we're going to do interval take(5).
+
+102
+00:07:19,988 --> 00:07:23,440
+We say, toBlocking, and
+then we can do a list, and
+
+103
+00:07:23,440 --> 00:07:28,320
+then we can print the list, and,
+or we can say, toBlocking, and
+
+104
+00:07:28,320 --> 00:07:33,870
+make sure that's a single value, and
+if it's not one element, it, it will true.
+
+105
+00:07:33,870 --> 00:07:38,681
+All right, but again, the,
+you should really not be using
+
+106
+00:07:38,681 --> 00:07:42,260
+toBlocking except, for
+small demo programs.
+
+107
+00:07:42,260 --> 00:07:45,138
+So, and, you know, you can look in
+
+108
+00:07:45,138 --> 00:07:50,450
+the IntelliSense when you do toBlocking,
+or what matches there are.
+
+109
+00:07:50,450 --> 00:07:53,660
+And but,
+I really recommend against using this.
+
+110
+00:07:53,660 --> 00:07:56,540
+Once you're in a streaming
+Asynchronous world,
+
+111
+00:07:56,540 --> 00:07:58,550
+you should never block in the first place.
+
+112
+00:08:00,580 --> 00:08:05,120
+Okay, the next thing is some of
+the higher order operators that
+
+113
+00:08:05,120 --> 00:08:10,890
+are available on interval, as well.
+
+114
+00:08:10,890 --> 00:08:15,360
+And you might have questioned why,
+where is reduce?
+
+115
+00:08:15,360 --> 00:08:18,780
+Where, or where is fault left,
+and fault right?
+
+116
+00:08:18,780 --> 00:08:23,010
+And the thing is again,
+if you're in a Asynchronous world,
+
+117
+00:08:23,010 --> 00:08:27,110
+reducing a value to a scalar type
+doesn't make a lot of sense.
+
+118
+00:08:27,110 --> 00:08:32,420
+So, for example, if I want to
+reduce a stream to a single value.
+
+119
+00:08:32,420 --> 00:08:34,650
+Well, this stream might be infinite.
+
+120
+00:08:35,680 --> 00:08:39,140
+You know, or you want to kind of you know,
+it's like you have wait for
+
+121
+00:08:39,140 --> 00:08:43,030
+a long time until you
+get the resulting value.
+
+122
+00:08:43,030 --> 00:08:46,770
+And so, you'd,
+you usually don't use re, reduce a lot.
+
+123
+00:08:46,770 --> 00:08:51,420
+And another difference is that,
+in just like a SQL,
+
+124
+00:08:51,420 --> 00:08:57,240
+when you do a reduction on a table,
+you get back a table with a single row.
+
+125
+00:08:57,240 --> 00:09:02,540
+And the same here, when in Rx,
+you reduce a stream to a single value,
+
+126
+00:09:02,540 --> 00:09:08,030
+you don't get a scalar, you get
+an Observable that has that single value.
+
+127
+00:09:08,030 --> 00:09:09,270
+All right?
+
+128
+00:09:09,270 --> 00:09:12,990
+Whereas, with interval,
+when you reduce it, you will get a scalar.
+
+129
+00:09:12,990 --> 00:09:18,460
+But here in this case we say, you know,
+once you're in the Observable monad,
+
+130
+00:09:18,460 --> 00:09:23,880
+there's no way to escape,
+except, via toBlocking, and then
+
+131
+00:09:23,880 --> 00:09:28,230
+you make it explicit that you're doing
+something bad, and something dangerous.
+
+132
+00:09:30,280 --> 00:09:38,470
+As a last example, I want to show you, how
+to create an Observable from an interval.
+
+133
+00:09:38,470 --> 00:09:39,230
+All right?
+
+134
+00:09:39,230 --> 00:09:43,370
+And then, of course, you can also go
+from an interval, from an Observable
+
+135
+00:09:43,370 --> 00:09:47,630
+to an interval with toBlocking, but
+I want to kind of go the other way now.
+
+136
+00:09:47,630 --> 00:09:48,380
+Okay?
+So, but
+
+137
+00:09:48,380 --> 00:09:53,690
+in some sense,
+you can go in both directions.
+
+138
+00:09:53,690 --> 00:09:56,682
+And here, what we do is we're using
+
+139
+00:09:56,682 --> 00:10:01,265
+the apply method that takes a subscriber,
+and returns Unit.
+
+140
+00:10:01,265 --> 00:10:07,481
+And what we typically do here is we're go,
+just going to kind of take the interval,
+
+141
+00:10:07,481 --> 00:10:12,269
+we're for reaching over it, and
+as long as we're not unsubscribed
+
+142
+00:10:12,269 --> 00:10:17,480
+we're going to call onNext,
+when we're done we call onCompleted.
+
+143
+00:10:19,260 --> 00:10:23,070
+Now, this can lead to problems
+because imagine that, you know?
+
+144
+00:10:23,070 --> 00:10:28,290
+I have now, I subscribed to this,
+running on a different thread.
+
+145
+00:10:28,290 --> 00:10:33,190
+Now, the consumer might be
+much slower than the producer.
+
+146
+00:10:33,190 --> 00:10:33,940
+Okay?
+
+147
+00:10:33,940 --> 00:10:38,940
+And in that case, it means,
+that we have to do unlimited buffering.
+
+148
+00:10:38,940 --> 00:10:42,927
+For that Rx has a notion of Backpressure,
+and again,
+
+149
+00:10:42,927 --> 00:10:46,384
+that's outside the scope of this course,
+but
+
+150
+00:10:46,384 --> 00:10:51,254
+in the gem sessions, we will have
+a demo to show you how easy it
+
+151
+00:10:51,254 --> 00:10:55,885
+is to add that Backpressure
+support in these cases.
+
+152
+00:10:55,885 --> 00:10:56,860
+All right?
+
+153
+00:10:56,860 --> 00:11:02,263
+And you can also go to the RX wiki,
+and there's a whole section
+
+154
+00:11:02,263 --> 00:11:07,960
+that explains all the strategies
+that you can use to do Backpressure.
+
+155
+00:11:07,960 --> 00:11:10,750
+So, that's the case where the consumer,
+and
+
+156
+00:11:10,750 --> 00:11:15,250
+the producer are and
+don't run at the same speed.
+
+157
+00:11:15,250 --> 00:11:21,140
+And you want to prevent build up
+of unlimited internal buffers.
+
+158
+00:11:21,140 --> 00:11:22,160
+All right.
+
+159
+00:11:22,160 --> 00:11:25,351
+Thanks.
+That was already again, the end of the,
+
+160
+00:11:25,351 --> 00:11:28,646
+our RX Potpourri and see you next week.
+

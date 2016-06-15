@@ -1,0 +1,756 @@
+1
+00:00:00,000 --> 00:00:01,923
+Hey, welcome back.
+
+2
+00:00:01,923 --> 00:00:05,587
+One of the topics that we
+didn't really drill in,
+
+3
+00:00:05,587 --> 00:00:11,273
+we mentioned it in passing kind of,
+you know, is the idea of subscriptions.
+
+4
+00:00:11,273 --> 00:00:17,237
+When we derive observables and
+observer from iterable iterator,
+
+5
+00:00:17,237 --> 00:00:22,270
+we mentioned that in observable for
+operational reasons,
+
+6
+00:00:22,270 --> 00:00:27,953
+we wanted to be able to remove
+the observer from an observable when,
+
+7
+00:00:27,953 --> 00:00:34,135
+you know, the consumer was not interested
+anymore in receiving more values.
+
+8
+00:00:34,135 --> 00:00:37,448
+In this lecture, we're going to kind
+
+9
+00:00:37,448 --> 00:00:42,426
+of drill in a little bit
+into the subscription type.
+
+10
+00:00:42,426 --> 00:00:44,767
+Here's example of earthquakes.
+
+11
+00:00:44,767 --> 00:00:50,174
+So we have a stream of earthquakes and
+we subscribe to this twice.
+
+12
+00:00:50,174 --> 00:00:50,882
+Okay?
+
+13
+00:00:50,882 --> 00:00:55,769
+So then we get back to subscriptions,
+as one and as zero.
+
+14
+00:00:55,769 --> 00:01:01,047
+And the important thing here is
+that when we unsubscribe as one,
+
+15
+00:01:01,047 --> 00:01:04,175
+so we remove the first observer here,
+
+16
+00:01:04,175 --> 00:01:09,376
+that s2 will keep receiving
+earthquake notifications.
+
+17
+00:01:09,376 --> 00:01:16,446
+But s1 or observer one, I should say,
+will not receive anymore.
+
+18
+00:01:16,446 --> 00:01:17,579
+Okay?
+
+19
+00:01:17,579 --> 00:01:22,243
+Now sometimes, we but
+when we say, subscription and,
+
+20
+00:01:22,243 --> 00:01:26,916
+you know, unsubscribe,
+we mean cancel or we say, cancel.
+
+21
+00:01:26,916 --> 00:01:28,464
+But that's not really the case, right?
+
+22
+00:01:28,464 --> 00:01:35,444
+Because both, the, the other one
+keeps receiving notifications.
+
+23
+00:01:35,444 --> 00:01:40,403
+Now, you know,
+together with this notion of subscription
+
+24
+00:01:40,403 --> 00:01:44,379
+comes the idea of hot
+versus cold observables.
+
+25
+00:01:44,379 --> 00:01:49,671
+And this idea is also present for
+iterables,
+
+26
+00:01:49,671 --> 00:01:55,341
+but maybe it's not so
+apparent as with observables,
+
+27
+00:01:55,341 --> 00:01:58,995
+but it, it happens there as well.
+
+28
+00:01:58,995 --> 00:02:01,051
+So what is a cold observable?
+
+29
+00:02:01,051 --> 00:02:06,700
+Well, a cold observable is when
+you subscribe to an observer,
+
+30
+00:02:06,700 --> 00:02:11,156
+you get your own private
+copy of the string.
+
+31
+00:02:11,156 --> 00:02:15,519
+So, in this case, because the way we
+
+32
+00:02:15,519 --> 00:02:20,155
+implemented the code using retrofit.
+
+33
+00:02:20,155 --> 00:02:24,872
+Whenever we subscribe to the earthquake's
+stream, they're creating
+
+34
+00:02:24,872 --> 00:02:29,744
+a separate connection to the US Geological
+Server Service and you will kind
+
+35
+00:02:29,744 --> 00:02:34,482
+of keep receiving your own values and
+that's called a cold observable.
+
+36
+00:02:34,482 --> 00:02:39,062
+Another example of a cold observable
+is say that you want to create
+
+37
+00:02:39,062 --> 00:02:41,072
+a stream of random numbers.
+
+38
+00:02:41,072 --> 00:02:43,942
+Now, every time you
+subscribe to that stream,
+
+39
+00:02:43,942 --> 00:02:46,831
+you want to get your own
+copy of random numbers.
+
+40
+00:02:46,831 --> 00:02:51,925
+You don't want to share the random numbers
+between the different subscribers.
+
+41
+00:02:51,925 --> 00:02:56,112
+So, one way to look at the cold
+observable is as an observable,
+
+42
+00:02:56,112 --> 00:02:59,202
+where the subscription
+causes a side effect.
+
+43
+00:02:59,202 --> 00:03:03,772
+So you subscribe to a stream,
+you get back a subscription and
+
+44
+00:03:03,772 --> 00:03:07,093
+that function call will
+have a side effect.
+
+45
+00:03:07,093 --> 00:03:13,842
+And that subscription kind of represents
+your own private copy of the stream.
+
+46
+00:03:13,842 --> 00:03:18,579
+A hot observable is slightly different and
+there,
+
+47
+00:03:18,579 --> 00:03:22,995
+you often think about a UI event,
+for example.
+
+48
+00:03:22,995 --> 00:03:27,089
+If you look at mouse moves,
+the mouse is moving no matter what.
+
+49
+00:03:27,089 --> 00:03:29,457
+So, if you subscribe to mouse moves,
+
+50
+00:03:29,457 --> 00:03:33,308
+you're all kind of listening
+to the same underlying stream.
+
+51
+00:03:33,308 --> 00:03:38,485
+And there one way to look at that,
+it's that subscribing to that
+
+52
+00:03:38,485 --> 00:03:43,861
+stream has no effect, because you're
+not getting your private copy.
+
+53
+00:03:43,861 --> 00:03:47,892
+So your subscription is
+all shared together.
+
+54
+00:03:47,892 --> 00:03:49,088
+In the jam sessions,
+
+55
+00:03:49,088 --> 00:03:54,018
+we will show some concrete examples of
+this where you can see the difference.
+
+56
+00:03:54,018 --> 00:03:56,738
+But for now think of simple, you know,
+
+57
+00:03:56,738 --> 00:04:02,435
+when you subscribe to an observable that
+subscribe action can have a side effect.
+
+58
+00:04:02,435 --> 00:04:06,598
+In which case, we call it hot or
+it can have no side effect.
+
+59
+00:04:06,598 --> 00:04:08,993
+Sorry, in that case, we have it cold.
+
+60
+00:04:08,993 --> 00:04:14,802
+When it does not have a side effect,
+we call it hot.
+
+61
+00:04:14,802 --> 00:04:15,867
+All right.
+
+62
+00:04:15,867 --> 00:04:23,351
+So as I said, we often confuse the word
+cancellation and unsubscribing.
+
+63
+00:04:23,351 --> 00:04:28,377
+But in general, when you have two
+subscriptions to one observable and
+
+64
+00:04:28,377 --> 00:04:34,101
+one of the subscriptions is unsubscribed
+it has no influence on the other.
+
+65
+00:04:34,101 --> 00:04:39,701
+So you're not cancelling
+the underlining computation and
+
+66
+00:04:39,701 --> 00:04:43,863
+also, you know you,
+you it depends on the stream.
+
+67
+00:04:43,863 --> 00:04:49,367
+If the stream is hot, you don't want
+to,even if there's no subscribers,
+
+68
+00:04:49,367 --> 00:04:53,754
+you might not want to kill
+the underlying computation.
+
+69
+00:04:53,754 --> 00:04:56,222
+Because later,
+a new subscriber might come in and
+
+70
+00:04:56,222 --> 00:04:58,591
+then you want to kind of
+catch on where you were.
+
+71
+00:04:58,591 --> 00:05:01,776
+You don't want to kind of introduce yet,
+another side effect.
+
+72
+00:05:01,776 --> 00:05:05,968
+So these are all subtle issues
+when you are implementing your own
+
+73
+00:05:05,968 --> 00:05:07,918
+observables to keep in mind.
+
+74
+00:05:07,918 --> 00:05:14,211
+But again, there's no difference if you
+create your own iterables by implementing
+
+75
+00:05:14,211 --> 00:05:20,430
+iterable and iterator directly, you have
+to think about all these issues as well.
+
+76
+00:05:20,430 --> 00:05:21,440
+Okay.
+
+77
+00:05:21,440 --> 00:05:24,425
+Let's now zoom in into
+our subscription type.
+
+78
+00:05:24,425 --> 00:05:27,183
+So subscription has two methods.
+
+79
+00:05:27,183 --> 00:05:32,145
+It's unsubscribe that you can check
+whether the subscription has been
+
+80
+00:05:32,145 --> 00:05:37,853
+unsubscribed and then there's a side
+effecting function here, the unsubscribe
+
+81
+00:05:37,853 --> 00:05:43,611
+that just kind of removes the observer
+that corresponds to the subscription.
+
+82
+00:05:43,611 --> 00:05:46,724
+There's also a constructor for
+a subscription, so
+
+83
+00:05:46,724 --> 00:05:52,030
+you can give it a function that returns
+units that's just as a side effect and
+
+84
+00:05:52,030 --> 00:05:53,823
+you get back a subscription.
+
+85
+00:05:53,823 --> 00:05:59,261
+Now the interesting part of subscriptions
+is that they form an interesting algebra.
+
+86
+00:05:59,261 --> 00:05:59,934
+Okay?
+So
+
+87
+00:05:59,934 --> 00:06:05,155
+there's at least three kinds
+of subscriptions in RX.
+
+88
+00:06:05,155 --> 00:06:08,366
+The first one is a composite
+subscription and
+
+89
+00:06:08,366 --> 00:06:14,208
+that represents a group of subscriptions
+that this unsubscribed together.
+
+90
+00:06:14,208 --> 00:06:17,875
+So you kind of, you know,
+pull all your subscriptions together.
+
+91
+00:06:17,875 --> 00:06:21,403
+And when you unsubscribe
+the outer subscription,
+
+92
+00:06:21,403 --> 00:06:24,776
+all the inner subscriptions
+get unsubscribed.
+
+93
+00:06:24,776 --> 00:06:28,287
+The second one is the multiple
+assignment subscription,
+
+94
+00:06:28,287 --> 00:06:31,651
+which is a subscription that
+you can kind of, you know,
+
+95
+00:06:31,651 --> 00:06:36,391
+replace it's called multiassignment
+subscription, sorry.
+
+96
+00:06:36,391 --> 00:06:40,874
+So you can replace the underlying
+subscription and then there's the serial
+
+97
+00:06:40,874 --> 00:06:45,438
+subscription, which is a special case
+of a multiassignment subscription.
+
+98
+00:06:45,438 --> 00:06:49,486
+But where you kind of resubscr,
+when you subscribe another one,
+
+99
+00:06:49,486 --> 00:06:54,132
+then the underlying subscription,
+the previous one gets unsubscribed.
+
+100
+00:06:54,132 --> 00:06:54,666
+Okay?
+
+101
+00:06:54,666 --> 00:06:58,101
+Whereas here, it just gets swapped out.
+
+102
+00:06:58,101 --> 00:07:00,882
+Let's look at a concrete example.
+
+103
+00:07:00,882 --> 00:07:02,270
+I create a new subscription.
+
+104
+00:07:02,270 --> 00:07:06,544
+This call unsubscribe, this will
+print bye, bye, I'm gone fishing.
+
+105
+00:07:06,544 --> 00:07:10,138
+When go subscribe again,
+it will do nothing.
+
+106
+00:07:10,138 --> 00:07:14,565
+So we assume that
+subscriptions are item potent.
+
+107
+00:07:14,565 --> 00:07:17,887
+So when you call them
+the action happens once,
+
+108
+00:07:17,887 --> 00:07:20,791
+then the subscription is unsubcribed.
+
+109
+00:07:20,791 --> 00:07:24,952
+You call unsubscribe again and
+nothing happens.
+
+110
+00:07:24,952 --> 00:07:29,622
+And that's the reason that we have this
+unsubscribe, is unsubscribed state,
+
+111
+00:07:29,622 --> 00:07:33,944
+because there's a big difference
+between a subscription that is still,
+
+112
+00:07:33,944 --> 00:07:38,913
+you know, yet to be unsubscribed and a
+subscription that is already unsubscribed.
+
+113
+00:07:38,913 --> 00:07:41,805
+But typically, it's item potent.
+
+114
+00:07:41,805 --> 00:07:42,571
+All right.
+
+115
+00:07:42,571 --> 00:07:47,197
+Here's another example where we are kind
+of, you know, doing the same thing, but
+
+116
+00:07:47,197 --> 00:07:49,458
+then, we're printing isUnsubscribed.
+
+117
+00:07:49,458 --> 00:07:51,602
+In this case, it will return false.
+
+118
+00:07:51,602 --> 00:07:53,590
+And in this case, it will return true.
+
+119
+00:07:53,590 --> 00:07:59,995
+So, after you unsubscribe calling
+isUnsubscribed will return true.
+
+120
+00:07:59,995 --> 00:08:04,021
+Here's an simple example of
+a composite subscription.
+
+121
+00:08:04,021 --> 00:08:06,736
+As I said, it's a group of subscriptions.
+
+122
+00:08:06,736 --> 00:08:11,785
+So, if I have subscriptions A and B,
+I add them to my composite subscription.
+
+123
+00:08:11,785 --> 00:08:13,552
+I ask are you unsubscribed?
+
+124
+00:08:13,552 --> 00:08:17,108
+It says, no, because, you know,
+it's not yet unsubscribed.
+
+125
+00:08:17,108 --> 00:08:24,125
+Now, I unsubscribe the composite and
+now the inner ones will be unsubscribed.
+
+126
+00:08:24,125 --> 00:08:26,685
+And what happens you can ask yourself now,
+
+127
+00:08:26,685 --> 00:08:30,912
+imagine that I have a composite
+subscription that's already unsubscribed.
+
+128
+00:08:30,912 --> 00:08:35,075
+And now, I add a new subscription to that,
+subscription C.
+
+129
+00:08:35,075 --> 00:08:35,821
+What will happen?
+
+130
+00:08:35,821 --> 00:08:40,185
+Well, the, the giant choice we
+made is that when you add a new
+
+131
+00:08:40,185 --> 00:08:45,495
+subscription to an already
+unsubscribed composite subscription,
+
+132
+00:08:45,495 --> 00:08:49,793
+that new subscription will
+immediately be unsubscribed.
+
+133
+00:08:49,793 --> 00:08:52,378
+Here, it's so that's kind of what happens.
+
+134
+00:08:52,378 --> 00:08:55,011
+So, if it's not yet
+subscribed, nothing happens.
+
+135
+00:08:55,011 --> 00:08:59,662
+If it's already unsubscribed,
+it will be immediately unsubscribed.
+
+136
+00:08:59,662 --> 00:09:03,726
+Here's an example of
+the multiassignment subscription.
+
+137
+00:09:03,726 --> 00:09:07,521
+We have a multiassignment
+subscription that has A.
+
+138
+00:09:07,521 --> 00:09:11,629
+When we swap it out for
+C, nothing happens to A.
+
+139
+00:09:11,629 --> 00:09:16,347
+When we unsubscribe it,
+then again when we add C to it,
+
+140
+00:09:16,347 --> 00:09:22,623
+she will be immediately unsubscribed and
+that's what we see here.
+
+141
+00:09:22,623 --> 00:09:26,300
+And the the the last one,
+
+142
+00:09:26,300 --> 00:09:31,429
+the serial subscription
+as I said is where you're
+
+143
+00:09:31,429 --> 00:09:37,465
+immediately unsubscribed
+the underlying subscription.
+
+144
+00:09:37,465 --> 00:09:40,605
+So that was the,
+the algebra of subscriptions.
+
+145
+00:09:40,605 --> 00:09:45,913
+In general, you know,
+typically the subscriptions are used
+
+146
+00:09:45,913 --> 00:09:51,131
+not in user code, but
+when you implement your own operator.
+
+147
+00:09:51,131 --> 00:09:54,875
+And we will see later when we
+talk about the creation of,
+
+148
+00:09:54,875 --> 00:09:57,113
+of observable sequences there.
+
+149
+00:09:57,113 --> 00:09:59,411
+The notion of subscription comes in.
+
+150
+00:09:59,411 --> 00:10:02,729
+But otherwise,
+what you typically get is, you know,
+
+151
+00:10:02,729 --> 00:10:06,133
+you subscribe to something and
+you get a subscription.
+
+152
+00:10:06,133 --> 00:10:09,385
+And sometimes, you combine them
+if you want to pass it around.
+
+153
+00:10:09,385 --> 00:10:11,877
+But in general, you know, the,
+
+154
+00:10:11,877 --> 00:10:17,135
+this whole algebra of subscriptions
+is used inside other operators.
+
+155
+00:10:17,135 --> 00:10:17,750
+All right?
+
+156
+00:10:17,750 --> 00:10:22,195
+So this was a short brief
+introduction to subscriptions.
+
+157
+00:10:22,195 --> 00:10:24,461
+I invite you to play around with them.
+
+158
+00:10:24,461 --> 00:10:29,722
+There will be a couple of
+exercises in the labs about them.
+
+159
+00:10:29,722 --> 00:10:31,423
+And hope you're having fun.
+
+160
+00:10:31,423 --> 00:10:32,030
+Thank you.
+

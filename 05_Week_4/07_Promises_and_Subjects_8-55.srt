@@ -1,0 +1,604 @@
+1
+00:00:00,310 --> 00:00:01,810
+Hey welcome back everybody.
+
+2
+00:00:03,100 --> 00:00:06,910
+Last time we talked about creating
+
+3
+00:00:06,910 --> 00:00:11,810
+observable streams using the apply and
+the create methods.
+
+4
+00:00:11,810 --> 00:00:17,120
+But if you recall the lecture
+on creating futures,
+
+5
+00:00:17,120 --> 00:00:20,530
+there we used this concept of promises.
+
+6
+00:00:20,530 --> 00:00:27,683
+And as it turns out there's
+a corresponding concept for observables.
+
+7
+00:00:27,683 --> 00:00:30,775
+And they're, they're called
+subjects instead of promises.
+
+8
+00:00:30,775 --> 00:00:35,433
+And in this lecture we will drill
+down a little bit into subjects and
+
+9
+00:00:35,433 --> 00:00:38,440
+compare and contrast with promises.
+
+10
+00:00:38,440 --> 00:00:41,940
+So let's refresh our
+memory what promises are.
+
+11
+00:00:44,020 --> 00:00:47,750
+Here's a use of promises to implement map.
+
+12
+00:00:47,750 --> 00:00:50,960
+So what we did is into,
+implement map over future.
+
+13
+00:00:50,960 --> 00:00:54,720
+So we want to this is
+defined on future of T,
+
+14
+00:00:54,720 --> 00:00:59,790
+we take a function from T to S, and
+we have to return a future of S.
+
+15
+00:00:59,790 --> 00:01:05,230
+And the way we did that is by
+creating a new promise wait for
+
+16
+00:01:05,230 --> 00:01:09,240
+the future, the this, to complete.
+
+17
+00:01:09,240 --> 00:01:13,610
+If its completed successfully,
+we would call f.
+
+18
+00:01:13,610 --> 00:01:16,210
+We had to kind of, you know,
+wrap this around a try catch.
+
+19
+00:01:16,210 --> 00:01:18,510
+Because, you know, the f can fail too.
+
+20
+00:01:18,510 --> 00:01:25,340
+This is the thing that we didn't do when
+we implemented a map for observables.
+
+21
+00:01:25,340 --> 00:01:27,750
+We ignored error cases here but
+
+22
+00:01:27,750 --> 00:01:32,450
+then we returned the future
+corresponding to a promise.
+
+23
+00:01:32,450 --> 00:01:40,680
+So, a promise is an object
+that has a future, all right.
+
+24
+00:01:40,680 --> 00:01:45,240
+But then there's no kind of interface,
+special interface you know,
+
+25
+00:01:45,240 --> 00:01:49,880
+to describe just the fact
+that you can set the future.
+
+26
+00:01:49,880 --> 00:01:52,470
+Okay or you can complete the future.
+
+27
+00:01:52,470 --> 00:01:57,091
+In rx we did that slightly different,
+so here's the promise recap, so
+
+28
+00:01:57,091 --> 00:01:59,120
+there's a, we have a promise.
+
+29
+00:01:59,120 --> 00:02:05,440
+You can get the future of the promise and
+then you can complete
+
+30
+00:02:05,440 --> 00:02:10,430
+the promise and you can listen on
+the future with onComplete and
+
+31
+00:02:10,430 --> 00:02:14,970
+then you get the passing
+the call back Try of T to unit.
+
+32
+00:02:14,970 --> 00:02:15,630
+Right?
+
+33
+00:02:15,630 --> 00:02:20,470
+So you could say a promise has a future.
+
+34
+00:02:20,470 --> 00:02:23,540
+Now in,
+I actually already have two interfaces.
+
+35
+00:02:23,540 --> 00:02:27,170
+This is the Observer side where you
+can kind of you know, pump in a value.
+
+36
+00:02:27,170 --> 00:02:29,410
+And, this is the Observable side.
+
+37
+00:02:29,410 --> 00:02:34,020
+So, the corresponding concept
+in rx is a Subject, and
+
+38
+00:02:34,020 --> 00:02:38,420
+a Subject is an Observer and
+an Observable.
+
+39
+00:02:38,420 --> 00:02:41,060
+So, you can subscribe on the one side.
+
+40
+00:02:41,060 --> 00:02:46,260
+And you can kind of push in
+values on the other side.
+
+41
+00:02:46,260 --> 00:02:50,760
+Now, there's two big
+differences with promises.
+
+42
+00:02:50,760 --> 00:02:54,020
+The first thing is that,
+you know, we can also
+
+43
+00:02:56,000 --> 00:03:01,730
+we have these extra methods to complete
+the subject but uncomplete it.
+
+44
+00:03:01,730 --> 00:03:04,570
+And there's onError and onNext.
+
+45
+00:03:04,570 --> 00:03:09,727
+And remember that with promises,
+if you would try to call a complete twice,
+
+46
+00:03:09,727 --> 00:03:13,448
+and you would call it on
+an already completed promise.
+
+47
+00:03:13,448 --> 00:03:17,758
+It would throw an exception and
+there you had to use try complete.
+
+48
+00:03:17,758 --> 00:03:24,050
+In Subject, when a Subject has
+been completed with onComplete or
+
+49
+00:03:24,050 --> 00:03:29,760
+onError, and if you then call any of these
+methods again, they will just do nothing.
+
+50
+00:03:29,760 --> 00:03:30,900
+Okay, they won't throw.
+
+51
+00:03:30,900 --> 00:03:34,960
+So I think that's a slightly simpler
+design, because then you don't have
+
+52
+00:03:34,960 --> 00:03:39,520
+to kind of think about, like, do I do,
+use Try, onNext, or whatever.
+
+53
+00:03:39,520 --> 00:03:41,290
+No, you just do onNext.
+
+54
+00:03:41,290 --> 00:03:46,810
+And if the subject has already been
+closed by one of the terminal methods,
+
+55
+00:03:46,810 --> 00:03:48,590
+the value is just dropped on the floor.
+
+56
+00:03:50,280 --> 00:03:52,320
+Okay?
+But what happens is when you subscribe on
+
+57
+00:03:52,320 --> 00:03:59,070
+this side, when you call onNext that value
+is propagated through all the subscribers.
+
+58
+00:03:59,070 --> 00:04:03,207
+So in some sense,
+the subject is very much like a channel.
+
+59
+00:04:03,207 --> 00:04:07,625
+A channel where on the one side you can
+pump in values that you can receive on
+
+60
+00:04:07,625 --> 00:04:08,670
+the other side.
+
+61
+00:04:08,670 --> 00:04:10,300
+So that's the picture here.
+
+62
+00:04:10,300 --> 00:04:11,340
+So let's look at our code.
+
+63
+00:04:13,030 --> 00:04:15,370
+And there are several kinds of subjects.
+
+64
+00:04:15,370 --> 00:04:18,730
+So in this case we are using
+the PublishSubject,
+
+65
+00:04:18,730 --> 00:04:22,470
+which is the simplest one
+that's just a simple pipe.
+
+66
+00:04:22,470 --> 00:04:27,440
+So here we create a PublishSubject,
+that's the channel
+
+67
+00:04:27,440 --> 00:04:32,860
+we subscribe to it by and,
+and print things out.
+
+68
+00:04:32,860 --> 00:04:41,010
+And then when we push 42 on the channel
+42 will be delivered on those guys.
+
+69
+00:04:41,010 --> 00:04:43,360
+Now we unsubscribe one of them and
+
+70
+00:04:43,360 --> 00:04:47,790
+then now that subscriber will
+not receive any more values.
+
+71
+00:04:47,790 --> 00:04:52,380
+We push the next value and
+that will be kind of delivered here, and
+
+72
+00:04:52,380 --> 00:04:54,740
+now we complete the channel.
+
+73
+00:04:54,740 --> 00:04:57,420
+We subscribe to it with c, and
+
+74
+00:04:57,420 --> 00:05:01,818
+what we will see is that c
+now immediately will and
+
+75
+00:05:01,818 --> 00:05:06,660
+get onCompleted and
+we will get onCompleted as well.
+
+76
+00:05:06,660 --> 00:05:09,356
+And when we go onNext
+again nothing will happen,
+
+77
+00:05:09,356 --> 00:05:11,780
+it will just be dropped on the floor.
+
+78
+00:05:11,780 --> 00:05:17,020
+But what is interesting is that
+when you subscribe to a channel
+
+79
+00:05:17,020 --> 00:05:24,410
+to a PublishSubject that has already been
+closed, you will get the onCompleted.
+
+80
+00:05:24,410 --> 00:05:28,240
+And similarly, you will get the onError.
+
+81
+00:05:28,240 --> 00:05:32,950
+Now one of the things that you
+may have thought of is that.
+
+82
+00:05:32,950 --> 00:05:37,740
+When you're using this PublishSubject,
+you're missing all the values.
+
+83
+00:05:37,740 --> 00:05:42,220
+When you subscribe later, when you're
+too late, you only get the kind of,
+
+84
+00:05:42,220 --> 00:05:47,390
+you know, all the new values, but you,
+you don't see any of the history.
+
+85
+00:05:47,390 --> 00:05:53,200
+And for that, we have a ReplaySubject,
+and the ReplaySubject has a m,
+
+86
+00:05:53,200 --> 00:05:57,650
+memory of all the values that has,
+have been pushed into it.
+
+87
+00:05:57,650 --> 00:06:03,180
+And when you subscribe later to it,
+it will replay all those values.
+
+88
+00:06:03,180 --> 00:06:08,040
+Now course that's a little
+bit dangerous because
+
+89
+00:06:08,040 --> 00:06:12,300
+it means that a ReplaySubject
+should have unbounded memory.
+
+90
+00:06:12,300 --> 00:06:16,790
+And there's several overloads of
+ReplaySubjects where you can say,
+
+91
+00:06:16,790 --> 00:06:20,920
+you know,
+only remember the last thousand values or
+
+92
+00:06:20,920 --> 00:06:27,602
+only remember the last five
+minutes of values and so forth.
+
+93
+00:06:27,602 --> 00:06:32,578
+Now the ReplaySubject is used
+a lot in Rx Android where,
+
+94
+00:06:32,578 --> 00:06:38,008
+you know, if you're,
+if you're doing some actions you want to,
+
+95
+00:06:38,008 --> 00:06:43,220
+might want to save some values
+as you're making a transition.
+
+96
+00:06:43,220 --> 00:06:48,300
+And then when you resubscribe, you,
+you don't want to lose any values there.
+
+97
+00:06:48,300 --> 00:06:52,160
+So i, it has very practical uses.
+
+98
+00:06:52,160 --> 00:06:57,023
+And then the other subjects that
+we have are the async subject,
+
+99
+00:06:57,023 --> 00:07:00,980
+and the AsyncSubject
+caches the final value.
+
+100
+00:07:00,980 --> 00:07:04,620
+So if you have a stream,
+it just remembers the final value.
+
+101
+00:07:04,620 --> 00:07:06,910
+So it's a little bit like a future.
+
+102
+00:07:06,910 --> 00:07:11,910
+But where the last value is the,
+the value of the async subject.
+
+103
+00:07:11,910 --> 00:07:16,030
+And then there's the behavior subject
+that caches the latest value,
+
+104
+00:07:16,030 --> 00:07:20,200
+so when you kind of subscribe to that
+you're getting the latest value.
+
+105
+00:07:20,200 --> 00:07:23,000
+And that kind of behaves
+
+106
+00:07:24,220 --> 00:07:29,260
+like a behavior if you have
+ever heard of FRP behaviors.
+
+107
+00:07:29,260 --> 00:07:33,670
+And the behavior subject is,
+corresponds to that.
+
+108
+00:07:34,720 --> 00:07:38,720
+Okay, so
+this is a brief introduction to subjects.
+
+109
+00:07:38,720 --> 00:07:45,640
+I often recommend against using
+subjects for two reasons.
+
+110
+00:07:45,640 --> 00:07:49,560
+First of all subjects
+are like mutable variables.
+
+111
+00:07:49,560 --> 00:07:50,780
+As I said you're going to, you know,
+
+112
+00:07:50,780 --> 00:07:54,350
+you're, you're pushing
+things in on one side.
+
+113
+00:07:54,350 --> 00:07:56,410
+You're receiving things on the other side.
+
+114
+00:07:57,990 --> 00:08:01,670
+They don't play very well with
+the notion of back pressure.
+
+115
+00:08:01,670 --> 00:08:05,480
+Which is something that we will only
+touch upon in the jam sessions.
+
+116
+00:08:07,212 --> 00:08:11,871
+But it's better to kind of, there's
+also overload to publish that don't use
+
+117
+00:08:11,871 --> 00:08:14,920
+a subject but, you know,
+are defined on a stream.
+
+118
+00:08:16,060 --> 00:08:19,930
+And where you pass in a function
+that gets an Observable.
+
+119
+00:08:19,930 --> 00:08:21,730
+And then you can subscribe multiple times.
+
+120
+00:08:21,730 --> 00:08:27,030
+So, the overload of publish that uses
+a function is the one that you should use.
+
+121
+00:08:27,030 --> 00:08:31,940
+But, in most cases you
+don't need subjects.
+
+122
+00:08:31,940 --> 00:08:35,020
+And if you're find
+yourself needing a subject
+
+123
+00:08:35,020 --> 00:08:38,930
+you can probably rewrite
+your code not to use it.
+
+124
+00:08:38,930 --> 00:08:39,640
+Okay?
+
+125
+00:08:39,640 --> 00:08:44,080
+So but sometimes they are very useful,
+
+126
+00:08:44,080 --> 00:08:49,020
+just like sometimes a little bit of
+mutable state is very convenient.
+
+127
+00:08:49,020 --> 00:08:49,800
+All right.
+
+128
+00:08:49,800 --> 00:08:53,630
+Thank you so much and
+see you in the next lecture.
+

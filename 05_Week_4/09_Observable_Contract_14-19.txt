@@ -1,0 +1,341 @@
+Welcome everybody to
+already the last lecture
+in the series about the four
+essential effects of programming.
+What I want to do in this last lecture
+is talk about the observable contract.
+And that's the behavioral
+contract about observable streams
+that is not visible in the type.
+The type signatures of observable and
+observer, and specifically of observer,
+just says that, you know, you, you know,
+you pass three call backs on next,
+on completed and on error and
+they get called.
+But nothing in that signature tells
+you in what order they are called or
+what the guarantees are.
+And similarly, when you subscribe to an
+observable, you get back a subscription.
+We did look at the algebra
+of subscriptions, but
+we didn't talk about,
+you know, what's you know,
+what the observable stream
+does with the subscriptions.
+And we're going to drill down a little
+bit into that in this lecture.
+And the lesson of this lecture
+is that you should never
+ever implement observer or
+observable yourself.
+You should always use the factory
+methods that the library provides,
+because if you do it yourself there's
+a very, very high probability
+that you don't satisfy the contract and
+something will go wrong.
+So, that's really what I want
+to kind of drill in your heads.
+Don't ever implement observable or
+observer yourselves, and
+the same for subscription, and
+the same for all Rx types.
+Only use the factory methods
+that the library provides.
+So, let's kind of see why
+this is not trivial, okay?
+So, here is a, example of, you know,
+how you naively could implement,
+observable.create.
+So, remember, observable.create takes
+a function from observer to subscription.
+And it needs to create a new observable.
+Well, you can say, that's easy.
+Because I just define subscribe,
+that takes an observer.
+Oh and I have a function
+that takes an observer and
+returns a subscription as subscribe,
+should return a subscription.
+Oh, then I can just pass the observer
+to that function to get
+the subscription and I'm done.
+Well, it would be great if life was so
+easy, but that's not the case.
+So if you look at
+the actual implementation,
+there's a lot of implementation
+details here that are wrapped around
+the function, and the kind of
+passing of the observer, to ensure
+that our Rx contract that we're talking
+about in this lecture is satisfied.
+On the other hand, if you're using
+observable.create, when you're
+reasoning about it, it is kind of pretty
+safe to kind of just unfold it like this.
+So when you do observable.create
+with some function, and
+you subscribe to that with an observer,
+you can kind of say that's more or
+less the same as call,
+passing the observer to that function.
+Okay?
+But there's still all that
+implementation detail.
+But this is the conceptual model.
+But it's, the actual
+implementation is not this simple.
+And the same is true for
+the observable apply,
+which took a function that takes
+a subscriber and returns unit.
+So when we subscribe to that,
+we get an observer.
+So now, at least,
+we must wrap the observer in,
+in something to make it a subscriber,
+pass it to F, and
+then there's also a lot of
+kind of implementation details
+that wrap around this to insure
+that the contract is satisfied.
+Now, what is this contract?
+I may have mentioned this
+word now several times.
+So let's look at one thing.
+So, one thing is,
+is the behavior of the subscription
+that you get out of subscribe.
+And in Rx, we implement the so
+called auto-unsubscribe behavior.
+That means that if,
+in this case I took here,
+if you call on complete on this observer,
+or you can call uncomplete, or on error
+on the subscriber that gets passed in,
+that the subscription that gets handed
+out is automatically unsubscribed.
+So here's how you can test that.
+So here we implement observable.empty.
+So as we know it took a subscriber and
+it immediately calls onCompleted.
+Now we say s equals empty.unsubscribe and
+then when we print it's unsubscribed.
+We will see that it is immediately true
+even though we have not
+unsubscribed from s.
+But the reason is that, you know, there's
+the auto unsubscribe behavior here.
+And notice, I promise you there
+would be typos in the slides.
+And there is obviously an equals
+sign here in white ink.
+It's there, I promise you.
+[LAUGH] But it's just in white ink so
+you can't see it.
+All right, so here are some other
+issues with the Rx contract.
+Since you know, there's these three call
+backs, onNext, onError, and onCompleted.
+We guarantee that they are called
+in a certain order, so we are,
+we guarantee that the stream
+has to follow an structure.
+So we call onNext zero or more times and
+then optionally we call onCompleted or
+onError.
+So it might be that in the case of never,
+that nothing is called.
+So that's yeah,
+never calling anything, that is a,
+a, a valid intent of this expression.
+Or you can call onNext,
+you know, multiple times, but
+never call onCompleted, onError.
+Or you can call the normal case onNext
+many times followed by onCompleted.
+Or you can call onCompleted
+directly that was empty.
+Or onError directly and it was error.
+All right?
+But it's always in this sequence.
+So after you've seen an onCompleted or
+an onError, you will never see
+any of the other methods anymore.
+So, once onCompleted has been called,
+you can be sure that onNext,
+onCompleted and onError are never called.
+And that's the reason that we do this
+auto-unsubscribe because we know that
+the the stream is done and so
+we kind of eagerly unsubscribe for you.
+So these are the two kind of,
+you know, valid instances.
+There's a number of onNext
+followed by onCompleted.
+There's a number of onNext
+followed by onError,
+and of course there could be no onError or
+onNext.
+The last part of the Rx contract is
+the fact that onNext and onCompleted and
+onError are called sequentially so
+there will never be overlap in goals.
+So they, they are always serialized.
+so if you get here on onNext,
+the next onNext will only be called
+when the first onNext will be finished.
+So there's never overlap.
+So you'd, inside your callbacks,
+you never have to kind of,
+you know, worry about concurrency.
+Because the Rx library
+serializes everything for you.
+And if you look at the implementation,
+you will see that we go to great lengths
+not to use locks, but try to do everything
+lock free, to make that efficient.
+So, maybe another way to look
+at Rx is to take a fancy
+library that kind of takes
+care of serialization and
+of concurrent notifications for you.
+I don't, we don't have time to go into
+all the, details of the Rx Contact.
+And all the kind of, you know,
+API, API design guidelines.
+But you can go to either the,
+reactive X website, or
+the Rx wiki, or there's the original,
+the bible of Rx the Rx Design Guidelines.
+If you google for Rx design guidelines,
+you get a PDF document,
+that explains the guidelines
+in terms of Rx.net.
+But they are all valid for
+every implementation of Rx.
+So, let me finish by saying that Rx here,
+in this course,
+we showed you Rx,
+Scala that's based on Rx Java.
+As I warned you, the names in Rx Scala
+are often different, the identifiers and
+method names are different than in
+Rx Java but the semantics are the same.
+We just made sure that the API feels
+natural for Scala programmers.
+But on the JVM we have a whole
+slew of implementations.
+Rx Java, there's bindings for
+for closure, for groovy
+you name it, any language that
+runs on the JVM has Rx bindings.
+And then there's also ports
+of Rx in other languages.
+In Rx Java, in fact,
+there's a port of the original Rx.net.
+And there's Rx for C++,
+also very popular is Rx for JavaScript.
+But there's also Rx for
+Python, Rx for Ruby, and
+there's reactive Coco done by,
+the friendly people at GitHub that is
+an implementation of Rx for objective C.
+So all the concepts that you
+learned in this lecture,
+you can apply in any language.
+So you're not kind of stuck with Scala or
+.NET or with Java.
+It's the general principals
+applied to any language and
+the framework has been forwarded to any
+other language and often, you know,
+when you're building a web application
+your client is written in JavaScript.
+You can use RxJS there,
+your server side is written in Java and
+you use RxJava or RxCala there,
+there and then you can communicate.
+Okay, so, one last warning: never
+ever implement observable or
+observer yourself, or in fact,
+any of the other Rx types.
+Because, you know,
+you will violate the Rx contract.
+I guarantee you.
+Now, when you do a code review and
+you see somebody kind of write
+now if code like this, right?
+They say, oh, I need to create
+an observable just by kind of, you know,
+implementing this subscribe method,
+that alarm bells should go off.
+You should never ever do that.
+Okay?
+So really use only the factory methods.
+Okay, thank you so
+much for your attention,
+I hope that you enjoyed these lectures.
+And I want to again remind
+you here one last time
+about the four effects of programming.
+The first column here was
+computations that return one value.
+If they do that synchronously,
+we started out with blocking methods that
+didn't kind of, you know, in their type
+show that there could be an exception.
+And then we introduced a trimonet
+that made exceptions explicit.
+All right?
+Then we went from Try and said hey,
+now there's also the effect of latency.
+Remember the table where, you know,
+sending a packet from Europe, to,
+from the US to Europe and
+back would take several years.
+So we have to make latency
+explicit In our types.
+And for that, we used future of T,
+which represents a computation that
+can fail and takes you a long time.
+And there we talked about a lot of
+combinators on futures etcetera, and
+we introduced asynch await.
+And asynch await, allowed us to
+still write normal control flow and
+the reason that we can do that is
+because futures return only one value.
+Then these two here were related by
+the magic trick of duality where we
+reverse the arrows.
+And then we moved from, you know,
+the one side to the many sides, and
+we start it with iterable.
+Those are the synchronous streams where
+you're pulling values out of the streams.
+And that's my block, so
+say that you're pulling strings out
+of a file that will take, you know,
+in human time days or months or
+years, so you should never do that.
+And so we reuse the dualization trick
+here to go from iterables to observables.
+And we talked quite at length about also,
+all the higher order functions and
+details of observables.
+'Kay?
+So, I hope that, you know,
+you can apply this knowledge in
+your day to day programming.
+I hope that it gave you a little
+bit more insight in the essence of,
+you know, effect.
+And so I leave you here with my motto,
+happy hacking.
+And, you know, use the force.
+Bye bye.
+

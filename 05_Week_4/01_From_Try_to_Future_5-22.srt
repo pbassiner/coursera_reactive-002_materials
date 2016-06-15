@@ -1,0 +1,345 @@
+1
+00:00:00,390 --> 00:00:01,870
+Welcome back, everybody.
+
+2
+00:00:03,780 --> 00:00:07,480
+Last few lectures we talked extensively
+
+3
+00:00:07,480 --> 00:00:12,525
+about two of these four fundamental
+effects of programming.
+
+4
+00:00:12,525 --> 00:00:16,495
+namely Try and Future.
+
+5
+00:00:16,495 --> 00:00:21,390
+But maybe you got the feeling that,
+you know, we pulled Try and
+
+6
+00:00:21,390 --> 00:00:25,000
+Future a little bit out of the hat
+like a rabbit, like a magician.
+
+7
+00:00:25,000 --> 00:00:26,800
+All right?
+
+8
+00:00:26,800 --> 00:00:32,740
+And what I'm going to do now is I'm
+going to show you that actually try and
+
+9
+00:00:32,740 --> 00:00:40,410
+future are closely related and that you
+know you can derive one from the other.
+
+10
+00:00:40,410 --> 00:00:46,310
+And then we're going to use that
+same trick on the other side where
+
+11
+00:00:46,310 --> 00:00:51,290
+we will take interable and
+use this same trick to get observable.
+
+12
+00:00:52,370 --> 00:00:53,610
+And what is this trick?
+
+13
+00:00:54,680 --> 00:01:00,367
+[SOUND] Well, in order to do the trick
+
+14
+00:01:00,367 --> 00:01:06,670
+we need to break down
+futures into their essence.
+
+15
+00:01:06,670 --> 00:01:07,790
+Okay?
+
+16
+00:01:07,790 --> 00:01:10,940
+So here is the type of Future and,
+
+17
+00:01:10,940 --> 00:01:16,310
+just to remind you,
+Future has a on complete method.
+
+18
+00:01:16,310 --> 00:01:23,970
+What we did before is we got, used unit
+here instead of u, for simplicity.
+
+19
+00:01:23,970 --> 00:01:29,240
+But it takes a callback that takes
+a function from try to unit, and
+
+20
+00:01:29,240 --> 00:01:30,459
+then return unit.
+
+21
+00:01:32,318 --> 00:01:36,302
+[SOUND] All right, so
+if we simplify this all away, so
+
+22
+00:01:36,302 --> 00:01:41,461
+we remove the trait, because this is
+a trait with just a single function.
+
+23
+00:01:41,461 --> 00:01:47,253
+Then, [SOUND] what we're left with
+is this higher order function.
+
+24
+00:01:47,253 --> 00:01:50,730
+So it's a Try of T to unit.
+
+25
+00:01:50,730 --> 00:01:52,400
+Two units, all right?
+
+26
+00:01:52,400 --> 00:01:57,210
+So all I've done is just
+removed the trait and
+
+27
+00:01:57,210 --> 00:02:01,780
+turned that method in the trait
+into a standalone function.
+
+28
+00:02:03,610 --> 00:02:07,095
+[SOUND] Now,
+the next thing we're going to do is,
+
+29
+00:02:07,095 --> 00:02:10,336
+we're going to reverse all the arrows.
+
+30
+00:02:10,336 --> 00:02:15,152
+So we're going to reverse all the arrows,
+so, try to units,
+
+31
+00:02:15,152 --> 00:02:19,112
+to units, becomes, unit arrow,
+unit arrow Try of T.
+
+32
+00:02:20,310 --> 00:02:24,870
+Now this is a kind of a little bit
+weird thing in Scala when you know,
+
+33
+00:02:24,870 --> 00:02:30,180
+when you return here, unit You might
+also say that's going to, you know?
+
+34
+00:02:30,180 --> 00:02:36,500
+That we are going to tank, change that on
+the left hand side into the empty tuple.
+
+35
+00:02:36,500 --> 00:02:41,150
+Because there's no value of that unit
+that you can pass as a parameter.
+
+36
+00:02:41,150 --> 00:02:42,160
+Okay?
+So we're kind of, you know,
+
+37
+00:02:42,160 --> 00:02:43,990
+cleaning this up a little bit.
+
+38
+00:02:43,990 --> 00:02:47,330
+And then, remember, that what we said.
+
+39
+00:02:47,330 --> 00:02:52,211
+Is that a future only [SOUND]
+produces a single value.
+
+40
+00:02:52,211 --> 00:02:56,901
+So, every time you call the future
+it will just return the same value
+
+41
+00:02:56,901 --> 00:03:00,100
+whenever you put in a new call back.
+
+42
+00:03:00,100 --> 00:03:04,170
+So those unit arrows in
+front of the Try of T
+
+43
+00:03:04,170 --> 00:03:08,810
+really do nothing because there
+there cannot be any side effects.
+
+44
+00:03:08,810 --> 00:03:10,750
+Because you're always
+getting the same value.
+
+45
+00:03:10,750 --> 00:03:15,500
+So if we simplify that,
+then we get Try of T.
+
+46
+00:03:15,500 --> 00:03:21,420
+So the magic here, is that we started
+with this simple version of future.
+
+47
+00:03:21,420 --> 00:03:23,870
+We reversed the arrows.
+
+48
+00:03:23,870 --> 00:03:28,980
+We simplified, and we got Try of T.
+
+49
+00:03:28,980 --> 00:03:36,110
+And this trick of flipping
+the arrows is called duality.
+
+50
+00:03:36,110 --> 00:03:41,280
+And here you see the duality in
+a slightly more intuitive form.
+
+51
+00:03:41,280 --> 00:03:47,379
+If you look at a function
+[SOUND] of Type future of T.
+
+52
+00:03:47,379 --> 00:03:48,470
+What is that?
+
+53
+00:03:48,470 --> 00:03:52,380
+It's a function that
+receives a result of type.
+
+54
+00:03:52,380 --> 00:03:54,700
+Type Try of T they are call back.
+
+55
+00:03:54,700 --> 00:03:55,690
+All right.
+
+56
+00:03:57,120 --> 00:04:00,490
+And so
+it's like asynchronous receives that.
+
+57
+00:04:00,490 --> 00:04:03,940
+And a function that returns
+a Try of T directly
+
+58
+00:04:03,940 --> 00:04:06,750
+blocks until the method's returned.
+
+59
+00:04:06,750 --> 00:04:12,270
+So the duality here is between
+synchronous and asynchronous and
+
+60
+00:04:12,270 --> 00:04:18,100
+the way we implement that is by kind
+of blocking or passing a callback.
+
+61
+00:04:19,320 --> 00:04:21,336
+[SOUND] Now if you go to Wikipedia.
+
+62
+00:04:21,336 --> 00:04:28,200
+And you search for duality, you get,
+like a, whole definition of duality.
+
+63
+00:04:28,200 --> 00:04:31,855
+But the essence there is that
+you're flipping the arrows.
+
+64
+00:04:31,855 --> 00:04:36,886
+[SOUND] And since this is not a full
+course on category theory I will
+
+65
+00:04:36,886 --> 00:04:42,009
+kind of leave it here, but
+the thing is that when you use duality,
+
+66
+00:04:42,009 --> 00:04:44,545
+it's like buy one get one free.
+
+67
+00:04:44,545 --> 00:04:49,080
+And I'm Dutch, you know, you probably
+heard that from my accent, and
+
+68
+00:04:49,080 --> 00:04:53,480
+Dutch people are cheap and we like,
+really like buy one get one free.
+
+69
+00:04:53,480 --> 00:04:57,260
+So that's the reason I,
+I, I'm so attracted.
+
+70
+00:04:57,260 --> 00:04:58,770
+To this notion of duality.
+
+71
+00:04:59,940 --> 00:05:06,462
+[SOUND] All right, so that was our short
+derivation to go from Try to Future.
+
+72
+00:05:06,462 --> 00:05:11,766
+And now we will go and,
+do intervals, and then at some point
+
+73
+00:05:11,766 --> 00:05:17,570
+we'll use the same trick to
+dualize intervals to observables.
+
+74
+00:05:17,570 --> 00:05:20,128
+So see you next time.
+

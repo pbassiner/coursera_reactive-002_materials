@@ -1,0 +1,925 @@
+1
+00:00:00,880 --> 00:00:05,040
+Welcome everybody to
+already the last lecture
+
+2
+00:00:05,040 --> 00:00:09,970
+in the series about the four
+essential effects of programming.
+
+3
+00:00:09,970 --> 00:00:16,160
+What I want to do in this last lecture
+is talk about the observable contract.
+
+4
+00:00:16,160 --> 00:00:21,290
+And that's the behavioral
+contract about observable streams
+
+5
+00:00:21,290 --> 00:00:23,620
+that is not visible in the type.
+
+6
+00:00:23,620 --> 00:00:29,890
+The type signatures of observable and
+observer, and specifically of observer,
+
+7
+00:00:29,890 --> 00:00:34,560
+just says that, you know, you, you know,
+you pass three call backs on next,
+
+8
+00:00:34,560 --> 00:00:38,190
+on completed and on error and
+they get called.
+
+9
+00:00:38,190 --> 00:00:42,820
+But nothing in that signature tells
+you in what order they are called or
+
+10
+00:00:42,820 --> 00:00:44,760
+what the guarantees are.
+
+11
+00:00:44,760 --> 00:00:51,236
+And similarly, when you subscribe to an
+observable, you get back a subscription.
+
+12
+00:00:51,236 --> 00:00:54,486
+We did look at the algebra
+of subscriptions, but
+
+13
+00:00:54,486 --> 00:00:58,051
+we didn't talk about,
+you know, what's you know,
+
+14
+00:00:58,051 --> 00:01:01,955
+what the observable stream
+does with the subscriptions.
+
+15
+00:01:01,955 --> 00:01:07,331
+And we're going to drill down a little
+bit into that in this lecture.
+
+16
+00:01:07,331 --> 00:01:12,063
+And the lesson of this lecture
+is that you should never
+
+17
+00:01:12,063 --> 00:01:17,150
+ever implement observer or
+observable yourself.
+
+18
+00:01:17,150 --> 00:01:22,940
+You should always use the factory
+methods that the library provides,
+
+19
+00:01:22,940 --> 00:01:28,430
+because if you do it yourself there's
+a very, very high probability
+
+20
+00:01:28,430 --> 00:01:35,190
+that you don't satisfy the contract and
+something will go wrong.
+
+21
+00:01:35,190 --> 00:01:39,150
+So, that's really what I want
+to kind of drill in your heads.
+
+22
+00:01:39,150 --> 00:01:44,510
+Don't ever implement observable or
+observer yourselves, and
+
+23
+00:01:44,510 --> 00:01:49,570
+the same for subscription, and
+the same for all Rx types.
+
+24
+00:01:49,570 --> 00:01:53,080
+Only use the factory methods
+that the library provides.
+
+25
+00:01:54,210 --> 00:01:59,060
+So, let's kind of see why
+this is not trivial, okay?
+
+26
+00:01:59,060 --> 00:02:03,220
+So, here is a, example of, you know,
+
+27
+00:02:03,220 --> 00:02:07,350
+how you naively could implement,
+observable.create.
+
+28
+00:02:07,350 --> 00:02:13,180
+So, remember, observable.create takes
+a function from observer to subscription.
+
+29
+00:02:13,180 --> 00:02:15,900
+And it needs to create a new observable.
+
+30
+00:02:15,900 --> 00:02:18,220
+Well, you can say, that's easy.
+
+31
+00:02:18,220 --> 00:02:22,340
+Because I just define subscribe,
+that takes an observer.
+
+32
+00:02:22,340 --> 00:02:24,790
+Oh and I have a function
+that takes an observer and
+
+33
+00:02:24,790 --> 00:02:28,840
+returns a subscription as subscribe,
+should return a subscription.
+
+34
+00:02:28,840 --> 00:02:32,170
+Oh, then I can just pass the observer
+
+35
+00:02:32,170 --> 00:02:35,550
+to that function to get
+the subscription and I'm done.
+
+36
+00:02:36,570 --> 00:02:41,440
+Well, it would be great if life was so
+easy, but that's not the case.
+
+37
+00:02:41,440 --> 00:02:43,980
+So if you look at
+the actual implementation,
+
+38
+00:02:43,980 --> 00:02:50,320
+there's a lot of implementation
+details here that are wrapped around
+
+39
+00:02:50,320 --> 00:02:56,310
+the function, and the kind of
+passing of the observer, to ensure
+
+40
+00:02:56,310 --> 00:03:01,070
+that our Rx contract that we're talking
+about in this lecture is satisfied.
+
+41
+00:03:02,720 --> 00:03:09,560
+On the other hand, if you're using
+observable.create, when you're
+
+42
+00:03:09,560 --> 00:03:15,270
+reasoning about it, it is kind of pretty
+safe to kind of just unfold it like this.
+
+43
+00:03:15,270 --> 00:03:19,101
+So when you do observable.create
+with some function, and
+
+44
+00:03:19,101 --> 00:03:24,156
+you subscribe to that with an observer,
+you can kind of say that's more or
+
+45
+00:03:24,156 --> 00:03:28,790
+less the same as call,
+passing the observer to that function.
+
+46
+00:03:28,790 --> 00:03:29,450
+Okay?
+
+47
+00:03:29,450 --> 00:03:33,180
+But there's still all that
+implementation detail.
+
+48
+00:03:33,180 --> 00:03:35,460
+But this is the conceptual model.
+
+49
+00:03:35,460 --> 00:03:39,210
+But it's, the actual
+implementation is not this simple.
+
+50
+00:03:40,380 --> 00:03:44,120
+And the same is true for
+the observable apply,
+
+51
+00:03:44,120 --> 00:03:48,140
+which took a function that takes
+a subscriber and returns unit.
+
+52
+00:03:48,140 --> 00:03:51,810
+So when we subscribe to that,
+we get an observer.
+
+53
+00:03:51,810 --> 00:03:56,440
+So now, at least,
+we must wrap the observer in,
+
+54
+00:03:56,440 --> 00:04:00,515
+in something to make it a subscriber,
+pass it to F, and
+
+55
+00:04:00,515 --> 00:04:04,190
+then there's also a lot of
+kind of implementation details
+
+56
+00:04:04,190 --> 00:04:08,740
+that wrap around this to insure
+that the contract is satisfied.
+
+57
+00:04:08,740 --> 00:04:10,540
+Now, what is this contract?
+
+58
+00:04:10,540 --> 00:04:13,115
+I may have mentioned this
+word now several times.
+
+59
+00:04:13,115 --> 00:04:14,730
+So let's look at one thing.
+
+60
+00:04:14,730 --> 00:04:15,900
+So, one thing is,
+
+61
+00:04:15,900 --> 00:04:21,230
+is the behavior of the subscription
+that you get out of subscribe.
+
+62
+00:04:22,780 --> 00:04:28,210
+And in Rx, we implement the so
+called auto-unsubscribe behavior.
+
+63
+00:04:28,210 --> 00:04:33,350
+That means that if,
+in this case I took here,
+
+64
+00:04:33,350 --> 00:04:40,010
+if you call on complete on this observer,
+
+65
+00:04:40,010 --> 00:04:46,510
+or you can call uncomplete, or on error
+on the subscriber that gets passed in,
+
+66
+00:04:46,510 --> 00:04:51,420
+that the subscription that gets handed
+out is automatically unsubscribed.
+
+67
+00:04:51,420 --> 00:04:53,450
+So here's how you can test that.
+
+68
+00:04:53,450 --> 00:04:56,070
+So here we implement observable.empty.
+
+69
+00:04:56,070 --> 00:05:01,650
+So as we know it took a subscriber and
+it immediately calls onCompleted.
+
+70
+00:05:01,650 --> 00:05:09,610
+Now we say s equals empty.unsubscribe and
+then when we print it's unsubscribed.
+
+71
+00:05:09,610 --> 00:05:13,280
+We will see that it is immediately true
+
+72
+00:05:13,280 --> 00:05:17,480
+even though we have not
+unsubscribed from s.
+
+73
+00:05:17,480 --> 00:05:22,900
+But the reason is that, you know, there's
+the auto unsubscribe behavior here.
+
+74
+00:05:22,900 --> 00:05:27,600
+And notice, I promise you there
+would be typos in the slides.
+
+75
+00:05:27,600 --> 00:05:31,603
+And there is obviously an equals
+sign here in white ink.
+
+76
+00:05:31,603 --> 00:05:33,482
+It's there, I promise you.
+
+77
+00:05:33,482 --> 00:05:36,880
+[LAUGH] But it's just in white ink so
+you can't see it.
+
+78
+00:05:38,060 --> 00:05:44,720
+All right, so here are some other
+issues with the Rx contract.
+
+79
+00:05:44,720 --> 00:05:50,250
+Since you know, there's these three call
+backs, onNext, onError, and onCompleted.
+
+80
+00:05:50,250 --> 00:05:55,500
+We guarantee that they are called
+in a certain order, so we are,
+
+81
+00:05:55,500 --> 00:06:02,330
+we guarantee that the stream
+has to follow an structure.
+
+82
+00:06:02,330 --> 00:06:06,622
+So we call onNext zero or more times and
+
+83
+00:06:06,622 --> 00:06:12,500
+then optionally we call onCompleted or
+onError.
+
+84
+00:06:12,500 --> 00:06:16,840
+So it might be that in the case of never,
+that nothing is called.
+
+85
+00:06:16,840 --> 00:06:21,550
+So that's yeah,
+never calling anything, that is a,
+
+86
+00:06:21,550 --> 00:06:25,170
+a, a valid intent of this expression.
+
+87
+00:06:25,170 --> 00:06:28,500
+Or you can call onNext,
+you know, multiple times, but
+
+88
+00:06:28,500 --> 00:06:31,760
+never call onCompleted, onError.
+
+89
+00:06:31,760 --> 00:06:37,050
+Or you can call the normal case onNext
+many times followed by onCompleted.
+
+90
+00:06:37,050 --> 00:06:40,470
+Or you can call onCompleted
+directly that was empty.
+
+91
+00:06:40,470 --> 00:06:43,740
+Or onError directly and it was error.
+
+92
+00:06:43,740 --> 00:06:44,320
+All right?
+
+93
+00:06:44,320 --> 00:06:46,100
+But it's always in this sequence.
+
+94
+00:06:46,100 --> 00:06:49,345
+So after you've seen an onCompleted or
+
+95
+00:06:49,345 --> 00:06:53,930
+an onError, you will never see
+any of the other methods anymore.
+
+96
+00:06:53,930 --> 00:06:59,330
+So, once onCompleted has been called,
+you can be sure that onNext,
+
+97
+00:06:59,330 --> 00:07:02,590
+onCompleted and onError are never called.
+
+98
+00:07:02,590 --> 00:07:07,850
+And that's the reason that we do this
+auto-unsubscribe because we know that
+
+99
+00:07:07,850 --> 00:07:14,920
+the the stream is done and so
+we kind of eagerly unsubscribe for you.
+
+100
+00:07:14,920 --> 00:07:18,930
+So these are the two kind of,
+you know, valid instances.
+
+101
+00:07:18,930 --> 00:07:24,590
+There's a number of onNext
+followed by onCompleted.
+
+102
+00:07:24,590 --> 00:07:28,227
+There's a number of onNext
+followed by onError,
+
+103
+00:07:28,227 --> 00:07:31,870
+and of course there could be no onError or
+onNext.
+
+104
+00:07:32,890 --> 00:07:37,959
+The last part of the Rx contract is
+the fact that onNext and onCompleted and
+
+105
+00:07:37,959 --> 00:07:43,430
+onError are called sequentially so
+there will never be overlap in goals.
+
+106
+00:07:43,430 --> 00:07:45,630
+So they, they are always serialized.
+
+107
+00:07:45,630 --> 00:07:48,780
+so if you get here on onNext,
+
+108
+00:07:49,920 --> 00:07:54,980
+the next onNext will only be called
+when the first onNext will be finished.
+
+109
+00:07:54,980 --> 00:07:56,270
+So there's never overlap.
+
+110
+00:07:56,270 --> 00:08:01,490
+So you'd, inside your callbacks,
+
+111
+00:08:01,490 --> 00:08:05,250
+you never have to kind of,
+you know, worry about concurrency.
+
+112
+00:08:05,250 --> 00:08:10,150
+Because the Rx library
+serializes everything for you.
+
+113
+00:08:10,150 --> 00:08:16,360
+And if you look at the implementation,
+you will see that we go to great lengths
+
+114
+00:08:16,360 --> 00:08:21,150
+not to use locks, but try to do everything
+lock free, to make that efficient.
+
+115
+00:08:21,150 --> 00:08:25,630
+So, maybe another way to look
+at Rx is to take a fancy
+
+116
+00:08:25,630 --> 00:08:30,810
+library that kind of takes
+care of serialization and
+
+117
+00:08:30,810 --> 00:08:35,259
+of concurrent notifications for you.
+
+118
+00:08:35,259 --> 00:08:42,360
+I don't, we don't have time to go into
+all the, details of the Rx Contact.
+
+119
+00:08:42,360 --> 00:08:46,692
+And all the kind of, you know,
+API, API design guidelines.
+
+120
+00:08:46,692 --> 00:08:51,788
+But you can go to either the,
+reactive X website, or
+
+121
+00:08:51,788 --> 00:08:58,560
+the Rx wiki, or there's the original,
+the bible of Rx the Rx Design Guidelines.
+
+122
+00:08:58,560 --> 00:09:03,250
+If you google for Rx design guidelines,
+you get a PDF document,
+
+123
+00:09:04,360 --> 00:09:09,390
+that explains the guidelines
+in terms of Rx.net.
+
+124
+00:09:09,390 --> 00:09:13,000
+But they are all valid for
+every implementation of Rx.
+
+125
+00:09:13,000 --> 00:09:18,100
+So, let me finish by saying that Rx here,
+in this course,
+
+126
+00:09:18,100 --> 00:09:22,530
+we showed you Rx,
+Scala that's based on Rx Java.
+
+127
+00:09:22,530 --> 00:09:29,220
+As I warned you, the names in Rx Scala
+are often different, the identifiers and
+
+128
+00:09:29,220 --> 00:09:36,040
+method names are different than in
+Rx Java but the semantics are the same.
+
+129
+00:09:36,040 --> 00:09:42,440
+We just made sure that the API feels
+natural for Scala programmers.
+
+130
+00:09:42,440 --> 00:09:46,040
+But on the JVM we have a whole
+slew of implementations.
+
+131
+00:09:46,040 --> 00:09:51,420
+Rx Java, there's bindings for
+for closure, for groovy
+
+132
+00:09:52,520 --> 00:09:57,040
+you name it, any language that
+runs on the JVM has Rx bindings.
+
+133
+00:09:58,120 --> 00:10:01,140
+And then there's also ports
+of Rx in other languages.
+
+134
+00:10:01,140 --> 00:10:06,390
+In Rx Java, in fact,
+there's a port of the original Rx.net.
+
+135
+00:10:06,390 --> 00:10:13,030
+And there's Rx for C++,
+also very popular is Rx for JavaScript.
+
+136
+00:10:13,030 --> 00:10:18,150
+But there's also Rx for
+Python, Rx for Ruby, and
+
+137
+00:10:18,150 --> 00:10:22,140
+there's reactive Coco done by,
+
+138
+00:10:22,140 --> 00:10:27,850
+the friendly people at GitHub that is
+an implementation of Rx for objective C.
+
+139
+00:10:27,850 --> 00:10:31,886
+So all the concepts that you
+learned in this lecture,
+
+140
+00:10:31,886 --> 00:10:34,228
+you can apply in any language.
+
+141
+00:10:34,228 --> 00:10:40,242
+So you're not kind of stuck with Scala or
+.NET or with Java.
+
+142
+00:10:40,242 --> 00:10:43,554
+It's the general principals
+applied to any language and
+
+143
+00:10:43,554 --> 00:10:48,315
+the framework has been forwarded to any
+other language and often, you know,
+
+144
+00:10:48,315 --> 00:10:52,938
+when you're building a web application
+your client is written in JavaScript.
+
+145
+00:10:52,938 --> 00:10:57,175
+You can use RxJS there,
+your server side is written in Java and
+
+146
+00:10:57,175 --> 00:11:01,920
+you use RxJava or RxCala there,
+there and then you can communicate.
+
+147
+00:11:03,770 --> 00:11:09,650
+Okay, so, one last warning: never
+ever implement observable or
+
+148
+00:11:09,650 --> 00:11:14,510
+observer yourself, or in fact,
+any of the other Rx types.
+
+149
+00:11:14,510 --> 00:11:19,460
+Because, you know,
+you will violate the Rx contract.
+
+150
+00:11:19,460 --> 00:11:20,530
+I guarantee you.
+
+151
+00:11:21,740 --> 00:11:24,420
+Now, when you do a code review and
+
+152
+00:11:24,420 --> 00:11:29,450
+you see somebody kind of write
+now if code like this, right?
+
+153
+00:11:29,450 --> 00:11:33,570
+They say, oh, I need to create
+an observable just by kind of, you know,
+
+154
+00:11:33,570 --> 00:11:38,260
+implementing this subscribe method,
+that alarm bells should go off.
+
+155
+00:11:38,260 --> 00:11:42,305
+You should never ever do that.
+
+156
+00:11:42,305 --> 00:11:43,676
+Okay?
+
+157
+00:11:43,676 --> 00:11:46,950
+So really use only the factory methods.
+
+158
+00:11:46,950 --> 00:11:49,924
+Okay, thank you so
+much for your attention,
+
+159
+00:11:49,924 --> 00:11:52,596
+I hope that you enjoyed these lectures.
+
+160
+00:11:52,596 --> 00:11:56,519
+And I want to again remind
+you here one last time
+
+161
+00:11:56,519 --> 00:12:00,520
+about the four effects of programming.
+
+162
+00:12:00,520 --> 00:12:06,450
+The first column here was
+computations that return one value.
+
+163
+00:12:06,450 --> 00:12:11,720
+If they do that synchronously,
+we started out with blocking methods that
+
+164
+00:12:11,720 --> 00:12:16,310
+didn't kind of, you know, in their type
+show that there could be an exception.
+
+165
+00:12:16,310 --> 00:12:21,360
+And then we introduced a trimonet
+that made exceptions explicit.
+
+166
+00:12:21,360 --> 00:12:22,370
+All right?
+
+167
+00:12:22,370 --> 00:12:29,010
+Then we went from Try and said hey,
+now there's also the effect of latency.
+
+168
+00:12:29,010 --> 00:12:34,110
+Remember the table where, you know,
+sending a packet from Europe, to,
+
+169
+00:12:34,110 --> 00:12:38,190
+from the US to Europe and
+back would take several years.
+
+170
+00:12:38,190 --> 00:12:43,590
+So we have to make latency
+explicit In our types.
+
+171
+00:12:43,590 --> 00:12:46,500
+And for that, we used future of T,
+
+172
+00:12:46,500 --> 00:12:50,910
+which represents a computation that
+can fail and takes you a long time.
+
+173
+00:12:52,600 --> 00:12:57,630
+And there we talked about a lot of
+combinators on futures etcetera, and
+
+174
+00:12:57,630 --> 00:12:59,502
+we introduced asynch await.
+
+175
+00:12:59,502 --> 00:13:06,800
+And asynch await, allowed us to
+still write normal control flow and
+
+176
+00:13:06,800 --> 00:13:12,290
+the reason that we can do that is
+because futures return only one value.
+
+177
+00:13:12,290 --> 00:13:17,360
+Then these two here were related by
+the magic trick of duality where we
+
+178
+00:13:17,360 --> 00:13:19,480
+reverse the arrows.
+
+179
+00:13:19,480 --> 00:13:24,470
+And then we moved from, you know,
+the one side to the many sides, and
+
+180
+00:13:24,470 --> 00:13:26,200
+we start it with iterable.
+
+181
+00:13:26,200 --> 00:13:31,487
+Those are the synchronous streams where
+you're pulling values out of the streams.
+
+182
+00:13:31,487 --> 00:13:33,412
+And that's my block, so
+
+183
+00:13:33,412 --> 00:13:38,417
+say that you're pulling strings out
+of a file that will take, you know,
+
+184
+00:13:38,417 --> 00:13:42,738
+in human time days or months or
+years, so you should never do that.
+
+185
+00:13:42,738 --> 00:13:49,350
+And so we reuse the dualization trick
+here to go from iterables to observables.
+
+186
+00:13:49,350 --> 00:13:53,640
+And we talked quite at length about also,
+
+187
+00:13:53,640 --> 00:13:57,315
+all the higher order functions and
+details of observables.
+
+188
+00:13:57,315 --> 00:13:57,920
+'Kay?
+
+189
+00:13:57,920 --> 00:13:59,390
+So, I hope that, you know,
+
+190
+00:13:59,390 --> 00:14:03,650
+you can apply this knowledge in
+your day to day programming.
+
+191
+00:14:03,650 --> 00:14:07,710
+I hope that it gave you a little
+bit more insight in the essence of,
+
+192
+00:14:07,710 --> 00:14:09,250
+you know, effect.
+
+193
+00:14:09,250 --> 00:14:13,540
+And so I leave you here with my motto,
+happy hacking.
+
+194
+00:14:13,540 --> 00:14:16,150
+And, you know, use the force.
+
+195
+00:14:16,150 --> 00:14:16,815
+Bye bye.
+

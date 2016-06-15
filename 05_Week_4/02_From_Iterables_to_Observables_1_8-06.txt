@@ -1,0 +1,197 @@
+Welcome back everybody.
+Last time,
+I explained very quickly a magic trick
+that we could use to
+turn futures into try.
+Or, you know, you could,
+we could have started with, try as well,
+and convert that to futures.
+What we're going to do now is we're
+going to use that same dualization trick
+on the right hand side of our,
+square of effect.
+And we're going to use that to
+turn iterables into observables,
+so that's the thing here on the right.
+Let's recall what, iterables are.
+Iterables are a pair of traits.
+The first trait is iterable that has
+a factory function to create iterator.
+So that's the function iterator.
+Which returns an iterator.
+And then once we get an iterator,
+you can call has next
+which returns a boolean indicating
+if this iterator has more elements.
+And when has next tells you true, you will
+call next to give you the next value.
+All right?
+So it's a pair of traits
+that represent collections.
+And you see here, in this case,
+because you co-maxed,
+these are pull based collections.
+You're pulling every time for
+the next element.
+And, to go back to our little game,
+imagine that we have a list of coins.
+A list is a kind of iterable, so
+there we have our iterable of coins.
+And once we want to pull all
+the coins out of our wallet,
+we have to first get the iterator.
+And then we go typically in
+a loop while there are more
+values in the iterator we call next.
+And that's the way we collect our coins.
+Now notice that this is
+a synchronous stream or
+a pull based stream every time we connect
+we block until the next value is produced.
+And, we'll see the consequences that,
+of that later.
+But of course, the first thing we should
+note is that iterable is a monad.
+And why is it a monad?
+Because it has flatMap, and
+it has a constructor to take a single
+value and inject it into an iterable.
+And of course, just having flatMap and
+a constructor's not that interesting.
+And, iterable support all
+the methods that we know and love.
+Like filter, map, and
+then there's the domain specific ones.
+Such as stake,
+which takes the first N element.
+Or takeWhile, It takes a boolean,
+and iterates over the iterable,
+and, you know, copying the values
+as long as that predicate is true.
+And then last but not least,
+there's our friend, zip.
+Now, the nice thing here is that iterable,
+since it's an interface,
+now there's many concrete
+types that implement iterable.
+Okay, so many many concrete
+types that implement iterable.
+And we can forget about all
+these concrete types and
+just think of iterable as a collection,
+okay.
+So any type that implements
+iterable is a collection and
+we can draw that collection.
+As a picture like this
+where we have a line and
+then there's the subsequent element.
+And map takes a function and,
+in this case a function that turns,
+marbles into diamonds.
+And applies that function to
+every element of the list.
+And the beauty of interface based
+programming is that it doesn't matter what
+the underlying collection is,
+and in fact, very important.
+There might not even be an underlying
+collection because this iterator
+will produce the next value on the map.
+So this is the beauty.
+There might never be an underlying
+collection like a list or an array.
+You could just create them on the fly.
+Now let me remind you of the typical
+execution times of a PC on a human scale.
+Remember sending packets took a long time.
+Reading from memory took a long time.
+And what we're going to do now,
+is we're going to use iterables
+to read stuff from memory.
+So here's the example.
+Read lines from this, takes a path,
+and returns, an, iterator of strength.
+And this is just a standard SCALA code,
+and, and then we're going to do a for
+loop to get, do work for each line.
+Now reading from disk takes two weeks,
+so two weeks per line.
+That's kind of crazy because
+we're blocking again.
+We're waiting for a long time,
+so reading from a file using
+iterators is not a good idea.
+Because the latency is not the,
+this is not the type.
+To deal with things
+that have high latency.
+So what we want to do is we want
+to use our magical dualization
+trick to take this type of iterables
+that are synchronous streams.
+And turn it into a type that
+represents asynchronous streams, so
+things that have high latency.
+Just like we went from try of t,
+to future of t.
+We're going to go from iterable
+of t to a new type and
+that's observable of t, all right.
+So the first thing we're going to
+do is we're going to simplify.
+If you look at the iterator type here,
+this has next, has no business there.
+We can simulate this by having
+next return an option of T and
+if has next returns false,
+the option is empty or nothing.
+And if it's if it does return a value,
+then it's just T, okay?
+So we can take these two methods and
+turn them into one.
+Now, whenever we see a trait
+that has a single method,
+we can turn that just
+into a type declaration.
+There's no need to have a,
+a complete trait.
+It's just, you know?
+This thing is just a function
+from unit to option of t.
+So let's just define that as just
+a function from unit to option of T.
+Now we can substitute that function,
+that type, because,
+you know, if it's just a single function,
+let's substitute it there an iterator.
+And now we have a trait that also has
+a single method, so just let expand that.
+And now we get a type iterable
+that's really a type unit
+arrow unit arrow try of t.
+All right.
+So, what we have done is we just
+simply fight the trait iterable and
+iterator and the essence is just
+this higher order function.
+Okay?
+I've done nothing special.
+Okay.
+So, given these two things,
+we have simplified it into
+something that only has arrows.
+And the reason I wanted to simplify
+this way is I'm going to use the magic
+trick of dualization.
+And that means I have
+to reverse the arrows.
+And now I have my type in
+a shape that only has arrows.
+So here we go.
+Iterable unit arrow unit
+arrow try option of t.
+And now we're going to go and
+switch the arrows around.
+See you after the break.
+

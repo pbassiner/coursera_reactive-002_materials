@@ -1,0 +1,155 @@
+Hey everybody, welcome back.
+I must say I'm a little bit
+tired of all this theory and
+duality and functions and so on.
+Let's write some code.
+And in particular let's write some, kind
+of, simple examples using observables.
+In the jam sessions we will
+show some bigger demos.
+But here I just want to show you
+the basics of using observables
+you know, in a real program.
+And the program we're going to
+show here is the following.
+We're first going to generate
+an observable streams
+that will fire a value every one second.
+And something like a clock or
+some temporal stream like that is
+the ultimate example of
+an asynchronous stream.
+You're not going to ask every
+second give me the next value.
+No, every second a new value will
+be delivered to you automatically.
+Whether you want it or not.
+It's a little bit like
+the old fashioned newspaper.
+Every morning it just shows
+up on your door step,
+assuming that you're still
+reading a paper newspaper.
+And it's just kind of,
+you know, coming at you.
+And then at some point when
+you don't want it anymore,
+you unsubscribe from the newspaper,
+and the same here.
+When you're finished
+listening to this stream,
+finishing getting something every so
+often, you just unsubscribe from it.
+But since observables are collections we.
+We have all the operators available
+over collections just like interval.
+So for example we can filter them.
+And in this case here, you see that we're
+filtering out all the ticks that are even.
+And then the next thing we're going to do,
+is we're going to group these
+tics together in chunks of two,
+shifted by one.
+And for that, we have the operator sliding
+buffer, that takes two parameters,
+the count, so that's the length of
+our buffer, and then how far to skip.
+And we're going to subscribe to
+the result of buffering that stream
+in two chunks of two shifted by one.
+And by just doing a print line and
+then, you know,
+we do a read line in between there and
+then we unsubscribe.
+Now read line is deprecated so
+I will, don't dare to show it.
+On the slides, but I will, I'm using
+it anyway because it's convenient.
+Okay, when we run this code we will
+see that the it will print zero two.
+So it has first filtered out one and
+then it groups these in two.
+And then we get two four,
+four six, et cetera.
+So here you see how this program works.
+Now I mentioned a couple of times, when
+you're dealing with these collections, and
+especially when you're dealing with Rx
+collections, observable collections,
+it's really good idea to
+draw these marble diagrams.
+And a marble diagram is a diagram
+where time goes from left to right.
+So you see there the arrow of time.
+And then there's marbles on that line
+that denote the values that appear
+at a certain point in time.
+So if we look at the marble diagram for
+ticks, it will have zero, one,
+two, et cetera.
+With the spacing in between there and
+being one second.
+Now, notice that what one second
+means is completely abstract,
+in particular,
+Rx has the notion of virtual time.
+And in this case, one second
+corresponds to one second on the,
+the world clock time, but
+it doesn't have to be like that at all.
+Now the next thing is we're going to
+filter out all the text that are even,
+now we just use the regular filter,
+passing it a predicate.
+And that will drop out all
+the odd numbers from the stream.
+And then finally where we're
+using this sliding buffer and
+there you see we're kind of taking
+chunks of two shifted by one.
+And there is the output.
+So this, you know, I, I really recommend
+whenever you're stuck even with intervals
+but especially with observables,
+draw these marble diagrams.
+They will be tremendously helpful.
+And let's finish off by showing how this
+looks in the IDE, here I'm using IntelliJ.
+Here you see our main program.
+There's sticks, evens buffers
+I'm subscribing here, you see.
+Read line.
+Promised you I still use it, even though
+it's deprecated so it's crossed out.
+And then I unsubscribed.
+So in this case, I run this code and
+what happens is that you know,
+it prints out two zero two two four,
+et cetera.
+Then I hit Return and
+then the stream gets unsubscribed and
+then I don't get any new values.
+Hey, the other interesting thing here.
+Is that if you look here.
+You see all the types
+that are available in Rx.
+And in the next few lectures we
+will discuss, discuss many of them.
+But we won't have time
+to discuss all of them.
+But, you know,
+you can see them right there.
+And as I said,
+in the jam sessions we will show you some
+cool examples of simple games and
+so on all using Rx.
+But remember,
+nothing beats writing codes yourself.
+So, really, you know, whenever you're
+trying to solve one of the solutions or
+you're trying to follow the codes,
+just type it in your favorite IDE and
+play around with it,
+such that you get a better understanding.
+Thank you so much, and see you next week.
+

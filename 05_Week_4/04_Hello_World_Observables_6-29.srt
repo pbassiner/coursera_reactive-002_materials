@@ -1,0 +1,418 @@
+1
+00:00:00,190 --> 00:00:01,630
+Hey everybody, welcome back.
+
+2
+00:00:02,640 --> 00:00:08,460
+I must say I'm a little bit
+tired of all this theory and
+
+3
+00:00:08,460 --> 00:00:11,540
+duality and functions and so on.
+
+4
+00:00:12,580 --> 00:00:14,930
+Let's write some code.
+
+5
+00:00:14,930 --> 00:00:20,190
+And in particular let's write some, kind
+of, simple examples using observables.
+
+6
+00:00:20,190 --> 00:00:24,260
+In the jam sessions we will
+show some bigger demos.
+
+7
+00:00:24,260 --> 00:00:29,840
+But here I just want to show you
+the basics of using observables
+
+8
+00:00:29,840 --> 00:00:32,010
+you know, in a real program.
+
+9
+00:00:33,350 --> 00:00:39,440
+And the program we're going to
+show here is the following.
+
+10
+00:00:39,440 --> 00:00:45,004
+We're first going to generate
+an observable streams
+
+11
+00:00:45,004 --> 00:00:48,870
+that will fire a value every one second.
+
+12
+00:00:50,310 --> 00:00:55,107
+And something like a clock or
+some temporal stream like that is
+
+13
+00:00:55,107 --> 00:00:58,993
+the ultimate example of
+an asynchronous stream.
+
+14
+00:00:58,993 --> 00:01:02,670
+You're not going to ask every
+second give me the next value.
+
+15
+00:01:02,670 --> 00:01:08,940
+No, every second a new value will
+be delivered to you automatically.
+
+16
+00:01:08,940 --> 00:01:10,180
+Whether you want it or not.
+
+17
+00:01:10,180 --> 00:01:13,760
+It's a little bit like
+the old fashioned newspaper.
+
+18
+00:01:13,760 --> 00:01:16,590
+Every morning it just shows
+up on your door step,
+
+19
+00:01:16,590 --> 00:01:20,180
+assuming that you're still
+reading a paper newspaper.
+
+20
+00:01:20,180 --> 00:01:23,150
+And it's just kind of,
+you know, coming at you.
+
+21
+00:01:23,150 --> 00:01:26,670
+And then at some point when
+you don't want it anymore,
+
+22
+00:01:26,670 --> 00:01:30,910
+you unsubscribe from the newspaper,
+and the same here.
+
+23
+00:01:30,910 --> 00:01:34,415
+When you're finished
+listening to this stream,
+
+24
+00:01:34,415 --> 00:01:39,320
+finishing getting something every so
+often, you just unsubscribe from it.
+
+25
+00:01:40,920 --> 00:01:47,440
+But since observables are collections we.
+
+26
+00:01:47,440 --> 00:01:51,590
+We have all the operators available
+over collections just like interval.
+
+27
+00:01:51,590 --> 00:01:54,060
+So for example we can filter them.
+
+28
+00:01:54,060 --> 00:02:03,510
+And in this case here, you see that we're
+filtering out all the ticks that are even.
+
+29
+00:02:03,510 --> 00:02:08,348
+And then the next thing we're going to do,
+is we're going to group these
+
+30
+00:02:08,348 --> 00:02:13,070
+tics together in chunks of two,
+shifted by one.
+
+31
+00:02:13,070 --> 00:02:18,270
+And for that, we have the operator sliding
+buffer, that takes two parameters,
+
+32
+00:02:18,270 --> 00:02:22,549
+the count, so that's the length of
+our buffer, and then how far to skip.
+
+33
+00:02:24,230 --> 00:02:29,260
+And we're going to subscribe to
+the result of buffering that stream
+
+34
+00:02:29,260 --> 00:02:32,170
+in two chunks of two shifted by one.
+
+35
+00:02:32,170 --> 00:02:36,170
+And by just doing a print line and
+then, you know,
+
+36
+00:02:36,170 --> 00:02:41,200
+we do a read line in between there and
+then we unsubscribe.
+
+37
+00:02:41,200 --> 00:02:46,270
+Now read line is deprecated so
+I will, don't dare to show it.
+
+38
+00:02:46,270 --> 00:02:52,890
+On the slides, but I will, I'm using
+it anyway because it's convenient.
+
+39
+00:02:52,890 --> 00:02:58,570
+Okay, when we run this code we will
+see that the it will print zero two.
+
+40
+00:02:58,570 --> 00:03:03,250
+So it has first filtered out one and
+then it groups these in two.
+
+41
+00:03:03,250 --> 00:03:06,520
+And then we get two four,
+four six, et cetera.
+
+42
+00:03:06,520 --> 00:03:09,770
+So here you see how this program works.
+
+43
+00:03:09,770 --> 00:03:13,660
+Now I mentioned a couple of times, when
+you're dealing with these collections, and
+
+44
+00:03:13,660 --> 00:03:18,460
+especially when you're dealing with Rx
+collections, observable collections,
+
+45
+00:03:18,460 --> 00:03:23,130
+it's really good idea to
+draw these marble diagrams.
+
+46
+00:03:23,130 --> 00:03:28,420
+And a marble diagram is a diagram
+where time goes from left to right.
+
+47
+00:03:28,420 --> 00:03:30,832
+So you see there the arrow of time.
+
+48
+00:03:30,832 --> 00:03:35,330
+And then there's marbles on that line
+
+49
+00:03:35,330 --> 00:03:39,930
+that denote the values that appear
+at a certain point in time.
+
+50
+00:03:39,930 --> 00:03:44,800
+So if we look at the marble diagram for
+ticks, it will have zero, one,
+
+51
+00:03:44,800 --> 00:03:46,696
+two, et cetera.
+
+52
+00:03:46,696 --> 00:03:51,330
+With the spacing in between there and
+being one second.
+
+53
+00:03:51,330 --> 00:03:55,990
+Now, notice that what one second
+means is completely abstract,
+
+54
+00:03:55,990 --> 00:04:00,060
+in particular,
+Rx has the notion of virtual time.
+
+55
+00:04:00,060 --> 00:04:04,620
+And in this case, one second
+corresponds to one second on the,
+
+56
+00:04:04,620 --> 00:04:08,430
+the world clock time, but
+it doesn't have to be like that at all.
+
+57
+00:04:10,000 --> 00:04:15,420
+Now the next thing is we're going to
+filter out all the text that are even,
+
+58
+00:04:15,420 --> 00:04:18,670
+now we just use the regular filter,
+passing it a predicate.
+
+59
+00:04:18,670 --> 00:04:23,760
+And that will drop out all
+the odd numbers from the stream.
+
+60
+00:04:23,760 --> 00:04:27,020
+And then finally where we're
+using this sliding buffer and
+
+61
+00:04:27,020 --> 00:04:31,180
+there you see we're kind of taking
+chunks of two shifted by one.
+
+62
+00:04:31,180 --> 00:04:33,890
+And there is the output.
+
+63
+00:04:33,890 --> 00:04:41,230
+So this, you know, I, I really recommend
+whenever you're stuck even with intervals
+
+64
+00:04:41,230 --> 00:04:46,510
+but especially with observables,
+draw these marble diagrams.
+
+65
+00:04:46,510 --> 00:04:48,350
+They will be tremendously helpful.
+
+66
+00:04:50,330 --> 00:04:56,360
+And let's finish off by showing how this
+looks in the IDE, here I'm using IntelliJ.
+
+67
+00:04:57,430 --> 00:04:59,385
+Here you see our main program.
+
+68
+00:04:59,385 --> 00:05:05,250
+There's sticks, evens buffers
+I'm subscribing here, you see.
+
+69
+00:05:05,250 --> 00:05:06,690
+Read line.
+
+70
+00:05:06,690 --> 00:05:13,550
+Promised you I still use it, even though
+it's deprecated so it's crossed out.
+
+71
+00:05:13,550 --> 00:05:15,190
+And then I unsubscribed.
+
+72
+00:05:15,190 --> 00:05:19,260
+So in this case, I run this code and
+what happens is that you know,
+
+73
+00:05:19,260 --> 00:05:22,230
+it prints out two zero two two four,
+et cetera.
+
+74
+00:05:22,230 --> 00:05:26,060
+Then I hit Return and
+
+75
+00:05:26,060 --> 00:05:31,089
+then the stream gets unsubscribed and
+then I don't get any new values.
+
+76
+00:05:32,760 --> 00:05:36,800
+Hey, the other interesting thing here.
+
+77
+00:05:36,800 --> 00:05:39,010
+Is that if you look here.
+
+78
+00:05:39,010 --> 00:05:43,430
+You see all the types
+that are available in Rx.
+
+79
+00:05:43,430 --> 00:05:48,940
+And in the next few lectures we
+will discuss, discuss many of them.
+
+80
+00:05:48,940 --> 00:05:52,780
+But we won't have time
+to discuss all of them.
+
+81
+00:05:52,780 --> 00:05:55,220
+But, you know,
+you can see them right there.
+
+82
+00:05:55,220 --> 00:05:59,730
+And as I said,
+in the jam sessions we will show you some
+
+83
+00:05:59,730 --> 00:06:05,530
+cool examples of simple games and
+so on all using Rx.
+
+84
+00:06:05,530 --> 00:06:08,820
+But remember,
+nothing beats writing codes yourself.
+
+85
+00:06:08,820 --> 00:06:15,120
+So, really, you know, whenever you're
+trying to solve one of the solutions or
+
+86
+00:06:15,120 --> 00:06:20,990
+you're trying to follow the codes,
+just type it in your favorite IDE and
+
+87
+00:06:20,990 --> 00:06:25,060
+play around with it,
+such that you get a better understanding.
+
+88
+00:06:25,060 --> 00:06:27,320
+Thank you so much, and see you next week.
+

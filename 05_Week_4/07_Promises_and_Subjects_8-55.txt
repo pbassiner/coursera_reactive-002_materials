@@ -1,0 +1,221 @@
+Hey welcome back everybody.
+Last time we talked about creating
+observable streams using the apply and
+the create methods.
+But if you recall the lecture
+on creating futures,
+there we used this concept of promises.
+And as it turns out there's
+a corresponding concept for observables.
+And they're, they're called
+subjects instead of promises.
+And in this lecture we will drill
+down a little bit into subjects and
+compare and contrast with promises.
+So let's refresh our
+memory what promises are.
+Here's a use of promises to implement map.
+So what we did is into,
+implement map over future.
+So we want to this is
+defined on future of T,
+we take a function from T to S, and
+we have to return a future of S.
+And the way we did that is by
+creating a new promise wait for
+the future, the this, to complete.
+If its completed successfully,
+we would call f.
+We had to kind of, you know,
+wrap this around a try catch.
+Because, you know, the f can fail too.
+This is the thing that we didn't do when
+we implemented a map for observables.
+We ignored error cases here but
+then we returned the future
+corresponding to a promise.
+So, a promise is an object
+that has a future, all right.
+But then there's no kind of interface,
+special interface you know,
+to describe just the fact
+that you can set the future.
+Okay or you can complete the future.
+In rx we did that slightly different,
+so here's the promise recap, so
+there's a, we have a promise.
+You can get the future of the promise and
+then you can complete
+the promise and you can listen on
+the future with onComplete and
+then you get the passing
+the call back Try of T to unit.
+Right?
+So you could say a promise has a future.
+Now in,
+I actually already have two interfaces.
+This is the Observer side where you
+can kind of you know, pump in a value.
+And, this is the Observable side.
+So, the corresponding concept
+in rx is a Subject, and
+a Subject is an Observer and
+an Observable.
+So, you can subscribe on the one side.
+And you can kind of push in
+values on the other side.
+Now, there's two big
+differences with promises.
+The first thing is that,
+you know, we can also
+we have these extra methods to complete
+the subject but uncomplete it.
+And there's onError and onNext.
+And remember that with promises,
+if you would try to call a complete twice,
+and you would call it on
+an already completed promise.
+It would throw an exception and
+there you had to use try complete.
+In Subject, when a Subject has
+been completed with onComplete or
+onError, and if you then call any of these
+methods again, they will just do nothing.
+Okay, they won't throw.
+So I think that's a slightly simpler
+design, because then you don't have
+to kind of think about, like, do I do,
+use Try, onNext, or whatever.
+No, you just do onNext.
+And if the subject has already been
+closed by one of the terminal methods,
+the value is just dropped on the floor.
+Okay?
+But what happens is when you subscribe on
+this side, when you call onNext that value
+is propagated through all the subscribers.
+So in some sense,
+the subject is very much like a channel.
+A channel where on the one side you can
+pump in values that you can receive on
+the other side.
+So that's the picture here.
+So let's look at our code.
+And there are several kinds of subjects.
+So in this case we are using
+the PublishSubject,
+which is the simplest one
+that's just a simple pipe.
+So here we create a PublishSubject,
+that's the channel
+we subscribe to it by and,
+and print things out.
+And then when we push 42 on the channel
+42 will be delivered on those guys.
+Now we unsubscribe one of them and
+then now that subscriber will
+not receive any more values.
+We push the next value and
+that will be kind of delivered here, and
+now we complete the channel.
+We subscribe to it with c, and
+what we will see is that c
+now immediately will and
+get onCompleted and
+we will get onCompleted as well.
+And when we go onNext
+again nothing will happen,
+it will just be dropped on the floor.
+But what is interesting is that
+when you subscribe to a channel
+to a PublishSubject that has already been
+closed, you will get the onCompleted.
+And similarly, you will get the onError.
+Now one of the things that you
+may have thought of is that.
+When you're using this PublishSubject,
+you're missing all the values.
+When you subscribe later, when you're
+too late, you only get the kind of,
+you know, all the new values, but you,
+you don't see any of the history.
+And for that, we have a ReplaySubject,
+and the ReplaySubject has a m,
+memory of all the values that has,
+have been pushed into it.
+And when you subscribe later to it,
+it will replay all those values.
+Now course that's a little
+bit dangerous because
+it means that a ReplaySubject
+should have unbounded memory.
+And there's several overloads of
+ReplaySubjects where you can say,
+you know,
+only remember the last thousand values or
+only remember the last five
+minutes of values and so forth.
+Now the ReplaySubject is used
+a lot in Rx Android where,
+you know, if you're,
+if you're doing some actions you want to,
+might want to save some values
+as you're making a transition.
+And then when you resubscribe, you,
+you don't want to lose any values there.
+So i, it has very practical uses.
+And then the other subjects that
+we have are the async subject,
+and the AsyncSubject
+caches the final value.
+So if you have a stream,
+it just remembers the final value.
+So it's a little bit like a future.
+But where the last value is the,
+the value of the async subject.
+And then there's the behavior subject
+that caches the latest value,
+so when you kind of subscribe to that
+you're getting the latest value.
+And that kind of behaves
+like a behavior if you have
+ever heard of FRP behaviors.
+And the behavior subject is,
+corresponds to that.
+Okay, so
+this is a brief introduction to subjects.
+I often recommend against using
+subjects for two reasons.
+First of all subjects
+are like mutable variables.
+As I said you're going to, you know,
+you're, you're pushing
+things in on one side.
+You're receiving things on the other side.
+They don't play very well with
+the notion of back pressure.
+Which is something that we will only
+touch upon in the jam sessions.
+But it's better to kind of, there's
+also overload to publish that don't use
+a subject but, you know,
+are defined on a stream.
+And where you pass in a function
+that gets an Observable.
+And then you can subscribe multiple times.
+So, the overload of publish that uses
+a function is the one that you should use.
+But, in most cases you
+don't need subjects.
+And if you're find
+yourself needing a subject
+you can probably rewrite
+your code not to use it.
+Okay?
+So but sometimes they are very useful,
+just like sometimes a little bit of
+mutable state is very convenient.
+All right.
+Thank you so much and
+see you in the next lecture.
+

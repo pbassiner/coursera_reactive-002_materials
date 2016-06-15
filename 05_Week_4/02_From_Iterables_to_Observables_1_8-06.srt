@@ -1,0 +1,547 @@
+1
+00:00:00,650 --> 00:00:01,540
+Welcome back everybody.
+
+2
+00:00:02,570 --> 00:00:07,740
+Last time,
+I explained very quickly a magic trick
+
+3
+00:00:07,740 --> 00:00:13,520
+that we could use to
+turn futures into try.
+
+4
+00:00:13,520 --> 00:00:17,260
+Or, you know, you could,
+we could have started with, try as well,
+
+5
+00:00:17,260 --> 00:00:20,670
+and convert that to futures.
+
+6
+00:00:20,670 --> 00:00:25,350
+What we're going to do now is we're
+going to use that same dualization trick
+
+7
+00:00:25,350 --> 00:00:30,350
+on the right hand side of our,
+square of effect.
+
+8
+00:00:30,350 --> 00:00:35,480
+And we're going to use that to
+turn iterables into observables,
+
+9
+00:00:35,480 --> 00:00:37,760
+so that's the thing here on the right.
+
+10
+00:00:39,616 --> 00:00:43,440
+Let's recall what, iterables are.
+
+11
+00:00:43,440 --> 00:00:46,520
+Iterables are a pair of traits.
+
+12
+00:00:46,520 --> 00:00:52,090
+The first trait is iterable that has
+a factory function to create iterator.
+
+13
+00:00:52,090 --> 00:00:54,310
+So that's the function iterator.
+
+14
+00:00:54,310 --> 00:00:56,460
+Which returns an iterator.
+
+15
+00:00:56,460 --> 00:01:00,760
+And then once we get an iterator,
+you can call has next
+
+16
+00:01:00,760 --> 00:01:06,460
+which returns a boolean indicating
+if this iterator has more elements.
+
+17
+00:01:06,460 --> 00:01:14,470
+And when has next tells you true, you will
+call next to give you the next value.
+
+18
+00:01:14,470 --> 00:01:15,170
+All right?
+
+19
+00:01:15,170 --> 00:01:22,940
+So it's a pair of traits
+that represent collections.
+
+20
+00:01:22,940 --> 00:01:27,090
+And you see here, in this case,
+because you co-maxed,
+
+21
+00:01:27,090 --> 00:01:29,040
+these are pull based collections.
+
+22
+00:01:29,040 --> 00:01:33,040
+You're pulling every time for
+the next element.
+
+23
+00:01:34,220 --> 00:01:41,240
+And, to go back to our little game,
+imagine that we have a list of coins.
+
+24
+00:01:41,240 --> 00:01:45,282
+A list is a kind of iterable, so
+there we have our iterable of coins.
+
+25
+00:01:45,282 --> 00:01:49,562
+And once we want to pull all
+the coins out of our wallet,
+
+26
+00:01:49,562 --> 00:01:52,274
+we have to first get the iterator.
+
+27
+00:01:52,274 --> 00:01:57,347
+And then we go typically in
+a loop while there are more
+
+28
+00:01:57,347 --> 00:02:00,635
+values in the iterator we call next.
+
+29
+00:02:00,635 --> 00:02:04,210
+And that's the way we collect our coins.
+
+30
+00:02:04,210 --> 00:02:08,685
+Now notice that this is
+a synchronous stream or
+
+31
+00:02:08,685 --> 00:02:16,729
+a pull based stream every time we connect
+we block until the next value is produced.
+
+32
+00:02:16,729 --> 00:02:20,990
+And, we'll see the consequences that,
+of that later.
+
+33
+00:02:20,990 --> 00:02:26,750
+But of course, the first thing we should
+note is that iterable is a monad.
+
+34
+00:02:26,750 --> 00:02:28,000
+And why is it a monad?
+
+35
+00:02:28,000 --> 00:02:29,920
+Because it has flatMap, and
+
+36
+00:02:29,920 --> 00:02:35,590
+it has a constructor to take a single
+value and inject it into an iterable.
+
+37
+00:02:35,590 --> 00:02:41,990
+And of course, just having flatMap and
+a constructor's not that interesting.
+
+38
+00:02:41,990 --> 00:02:47,860
+And, iterable support all
+the methods that we know and love.
+
+39
+00:02:47,860 --> 00:02:52,190
+Like filter, map, and
+then there's the domain specific ones.
+
+40
+00:02:52,190 --> 00:02:54,961
+Such as stake,
+which takes the first N element.
+
+41
+00:02:54,961 --> 00:03:00,140
+Or takeWhile, It takes a boolean,
+and iterates over the iterable,
+
+42
+00:03:00,140 --> 00:03:05,530
+and, you know, copying the values
+as long as that predicate is true.
+
+43
+00:03:05,530 --> 00:03:09,930
+And then last but not least,
+there's our friend, zip.
+
+44
+00:03:11,900 --> 00:03:16,920
+Now, the nice thing here is that iterable,
+since it's an interface,
+
+45
+00:03:16,920 --> 00:03:20,805
+now there's many concrete
+types that implement iterable.
+
+46
+00:03:20,805 --> 00:03:25,850
+Okay, so many many concrete
+types that implement iterable.
+
+47
+00:03:25,850 --> 00:03:28,860
+And we can forget about all
+these concrete types and
+
+48
+00:03:28,860 --> 00:03:32,200
+just think of iterable as a collection,
+okay.
+
+49
+00:03:32,200 --> 00:03:35,995
+So any type that implements
+iterable is a collection and
+
+50
+00:03:35,995 --> 00:03:38,295
+we can draw that collection.
+
+51
+00:03:38,295 --> 00:03:40,819
+As a picture like this
+where we have a line and
+
+52
+00:03:40,819 --> 00:03:43,340
+then there's the subsequent element.
+
+53
+00:03:43,340 --> 00:03:45,765
+And map takes a function and,
+
+54
+00:03:45,765 --> 00:03:51,106
+in this case a function that turns,
+marbles into diamonds.
+
+55
+00:03:51,106 --> 00:03:54,626
+And applies that function to
+every element of the list.
+
+56
+00:03:54,626 --> 00:03:59,588
+And the beauty of interface based
+programming is that it doesn't matter what
+
+57
+00:03:59,588 --> 00:04:03,910
+the underlying collection is,
+and in fact, very important.
+
+58
+00:04:03,910 --> 00:04:08,650
+There might not even be an underlying
+collection because this iterator
+
+59
+00:04:10,920 --> 00:04:13,660
+will produce the next value on the map.
+
+60
+00:04:13,660 --> 00:04:15,110
+So this is the beauty.
+
+61
+00:04:15,110 --> 00:04:20,510
+There might never be an underlying
+collection like a list or an array.
+
+62
+00:04:20,510 --> 00:04:22,680
+You could just create them on the fly.
+
+63
+00:04:24,820 --> 00:04:32,600
+Now let me remind you of the typical
+execution times of a PC on a human scale.
+
+64
+00:04:32,600 --> 00:04:36,020
+Remember sending packets took a long time.
+
+65
+00:04:36,020 --> 00:04:38,980
+Reading from memory took a long time.
+
+66
+00:04:38,980 --> 00:04:41,080
+And what we're going to do now,
+
+67
+00:04:41,080 --> 00:04:44,970
+is we're going to use iterables
+to read stuff from memory.
+
+68
+00:04:46,200 --> 00:04:47,960
+So here's the example.
+
+69
+00:04:47,960 --> 00:04:53,190
+Read lines from this, takes a path,
+and returns, an, iterator of strength.
+
+70
+00:04:53,190 --> 00:04:58,160
+And this is just a standard SCALA code,
+and, and then we're going to do a for
+
+71
+00:04:58,160 --> 00:05:00,320
+loop to get, do work for each line.
+
+72
+00:05:01,790 --> 00:05:06,160
+Now reading from disk takes two weeks,
+so two weeks per line.
+
+73
+00:05:06,160 --> 00:05:09,280
+That's kind of crazy because
+we're blocking again.
+
+74
+00:05:09,280 --> 00:05:10,810
+We're waiting for a long time,
+
+75
+00:05:10,810 --> 00:05:15,620
+so reading from a file using
+iterators is not a good idea.
+
+76
+00:05:15,620 --> 00:05:20,970
+Because the latency is not the,
+this is not the type.
+
+77
+00:05:20,970 --> 00:05:24,030
+To deal with things
+that have high latency.
+
+78
+00:05:24,030 --> 00:05:29,888
+So what we want to do is we want
+to use our magical dualization
+
+79
+00:05:29,888 --> 00:05:36,079
+trick to take this type of iterables
+that are synchronous streams.
+
+80
+00:05:36,079 --> 00:05:40,714
+And turn it into a type that
+represents asynchronous streams, so
+
+81
+00:05:40,714 --> 00:05:43,430
+things that have high latency.
+
+82
+00:05:43,430 --> 00:05:46,823
+Just like we went from try of t,
+to future of t.
+
+83
+00:05:46,823 --> 00:05:51,340
+We're going to go from iterable
+of t to a new type and
+
+84
+00:05:51,340 --> 00:05:54,760
+that's observable of t, all right.
+
+85
+00:05:54,760 --> 00:05:58,940
+So the first thing we're going to
+do is we're going to simplify.
+
+86
+00:05:58,940 --> 00:06:04,230
+If you look at the iterator type here,
+this has next, has no business there.
+
+87
+00:06:04,230 --> 00:06:09,505
+We can simulate this by having
+next return an option of T and
+
+88
+00:06:09,505 --> 00:06:15,200
+if has next returns false,
+the option is empty or nothing.
+
+89
+00:06:15,200 --> 00:06:19,910
+And if it's if it does return a value,
+then it's just T, okay?
+
+90
+00:06:19,910 --> 00:06:23,149
+So we can take these two methods and
+turn them into one.
+
+91
+00:06:24,450 --> 00:06:28,550
+Now, whenever we see a trait
+that has a single method,
+
+92
+00:06:29,790 --> 00:06:32,720
+we can turn that just
+into a type declaration.
+
+93
+00:06:32,720 --> 00:06:35,430
+There's no need to have a,
+a complete trait.
+
+94
+00:06:36,900 --> 00:06:38,010
+It's just, you know?
+
+95
+00:06:38,010 --> 00:06:41,770
+This thing is just a function
+from unit to option of t.
+
+96
+00:06:41,770 --> 00:06:46,000
+So let's just define that as just
+a function from unit to option of T.
+
+97
+00:06:48,230 --> 00:06:52,740
+Now we can substitute that function,
+that type, because,
+
+98
+00:06:52,740 --> 00:06:57,540
+you know, if it's just a single function,
+let's substitute it there an iterator.
+
+99
+00:06:57,540 --> 00:07:03,540
+And now we have a trait that also has
+a single method, so just let expand that.
+
+100
+00:07:03,540 --> 00:07:06,500
+And now we get a type iterable
+
+101
+00:07:06,500 --> 00:07:10,700
+that's really a type unit
+arrow unit arrow try of t.
+
+102
+00:07:10,700 --> 00:07:12,220
+All right.
+
+103
+00:07:12,220 --> 00:07:17,430
+So, what we have done is we just
+simply fight the trait iterable and
+
+104
+00:07:17,430 --> 00:07:22,700
+iterator and the essence is just
+this higher order function.
+
+105
+00:07:22,700 --> 00:07:23,270
+Okay?
+
+106
+00:07:23,270 --> 00:07:24,630
+I've done nothing special.
+
+107
+00:07:26,090 --> 00:07:26,710
+Okay.
+
+108
+00:07:26,710 --> 00:07:28,372
+So, given these two things,
+
+109
+00:07:28,372 --> 00:07:33,070
+we have simplified it into
+something that only has arrows.
+
+110
+00:07:33,070 --> 00:07:37,700
+And the reason I wanted to simplify
+this way is I'm going to use the magic
+
+111
+00:07:37,700 --> 00:07:39,590
+trick of dualization.
+
+112
+00:07:39,590 --> 00:07:42,950
+And that means I have
+to reverse the arrows.
+
+113
+00:07:42,950 --> 00:07:47,820
+And now I have my type in
+a shape that only has arrows.
+
+114
+00:07:47,820 --> 00:07:49,110
+So here we go.
+
+115
+00:07:49,110 --> 00:07:53,670
+Iterable unit arrow unit
+arrow try option of t.
+
+116
+00:07:54,800 --> 00:08:01,410
+And now we're going to go and
+switch the arrows around.
+
+117
+00:08:01,410 --> 00:08:03,980
+See you after the break.
+

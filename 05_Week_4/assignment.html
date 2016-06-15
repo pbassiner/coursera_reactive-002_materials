@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html class="supports-svg" xmlns:fb="http://ogp.me/ns/fb#" itemtype="http://schema.org"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=IE7"><meta name="fragment" content="!"><meta name="robots" content="NOODP"><meta charset="utf-8"><meta property="og:title" content="Coursera"><meta property="og:type" content="website"><meta property="og:image" content="http://s3.amazonaws.com/coursera/media/Coursera_Computer_Narrow.png"><meta property="og:url" content="https://www.coursera.org/assignment/view?assignment_id=13"><meta property="og:site_name" content="Coursera"><meta property="og:locale" content="en_US"><meta property="og:description" content="Take free online classes from 80+ top universities and organizations. Coursera is a social entrepreneurship company partnering with Stanford University, Yale University, Princeton University and others around the world to offer courses online for anyone to take, for free. We believe in connecting people to a great education so that anyone around the world can learn without limits."><meta property="fb:admins" content="727836538,4807654"><meta property="fb:app_id" content="274998519252278"><meta name="twitter:site" content="Coursera"><meta name="twitter:app:name:iphone" content="Coursera"><meta name="twitter:app:name:ipad" content="Coursera"><meta name="twitter:app:name:googleplay" content="Coursera"><meta name="twitter:app:id:iphone" content="id736535961"><meta name="twitter:app:id:ipad" content="id736535961"><meta name="twitter:app:id:googleplay" content="org.coursera.android"><meta name="description" content="Take free online classes from 80+ top universities and organizations. Coursera is a social entrepreneurship company partnering with Stanford University, Yale University, Princeton University and others around the world to offer courses online for anyone to take, for free. We believe in connecting people to a great education so that anyone around the world can learn without limits."><meta name="image" content="http://s3.amazonaws.com/coursera/media/Coursera_Computer_Narrow.png"><meta name="apple-itunes-app" content="app-id=736535961"><title>Coursera</title>    <link href="assignment_files/spark.css" rel="stylesheet" type="text/css">
+      <link href="assignment_files/course.asc" rel="stylesheet" type="text/css">
+    <link href="https://spark-public.s3.amazonaws.com/reactive/static/images/favicon.ico" rel="icon">
+<script src="assignment_files/ga.js" async="" type="text/javascript"></script><script src="assignment_files/routes.js" data-requiremodule="pages/spark/routes" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/MathJax.js" type="text/javascript"></script><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><meta content="summary" name="twitter:card"><meta content="Coursera" name="twitter:title"><meta content="Take free online classes from 80+ top universities and organizations. Coursera is a social entrepreneurship company partnering with Stanford University, Yale University, Princeton University and others around the world to offer courses online for anyone to take, for free. We believe in connecting people to a great education so that anyone around the world can learn without limits." name="twitter:description"><meta content="http://s3.amazonaws.com/coursera/media/Coursera_Computer_Narrow.png" name="twitter:image:src"><script src="assignment_files/204.js" data-requiremodule="js/lib/204" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/400.js" data-requiremodule="js/lib/400" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/student-page_003.js" data-requiremodule="pages/spark/views/template/student-page" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/student-page_002.js" data-requiremodule="pages/spark/views/template/student-page.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sparkSurveyQuestionsSessionModel.js" data-requiremodule="bundles/assess/assessmentTypes/sparkSurveyQuestions/sparkSurveyQuestionsSessionModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sessionModel.js" data-requiremodule="bundles/assess/assessmentTypes/quickQuestions/sessionModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/student-page.js" data-requiremodule="pages/spark/views/template/nls/student-page" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/SessionModel.js" data-requiremodule="bundles/assess/assessmentTypes/SessionModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/QuestionCollection.js" data-requiremodule="bundles/assess/framework/QuestionCollection" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/QuestionModel.js" data-requiremodule="bundles/assess/framework/QuestionModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/backbone.js" data-requiremodule="bundles/assess/lib/backbone.hascollections" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/underscore.js" data-requiremodule="js/lib/underscore.extend" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuTitle {background-color: #CCCCCC; margin: -5px 0 0 0; text-align: center; font-style: italic; font-size: 80%; color: #444444; padding: 2px 0; overflow: hidden}
+.MathJax_MenuArrow {position: absolute; right: .5em; color: #666666}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_Menu_Close {position: absolute; width: 31px; height: 31px; top: -15px; left: -15px}
+</style><script src="assignment_files/header.js" data-requiremodule="pages/spark/views/template/header" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sidebar.js" data-requiremodule="pages/spark/views/template/sidebar" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/readme.js" data-requiremodule="js/lib/readme" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/assessApi.js" data-requiremodule="pages/spark-survey/assessApi" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sidebar_003.js" data-requiremodule="pages/spark/views/template/sidebar.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/signature_track.js" data-requiremodule="spark/app/signature/js/signature_track" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/header_002.js" data-requiremodule="pages/spark/views/template/header.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/LearnerStoriesCollection.js" data-requiremodule="pages/analytics/models/LearnerStoriesCollection" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sidebar_002.js" data-requiremodule="pages/spark/views/template/nls/sidebar" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/header_003.js" data-requiremodule="pages/spark/views/template/nls/header" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><script src="assignment_files/signatureTrackLastChanceModal.js" data-requiremodule="spark/app/signature/js/signatureTrackLastChanceModal.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/flexjoinLastChanceModal.js" data-requiremodule="spark/app/signature/js/flexjoinLastChanceModal.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/util.js" data-requiremodule="js/lib/util" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/path.js" data-requiremodule="js/lib/path" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/LearnerStoryModel.js" data-requiremodule="pages/analytics/models/LearnerStoryModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script></head><body><div style="display: none;" id="MathJax_Message"></div><div id="fb-root"></div><div id="spark-help" class="hide"></div><a href="https://learner.coursera.help/hc/requests/new" target="_blank"><div style="z-index: 1" data-networkprioritysupportwidget="" role="button" class="helpwidget-tab hide">Premium Support</div></a><!-- - track IE8 and less browser for eventing purposes--><!--[if lte IE 8]><script>window._204 = window._204 || [];
+window._gaq = window._gaq || [];
+window._gaq.push(
+    ['_setAccount', 'UA-28377374-1'],
+    ['_setDomainName', window.location.hostname],
+    ['_setAllowLinker', true],
+    ['_trackPageview', window.location.pathname]);
+window._204.push(
+  ['client', 'home'],
+  {key:"pageview", value:window.location.pathname});</script><script src="https://dw0ugk4msqulk.cloudfront.net/61a7c1335d196f1295e3341330ed120d255fe89d/js/lib/204.js"></script><script src="https://ssl.google-analytics.com/ga.js"></script><![endif]--><div id="fb-root"></div><div id="origami" data-js="origami"><div><div><div class="coursera-page"><div class="coursera-header" role="menubar"><div class="hidden">This page features MathJax technology to render mathematical formulae.
+If you are using a screen reader, please visit <a href="http://www.dessci.com/en/products/mathplayer/">MathPlayer</a> to download the plugin for your browser. Please note that this is an Internet Explorer-only plugin at this time.</div><h1 class="hidden">Principles of Reactive Programming</h1><!-- UNTIL dashboard announcement expires 2014-12-01 (then delete this code)--><div class="helpcenter-announcement"><div style="visibility: visible; display: none;" class="readme" data-readme="helpcenter-announcement" data-readme-show-count="1" data-readme-show-until-closed="data-readme-show-until-closed" data-readme-expires="Mar 31, 2015"><div>Need technical help? Visit our new&nbsp;<a href="https://learner.coursera.help/" data-readme-close="data-readme-close">Learner Help Center!</a></div><div data-readme-close="data-readme-close" class="readme-close-icon"><span class="icon-remove"></span></div></div></div><div role="banner" class="course-topbar container-fluid"><div class="row-fluid"><div class="span3"><a href="https://www.coursera.org/" data-if-linkable="add-referrer" class="course-topbar-logo"></a></div><div style="float:right;" class="course-topbar-nav-container span9"><h2 class="hidden">Top Navigation Bar</h2><ul class="course-topbar-nav-list"><li class="course-topbar-nav-list-item"><a href="https://www.coursera.org/courses" data-if-linkable="add-referrer">Courses</a></li><li tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" aria-owns="course-topbar-my" data-popup="#course-topbar-my" data-popup-bind-open="mouseenter" data-popup-close="data-popup-close" style="cursor:pointer;" data-popup-direction="se" class="course-topbar-nav-list-item"><a data-user-id="4452529">Pol Bassiner<i class="icon-caret-down"></i></a></li></ul></div></div><div id="course-topbar-aboutus" class="course-topbar-sublist"><a href="https://www.coursera.org//about/" target="_new" data-if-linkable="add-referrer" class="internal-about course-topbar-sublist-item">About Us</a><a href="https://www.coursera.org//about/careers" target="_new" data-if-linkable="add-referrer" class="internal-about course-topbar-sublist-item">Careers</a><a href="https://www.coursera.org//about/people" target="_new" data-if-linkable="add-referrer" class="internal-about course-topbar-sublist-item">People</a><a href="https://www.coursera.org//about/contact" target="_new" data-if-linkable="add-referrer" class="internal-about course-topbar-sublist-item">Contact Us</a></div><div id="course-topbar-my" class="course-topbar-sublist"><a data-popup-close="data-popup-close" href="https://www.coursera.org/" target="_new" class="course-topbar-sublist-item">My Courses</a><a data-popup-close="data-popup-close" href="https://www.coursera.org/account/profile" target="_new" class="course-topbar-sublist-item">Profile</a><a data-popup-close="data-popup-close" href="https://www.coursera.org/account/accomplishments" target="_new" class="course-topbar-sublist-item">Course Records</a><a href="https://www.coursera.org/account/settings" target="_new" class="course-topbar-sublist-item">Settings</a><a href="https://class.coursera.org/reactive-002/class/preferences" class="course-topbar-sublist-item">Course Preferences</a><form action="/api/logoutSsr/v1?csrf3-token=1466229970.ZrUTwtrgt5rjI53y" method="post"><button data-popup-close="data-popup-close" type="submit" class="course-topbar-sublist-item">Sign Out</button></form></div></div><div class="course-topbanner-wrapper"><div class="course-topbanner"><div class="course-topbanner-university-logo"><a href="https://www.coursera.org/epfl" target="_blank" data-if-linkable="add-referrer" title="https://www.coursera.org/epfl" class="coursera-university-color"><img src="assignment_files/university_logo.asc" alt="epfl"></a></div><h1 class="course-topbanner-header"><a href="https://class.coursera.org/reactive-002/" data-if-linkable="modal-lock" class="course-topbanner-name coursera-university-color">Principles of Reactive Programming</a><br><span style="" class="course-topbanner-instructor">by Martin Odersky, Erik Meijer, Roland Kuhn</span></h1></div></div></div><div style="position:relative;" class="container-fluid"><div class="row-fluid"><div id="course-page-sidebar" role="navigation"><div class="coursera-sidebar" role="menubar"><div id="course-page-sidebar" role="navigation"><div class="course-navbar-container"><a href="https://class.coursera.org/reactive-002" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_index"><img src="assignment_files/logo.asc" style="width: 205px;height: 116px;margin: -15px 0px 8px 1px; box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.05);" alt="Course Home Page"></a><div data-coursera-course-search-nav-widget="data-coursera-course-search-nav-widget" class="input-append course-search-nav-box"><form method="get" action="/reactive-002/class/search" data-js-search-form="data-js-search-form" class="form-inline minimized-search"><label for="course-search-nav-input" class="accessible-text-for-reader">Search this course</label><input id="course-search-nav-input" name="q" data-js-search-input="data-js-search-input" type="text">&nbsp;<button type="submit" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="search" class="btn icon-search"><span class="accessible-text-for-reader">Search</span></button></form></div><h2 class="hidden">Side Navigation Bar</h2><ul class="course-navbar-list"><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/class/index" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Home" class="coursera-university-color"><span>Home </span><span></span></a></li><li class="course-navbar-item"></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/lecture/index" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Video_Lectures" class="coursera-university-color"><span>Video Lectures </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/LearningResources" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Learning_Resources" class="coursera-university-color"><span>Learning Resources </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/assignment/index" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Assignments" class="coursera-university-color"><span>Assignments </span><span></span></a></li><li class="course-navbar-item"></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/forum/index" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Discussion_Forums" class="coursera-university-color"><span>Discussion Forums </span><span></span></a></li><li class="course-navbar-item"></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/ToolsSetup" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Tools_Setup" class="coursera-university-color"><span>Tools Setup </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/SbtTutorial" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Sbt_Tutorial" class="coursera-university-color"><span>Sbt Tutorial </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/EclipseTutorial" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Eclipse_Tutorial" class="coursera-university-color"><span>Eclipse Tutorial </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/ScalaTutorial" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Scala_Tutorial" class="coursera-university-color"><span>Scala Tutorial </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/IntelliJ_IDEA" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_IntelliJ_Tutorial" class="coursera-university-color"><span>IntelliJ Tutorial </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/Troubleshooting" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Troubleshooting" class="coursera-university-color"><span>Troubleshooting </span><span></span></a></li><li class="course-navbar-item"></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/ScalaStyleGuide" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Scala_Style_Guide" class="coursera-university-color"><span>Scala Style Guide </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/CheatSheet" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Scala_Cheat_Sheet" class="coursera-university-color"><span>Scala Cheat Sheet </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/ReactiveCheatSheet" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Reactive_Cheat_Sheet" class="coursera-university-color"><span>Reactive Cheat Sheet </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/GradingPolicy" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Grading_Policy" class="coursera-university-color"><span>Grading Policy </span><span></span></a></li></ul><ul style="list-style-type:none;margin-left: 10px;"><li><a href="https://accounts.coursera.org/i/zendesk/courserahelp?return_to=https://learner.coursera.help/hc/" target="_blank" title="Open help articles in new window" class="coursera-university-color"><i class="icon-question-sign"></i>Help Center</a></li></ul><ul style="list-style-type:none;margin-left: 10px;"></ul></div></div></div></div><div id="course-page-content" role="main"><div style="display: block;" id="spark" class="hide"><h2 class="course-page-header">
+  <span>Wikipedia Suggestions: Instructions</span>
+
+  <a class="coursera-reporter-link" title="Click here if you're experiencing technical problems or found errors in the course materials." target="_blank" href="https://accounts.coursera.org/i/zendesk/courserahelp?return_to=https://learner.coursera.help/hc/articles/201212249-Programming-Assignments">
+     Help Center
+  </a>
+</h2>
+
+<p>
+</p><p>Attention: You are allowed to submit <strong>an unlimited number of times</strong>!
+ for grade purposes. Once you have submitted your solution, you should 
+see your grade and a feedback about your code on the Coursera website 
+within 20 minutes. If you want to improve your grade, just submit an 
+improved solution.</p>
+<p>To get started, download the <a href="https://d28rh4a8wq0iu5.cloudfront.net/reactive/assignments/suggestions.zip?response-content-type=application%2Foctet-stream&amp;a=1&amp;response-content-disposition=attachment">suggestions.zip</a> handout archive file and extract it somewhere on your machine.</p>
+<p>In this exercise you will develop a reactive graphical user interface
+ for the Wikipedia Suggestions application. This application will allow 
+the user to enter a search term and in real time render a list of 
+possible completions of that search term from Wikipedia. After that, a 
+user will be able to select one of the suggested terms and click <code>Get</code>, which will render the desired wikipedia page.</p>
+<p>Note: all the functionality you will be asked to implement in this assignment can be done using only the methods in the <a href="http://reactivex.io/documentation/observable.html">Scala wrapper</a> of the Rx framework.</p>
+<h2 id="short-introduction">Short introduction</h2>
+<p>In this exercise you will use ScalaSwing to build a GUI for looking 
+at Wikipedia pages. Later on, the Swing GUI-related code you write needs
+ to be tested, and to do this, your program logic needs to be abstracted
+ away from the Swing logic. If you would really like to understand the 
+details of how the Swing code is abstracted, you can take a look at the 
+appendix sections at the end of this document.</p>
+<p>You should be able to solve this exercise completely without 
+consulting the appendices, but if you get stuck with Swing, make sure to
+ jump down to the end of this document!</p>
+<h2 id="observable-extensions">Observable extensions</h2>
+<p>Most GUI toolkits are callback-based. They provide a plethora of 
+different UI components like buttons or text fields, which raise events 
+when something happens to them. If you click a button, a <code>ButtonClicked</code> event is raised and if you type into a text field, a <code>ValueChanged</code>
+ event is raised. To listen to these events, the programmer must install
+ callbacks to corresponding components. This approach of using callbacks
+ and mutable state for designing large scale applications can quickly 
+lead to what is known as <em>the callback hell</em>, due to the interactions between callbacks, where a programmer can no longer make sense of the code he wrote.</p>
+<p>Instead of using callbacks, we would like to handle event streams. 
+Event streams are first-class values that are handled in a more 
+declarative fashion than callbacks and are more encapsulated. Event 
+streams can be represented using Rx <code>Observable</code>s. In this part of the exercise you will implement several <code>Observable</code>s
+ that emit values whenever a Swing component event is raised. This is a 
+common pattern when bridging between callback-based and reactive 
+stream-based systems – remember it well!</p>
+<p>Your task is to implement the following methods in <code>SwingApi.scala</code> by using the <code>Observable.create(f: Observer =&gt; Subscription)</code> factory method. You will find these methods in the implicit classes for the <code>TextField</code>s and <code>Button</code>s:</p>
+<pre><code>def textValues: Observable[String] = ???
+
+def clicks: Observable[Button] = ???
+</code></pre><p>Note: the <code>clicks</code> method should return an 
+observable containing the reference to the particular button that was 
+clicked (although in this assignment there will only be one single 
+button in the GUI).</p>
+<p>Scala Swing components can be <code>subscribe</code>d to by creating <code>Reaction</code> objects. These <code>Reaction</code> objects in essence wrap <code>PartialFunction</code>s that handle <a href="http://www.scala-lang.org/api/current/index.html#scala.swing.event.package">Scala Swing events</a> that correspond to the component the <code>Reaction</code>
+ is used for. For the purpose of this exercise, you can ignore all 
+events other than button presses and changes to the textfield.</p>
+<p>Be sure to understand the <code>Observable</code> <a href="http://reactivex.io/rxscala/scaladoc/index.html#rx.lang.scala.Observable">contract</a> before you begin.</p>
+<h2 id="wikipedia-suggestion-utilities">Wikipedia suggestion utilities</h2>
+<p>In the last part of the exercise you implemented <code>Observable</code>s over different input events. In this part you will implement some utility functions over <code>Observable</code>s that will help you complete the GUI functionality in the final part. Creating <code>Observable</code>s manually the way we did it in the last part is generally discouraged. Instead, you should use combinators on <code>Observable</code>s wherever possible to compose them into more complex ones.</p>
+<p>The Wikipedia API is factored out in the <code>WikipediaApi</code> trait. It contains two abstract methods:</p>
+<pre><code>def wikipediaSuggestion(term: String): Future[List[String]]
+
+def wikipediaPage(term: String): Future[String]
+</code></pre><p>These methods return futures with a list of possible 
+completions for a search term and the corresponding Wikipedia page, 
+respectively. However, search terms sent in an HTTP request cannot 
+contain spaces! Instead, all spaces in a search term should be replaced 
+with an underscore <code>_</code>. Your task is to implement a method <code>sanitized</code> in <code>WikipediaApi.scala</code>
+ that, given a stream of search terms returns a new stream of search 
+terms such that all the search terms containing spaces are properly 
+replaced. You will find the <code>sanitized</code> method in the <code>StringObservableOps</code> implicit class:</p>
+<pre><code>def sanitized: Observable[String] = ???
+</code></pre><p>See description of <code>Observable</code> <a href="http://reactivex.io/rxscala/scaladoc/index.html#rx.lang.scala.Observable">combinator methods</a> for ideas on how to achieve this.</p>
+<p><code>Observable</code>s might be completed with errors. When composing multiple <code>Observable</code>s, errors from one of them can easily leak into the resulting <code>Observable</code> and complete it by calling <code>onError</code>. To prevent this from happening, any exceptions in the <code>Observable</code> should be wrapped into <code>Failure</code> objects that can be dealt with as if they were ordinary values. Your next task is to implement the method <code>recovered</code> which converts any <code>Observable[T]</code> into an <code>Observable[Try[T]]</code> (hint: consider using the <code>map</code> and <code>onErrorReturn</code> method):</p>
+<pre><code>def recovered: Observable[Try[T]] = ???
+</code></pre><p>Next, implement a combinator <code>timedOut</code> that given an observable <code>obs</code> and takes a number of seconds <code>totalSec</code>, and returns a new observable that contains all the events from <code>obs</code> that happened before <code>totalSec</code> seconds elapse. If the <code>obs</code>
+ combinator is completed or failed before the timeout, the resulting 
+observable should also be completed or failed, respectively. If the <code>obs</code> combinator does not complete before the timeout, the resulting observable should be completed after the timeout.</p>
+<pre><code>def timedOut(totalSec: Long): Observable[T] = ???
+</code></pre><p>Finally, sometimes observables are created from more 
+than just one other observable. In our case, the list of suggestions 
+depends on both the search field and the suggestions for each search 
+term.</p>
+<p>Your final task in this part is to implement a method <code>concatRecovered</code> that, given a request stream <code>obs</code>
+ and a method to map elements of the request stream (i.e. single 
+requests) into response streams, returns a single response stream that 
+contains all the responses, both successful and failed, wrapped into a <code>Try</code> object:</p>
+<pre><code>def concatRecovered[S](requestMethod: T =&gt; Observable[S]): Observable[Try[S]] = ???
+</code></pre><h2 id="putting-it-all-together">Putting it all together</h2>
+<p>We now have all the ingredients to complete our Wikipedia Suggestions application! Open <code>WikipediaSuggest.scala</code>
+ – you will see the body of the main Scala Swing based application. The 
+pieces that concern the static part of the UI are already implemented 
+for you – your task is to add some reactive behavior to this 
+application.</p>
+<p>The UI currently contains a text field called <code>searchTermField</code>. Your first task is to construct an observable of text field entries called <code>searchTerms</code>:</p>
+<pre><code>val searchTerms: Observable[String] = ???
+</code></pre><p>Next, use the <code>searchTerms</code> observable to 
+create an observable of lists of suggestions in which each list of 
+suggestion corresponds to one search term. If any of the suggestion 
+lists requests fail (make sure you don’t wait forever), we would like to
+ have the throwable to print the error message, so we wrap the result 
+into a <code>Try</code>. Use the methods defined earlier in the <code>WikipediaApi</code>:</p>
+<pre><code>val suggestions: Observable[Try[List[String]]] = ???
+</code></pre><p>The <code>suggestions</code> observable should now be 
+updated while you type. Problem is – there is no way to see these 
+changes yet in the UI! To display them, we need to update the contents 
+of a component called <code>suggestionList</code> every time the observable produces a value. If the <code>suggestions</code> value is not successful, we must print the error message into the <code>status</code> label. Use the <code>subscribe</code> method on <code>suggestions</code> to do this:</p>
+<pre><code>val suggestionSubscription: Subscription = ???
+</code></pre><p>Note: all the updates for all the Swing components may 
+only take place from a special thread called the event dispatch thread. 
+To ensure that the subscription reaction takes place on the event 
+dispatch thread, use the <code>observeOn</code> combinator. See the <a href="http://reactivex.io/rxscala/scaladoc/index.html#rx.lang.scala.Observable">ScalaDoc</a> for more information.</p>
+<p>Our application would be pretty boring if it were only able to give 
+search term suggestions. We would like to pick one of the search term in
+ the list of suggestions and press <code>Get</code> to obtain the contents of the corresponding Wikipedia page and display it in the panel on the right side of the UI.</p>
+<p>Your next task will be to obtain an observable <code>selections</code>
+ of button clicks that contains the search terms selected in the 
+suggestion list at the time the button was clicked. If the suggestion 
+list had no items selected, then the click should not be part of <code>selections</code>.</p>
+<pre><code>val selections: Observable[String] = ???
+</code></pre><p>Next, use the <code>selections</code> observable to 
+obtain an observable of the Wikipedia pages corresponding to the 
+respective search term (use the previously defined methods from the <code>WikipediaApi</code>):</p>
+<pre><code>val pages: Observable[Try[String]] = ???
+</code></pre><p>Again, requests above may fail, so we want to wrap them into <code>Try</code>.</p>
+<p>Finally, the observable <code>pages</code> is of little worth unless its values are rendered somewhere. Subscribe to the <code>pages</code> observable to update the <code>editorpane</code> with the contents of the response.</p>
+<p>The final application should resemble the following screenshot. Run your application (type <code>run</code>
+ in SBT) and type in “Erik Meijer”, then select the first option from 
+the list and click “Get”. Below you see the corresponding Wikipedia 
+page. It tells us that Erik was previously a 6ft high professional 
+footballer, so you better not mess with him!</p>
+<p><img src="assignment_files/reactiveimagesapplication.png" alt="Application screenshot"></p>
+<h2 id="appendix-a-extractors-custom-pattern-matching-and-the-cake-pattern">Appendix A: Extractors, custom pattern matching and the cake pattern</h2>
+<p>Before we get to Rx and our GUI application, we first need to visit 
+some prerequisites. In Scala, pattern matching can be customized to do 
+almost anything you like using a feature called <em>extractors</em>. Here is an example of how you can match prime numbers:</p>
+<pre><code>object Prime {
+  def unapply(x: Int): Option[Int] = if ((2 until x).forall(x % _ != 0)) Some(x) else None
+}
+
+1 match {
+  case Prime(x) =&gt; println("We like prime numbers!")
+}
+</code></pre><p>The crucial method for custom extractors is <code>unapply</code>. This method takes an object of type <code>T</code> and decides if an object can be matched or not. If its argument <code>x</code> can be matched into some value, it returns a <code>Some[T]</code>. If this pattern matching case should fail, it returns <code>None</code>. As long as there is a singleton object or a value named <code>Prime</code> in scope, you can use the pattern matching case <code>case Prime(x) =&gt;</code> to call <code>Prime</code>’s <code>unapply</code> method.</p>
+<p>A careful reader may notice that the <code>Prime</code> extractor 
+defined above is particularly inefficient. A more efficient 
+implementation would check only the divisors smaller than the square 
+root of <code>x</code>. This means that there might be multiple 
+implementations of that extractor! Can we somehow write our code without
+ knowing how exactly <code>Prime</code> is implemented, and just mix in the correct implementation later?</p>
+<p>The good news, the <code>unapply</code> method can even belong to an abstract value in scope! So, let’s make the <code>Prime</code> extractor abstract! How do we do that? One way to do this is to introduce a trait <code>Mathematics</code> and have an abstract value <code>Prime</code> there, with an interface <code>PrimeExtractor</code> that has a method <code>unapply</code>:</p>
+<pre><code>trait Mathematics {
+  type Number
+
+  trait PrimeExtractor {
+    def unapply(x: Number): Option[Number]
+  }
+
+  val Prime: PrimeExtractor
+}
+</code></pre><p>This trait <code>Mathematics</code> also abstracts over what <code>Number</code>s are. They might be represented as ordinary integers, longs or even infinite length big integers. With the <code>Mathematics</code> API, if you have any such a <code>Number</code>, you can figure out if it’s prime, even though you don’t know its exact representation.</p>
+<p>A concrete <code>Mathematics</code> implementation is then as follows:</p>
+<pre><code>trait FastIntegerMath extends Mathematics {
+  type Number = Int
+
+  object Prime extends PrimeExtractor {
+    def unapply(x: Int): Option[Int] = {
+      if ((2 to math.sqrt(x).toInt).forall(x % _ != 0)) Some(x) else None
+    }
+  }
+}
+
+object MyPrimeChecker extends FastIntegerMath {
+  def main(args: Array[String]): Unit = args(0).toInt match {
+    case Prime(x) =&gt; println(s"the number $x is indeed prime.")
+    case _ =&gt; println("not prime")
+  }
+}
+</code></pre><p>This pattern where the important parts of some API are abstracted away into members of a trait is called a <em>cake pattern</em>,
+ because it allows you to pick your favorite implementation of an API 
+just like you would pick flavors of different layers of a cake when 
+baking it.</p>
+<h2 id="appendix-b-scalaswing">Appendix B: ScalaSwing</h2>
+<p>ScalaSwing is a Scala-based wrapper around the Java Swing API that 
+allows you to write GUI applications in a concise, more declarative 
+style. All the details of this framework are a bit too much for this 
+exercise, and if you have no prior experience with GUI applications, 
+this might be a bit overwhelming for you.</p>
+<p>So, guess what? We will use the <em>cake pattern</em> we saw before 
+to abstract over important parts of the Swing API. In this way, you will
+ be spared from many details of the ScalaSwing framework and we will be 
+able to use the same API later to make testing easier.</p>
+<p>The first concept present in the ScalaSwing framework are <code>Event</code>s. There are many different kinds of events, but let’s focus on only 2 for now. In the file <code>SwingApi.scala</code> you will find the following events:</p>
+<pre><code>type ValueChanged &lt;: Event
+
+val ValueChanged: {
+  def unapply(x: Event): Option[TextField]
+}
+
+type ButtonClicked &lt;: Event
+
+val ButtonClicked: {
+  def unapply(x: Event): Option[Button]
+}
+</code></pre><p><code>ValueChanged</code> denotes that a value of a text field has changed, and <code>ButtonClicked</code> denotes that somebody pressed a button.</p>
+<p>The next important concept are <code>Reaction</code>s. These are just callbacks that you add to components and that can handle events. A <code>Reaction</code> is just a type alias for a partial function over events:</p>
+<pre><code>type Reaction = PartialFunction[Event, Unit]
+</code></pre><p>Now, every Swing <em>component</em> (e.g. a button, text field or a combo box) can be subscribed to with reactions – it has methods <code>subscribe</code> and <code>unsubscribe</code> for this purpose. The type <code>TextField</code> also has an additional method <code>text</code> that returns the current text entered into the text field:</p>
+<pre><code>type TextField &lt;: {
+  def text: String
+  def subscribe(r: Reaction): Unit
+  def unsubscribe(r: Reaction): Unit
+}
+
+type Button &lt;: {
+  def subscribe(r: Reaction): Unit
+  def unsubscribe(r: Reaction): Unit
+}
+</code></pre><p>The components <code>TextField</code> and <code>Button</code> actually have many more methods, but these are the ones you need to care about. And you can already do much with this:</p>
+<pre><code>def printOutTextFieldChanges(field: TextField) = field subscribe {
+  case ValueChanged(tf) =&gt; println(tf.text)
+}
+</code></pre><p>If you want to know more about how <code>SwingApi</code> is implemented, find the trait <code>ConcreteSwingApi</code> in <code>WikipediaSuggestions.scala</code> and study it. However, this is pretty much everything you need to know about ScalaSwing for this assignment.</p><p></p>
+<script type="text/x-mathjax-config;executed=true">
+MathJax.Hub.Config({
+  config: ["MMLorHTML.js"],
+  
+  styleSheets: [],
+  styles: {},
+
+  jax: ["input/TeX"],
+  
+  extensions: ["tex2jax.js"],
+
+  preJax: null,
+  postJax: null,
+
+  preRemoveClass: "MathJax_Preview",
+
+  showProcessingMessages: true,
+
+  messageStyle: "none",
+  
+  displayAlign: "center",
+  displayIndent: "0em",
+  
+  delayStartupUntil: "none",
+
+  skipStartupTypeset: false,
+  
+  elements: [],
+  
+  tex2jax: {
+	    inlineMath: [
+	                 ['$$','$$'],      // uncomment this for standard TeX math delimiters
+	                 ['\\(','\\)']
+	                 ],
+
+	                 displayMath: [
+	                 ['\\[','\\]']
+	                 ],
+
+    skipTags: ["script","noscript","style","textarea","pre","code"],
+    ignoreClass: "tex2jax_ignore",
+    processClass: "tex2jax_process",
+    processEscapes: false,
+    processEnvironments: true,
+    preview: "TeX"
+    
+  },
+  
+  mml2jax: {
+    preview: "alttext"
+    
+  },
+  
+  jsMath2jax: {
+    preview: "TeX"
+    
+  },
+
+  TeX: {
+    TagSide: "right",
+    TagIndent: ".8em",
+    MultLineWidth: "85%",
+    Macros: {},
+
+    extensions: ["AMSmath.js", "AMSsymbols.js"]
+    
+  },
+
+  //============================================================================
+  //
+  //  These parameters control the MathML inupt jax.
+  //
+  MathML: {
+    //
+    //  This specifies whether to use TeX spacing or MathML spacing when the
+    //  HTML-CSS output jax is used.
+    //
+    useMathMLspacing: false
+  },
+  
+  //============================================================================
+  //
+  //  These parameters control the HTML-CSS output jax.
+  //
+  "HTML-CSS": {
+    
+    scale: 100,
+    
+    availableFonts: ["STIX","TeX"],
+    
+    preferredFont: "TeX",
+    
+    webFont: "TeX",
+    
+    imageFont: "TeX",
+    
+    undefinedFamily: "STIXGeneral,'Arial Unicode MS',serif",
+      
+    showMathMenu: true,
+
+    styles: {},
+    
+    tooltip: {
+      delayPost: 600,          // milliseconds delay before tooltip is posted after mouseover
+      delayClear: 600,         // milliseconds delay before tooltip is cleared after mouseout
+      offsetX: 10, offsetY: 5  // pixels to offset tooltip from mouse position
+    }
+  },
+  
+  //============================================================================
+  //
+  //  These parameters control the NativeMML output jax.
+  //
+  NativeMML: {
+
+    scale: 100,
+
+    showMathMenu: true,
+    showMathMenuMSIE: true,
+
+    styles: {}
+  },
+  
+  MathMenu: {
+    delay: 400,
+    
+    helpURL: "http://www.mathjax.org/help/user/",
+
+    showRenderer: true,
+    showFontMenu: false,
+    showContext:  false,
+
+    windowSettings: {
+      status: "no", toolbar: "no", locationbar: "no", menubar: "no",
+      directories: "no", personalbar: "no", resizable: "yes", scrollbars: "yes",
+      width: 100, height: 50
+    },
+    
+    styles: {}
+    
+  },
+
+  MMLorHTML: {
+    prefer: {
+      MSIE:    "MML",
+      Firefox: "HTML",
+      Opera:   "HTML",
+      other:   "HTML"
+    }
+  }
+});
+</script>
+</div></div></div></div></div><div class="coursera-footer"></div></div></div></div><!--[if gte IE 9]><script>document.getElementById("coursera-loading-js").style.display = 'block';</script><![endif]-->
+<!--[if lte IE 8]><script>document.getElementById("coursera-loading-nojs").style.display = 'block';</script><![endif]-->
+<!--[if !IE]> --><script>document.getElementById("coursera-loading-js").style.display = 'block';</script><!-- <![endif]--><script>if (/zh/i.test(window.localStorage ? localStorage.getItem('locale') : '') || '{{ locale }}') {
+  document.getElementById('get-browser-zh').style.display = 'block';
+}</script><!--[if !IE]> --><script>document.getElementById('coursera-loading-js').style.display = 'block';</script><!-- <![endif]-->
+    <script src="assignment_files/jquery.js"></script>
+      <script src="assignment_files/loadOrRefreshMathJax.js"></script>
+  <script src="assignment_files/require.js"></script><script data-baseurl="https://dw0ugk4msqulk.cloudfront.net/61a7c1335d196f1295e3341330ed120d255fe89d/" data-version="61a7c1335d196f1295e3341330ed120d255fe89d" data-timestamp="1465424411607" data-debug="0" data-locale="en_US" id="_require">if(document.getElementById('coursera-loading-js').style.display == 'block') {
+  (function(el) {
+     require.config({
+       //enforceDefine: true,
+       waitSeconds: 75,
+       baseUrl: el.getAttribute('data-baseurl'),
+       urlArgs: el.getAttribute('data-debug') == '1' ? 'v=' + el.getAttribute('data-timestamp') : '',
+       shim: {
+          'underscore': {
+             exports: '_'
+          },
+          'backbone': {
+             deps: ['underscore', 'jquery'],
+             exports: 'Backbone',
+             init: function(_, $) {
+               Backbone.$ = $;
+               return Backbone;
+             }
+          },
+          'pages/hg/thirdparty/js/backbone.marionette': {
+            deps: ['backbone']
+          },
+          'pages/hg/thirdparty/js/webshims/polyfiller': {
+            deps: ['jquery']
+          },
+          'pages/hg/thirdparty/js/webshims/extras/mousepress': {
+            deps: ['jquery', 'pages/hg/thirdparty/js/webshims/polyfiller']
+          },
+          'pages/hg/thirdparty/js/jquery.throttle': {
+            deps: ['jquery']
+          },
+          'js/lib/jquery.linkify': {
+            deps: ['jquery']
+          },
+          'pages/hg/thirdparty/js/js/bootstrap/alert': {
+            deps: ['jquery', 'pages/hg/thirdparty/js/bootstrap/transition']
+          },
+          'spark/core/js/jquery_ui': {
+            deps: ['jquery']
+          },
+          'spark/core/js/jquery.history': {
+            deps: ['jquery']
+          },
+          'js/lib/bootstrap.tooltip': {
+            deps: ['jquery']
+          },
+          'pages/hg/thirdparty/js/bootstrap/transition': {
+            deps: ['jquery']
+          },
+          'pages/hg/thirdparty/js/bootstrap/tab': {
+            deps: ['jquery']
+          },
+          'bundles/videojs/lib/video.4.3.0': {
+            exports: 'vjs'
+          }
+       },
+       paths: {
+          'q': 'js/vendor/q.v1-0-1',
+          'react-with-addons': 'js/vendor/react-with-addons.v0-12',
+          'jquery':                         'pages/spark/jquery',
+          'underscore':                     'js/vendor/underscore.v1-5-2',
+          'backbone':                       'js/vendor/backbone.v1-1-0',
+          'backbone.relational':            'js/lib/backbone.relational.0.8.6',
+          'i18n':                           'js/lib/i18n._t',
+          'css':                            'js/vendor/require.css.v0-1-2',
+          'memoize':                        'js/lib/require.memoize.v0-0-1',
+          'pages/spark/models/user.json':   'empty:',
+          'pages/spark/models/course.json': 'empty:',
+          'pages/spark/models/navbar.json': 'empty:'
+       },
+       callback: function() {
+                    require(['pages/spark/routes']);
+                },
+       config: {
+         i18n: {
+           locale: (window.localStorage ? localStorage.getItem('locale') : '') || el.getAttribute('data-locale')
+         }
+       }
+     });
+  })(document.getElementById('_require'));
+}
+</script><script>define('pages/spark/models/user.json', [], function(){
+      return JSON.parse("{\"id\":4452529,\"email_address\":\"polbassiner@gmail.com\",\"full_name\":\"Pol Bassiner\",\"locale\":\"en_US\",\"timezone\":\"Europe\\\/Madrid\",\"access_group_id\":\"4\",\"registration_time\":\"1424978274\",\"last_access_time\":\"1465970306\",\"last_access_ip\":\"213.229.148.26\",\"signature_track_register_time\":\"0\",\"email_announcement\":\"1\",\"email_forum\":\"1\",\"in_signature_track\":\"0\",\"wishes_proctored_exam\":\"0\",\"first_name\":\"Pol\",\"permissions\":[\"default\",\"allow_site_access\"],\"group\":\"Student\",\"anonymous\":false,\"forum_title\":\"Student\",\"signature_track_state\":1,\"verified_quizzes\":[],\"submitted_quizzes\":[\"51\",\"55\",\"61\",\"67\",\"93\",\"95\",\"101\",\"131\",\"133\"],\"scheduled_proctored_exam\":null,\"last_chance_modal\":1,\"flexjoin_last_chance_modal\":null}");
+  });
+define('pages/spark/models/course.json', [], function(){
+      return JSON.parse("{\"id\":974748,\"isPrivate\":false,\"type\":\"public\",\"name\":\"Principles of Reactive Programming\",\"instructor\":\"Martin Odersky, Erik Meijer, Roland Kuhn\",\"sessionName\":\"reactive-002\",\"externalBaseURL\":\"https:\\\/\\\/www.coursera.org\\\/\",\"shortname\":\"reactive\",\"host\":\"https:\\\/\\\/www.coursera.org\\\/\",\"assetUnversionedLink\":\"https:\\\/\\\/dw0ugk4msqulk.cloudfront.net\\\/\",\"cheggID\":\"\",\"hasLTI\":true,\"badgevilleDomain\":\"\",\"linkable\":false,\"universityShortname\":\"epfl\",\"signatureTrackStatus\":{\"signature_track_enabled\":1},\"courseURLs\":{\"log_in_link\":\"https:\\\/\\\/www.coursera.org\\\/login?post_redirect=https%3A%2F%2Fwww.coursera.org%2Flogin%3Fuser_action%3Dclass%26course_id%3D974748%26post_redirect%3Dhttps%253A%252F%252Fclass.coursera.org%252Freactive-002%252Fauth%252Fauth_redirector%253Ftype%253Dlogin%2526subtype%253Dnormal%2526visiting%253D\",\"sign_up_link\":\"https:\\\/\\\/www.coursera.org\\\/signup?enroll_cid=974748&enroll_sn=reactive&enroll_n=Principles of Reactive Programming\",\"view_course_info_link\":\"https:\\\/\\\/www.coursera.org\\\/course\\\/reactive\",\"sign_up_link_cant_enroll\":\"https:\\\/\\\/www.coursera.org\\\/signup?post_redirect=https%3A%2F%2Fwww.coursera.org%2Fcourse%2Freactive\"},\"courseBase\":\"https:\\\/\\\/class.coursera.org\\\/reactive-002\\\/\",\"search\":true,\"hideWiki\":true,\"aceStartRegistrationDate\":\"Thu  1 Jan 1970  1:00 AM CET\",\"aceEndRegistrationDate\":\"Thu  1 Jan 1970  1:00 AM CET\",\"aceExamStartDate\":\"Thu  1 Jan 1970  1:00 AM CET\",\"aceExamEndDate\":\"Thu  1 Jan 1970  1:00 AM CET\",\"aceExamRules\":\"\",\"aceExamDuration\":\"\",\"aceBeforeExam\":false,\"aceAfterExam\":true,\"aceHours\":null,\"aceCreditType\":\"\",\"acePrice\":null,\"aceExamID\":null,\"aceEligible\":false,\"canRegisterForACE\":false,\"specialization\":null,\"supportForums\":true,\"textbooks\":\"\",\"inVideoQuizV2\":false,\"in_flexjoin\":0,\"honorCodeExtraText\":\"\",\"honorCodeCustomTitle\":\"\",\"honorCodeCustomButton\":\"\",\"studentAccessDisabled\":0,\"disableQQs\":false}");
+  });
+  define('pages/spark/models/navbar.json', [], function(){
+      return JSON.parse("{\"items\":[{\"name\":\"Home\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"class:index\"},{\"name\":\"\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"\"},{\"name\":\"Video Lectures\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"lecture:index\"},{\"name\":\"Learning Resources\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"LearningResources\"},{\"name\":\"Assignments\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"assignment:index\"},{\"name\":\"\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"\"},{\"name\":\"Discussion Forums\",\"icon\":\"forum\",\"link_type\":\"circuit\",\"link_data\":\"forum:index\"},{\"name\":\"\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"\"},{\"name\":\"Tools Setup\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"ToolsSetup\"},{\"name\":\"Sbt Tutorial\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"SbtTutorial\"},{\"name\":\"Eclipse Tutorial\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"EclipseTutorial\"},{\"name\":\"Scala Tutorial\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"ScalaTutorial\"},{\"name\":\"IntelliJ Tutorial\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"IntelliJ_IDEA\"},{\"name\":\"Troubleshooting\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"Troubleshooting\"},{\"name\":\"\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"\"},{\"name\":\"Scala Style Guide\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"ScalaStyleGuide\"},{\"name\":\"Scala Cheat Sheet\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"CheatSheet\"},{\"name\":\"Reactive Cheat Sheet\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"ReactiveCheatSheet\"},{\"name\":\"Grading Policy\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"GradingPolicy\"}]}");
+  });
+</script><script>var coursera_enable_new_help_center = true;
+</script><div class="hide confirm-navigation modal"><div class="modal-header"><h3>Confirm Navigation</h3></div><div class="modal-body"><div class="confirm-navigation-message"></div><div>Are you sure you want to leave this page?</div></div><div class="modal-footer"><button data-modal-close="data-modal-close" class="btn confirm-navigation-stay">Stay on this Page</button><button data-modal-close="data-modal-close" class="btn btn-danger confirm-navigation-leave">Leave this Page</button></div></div><div style="display: none;" class="coursera-async-message"></div></body></html>

@@ -1,0 +1,289 @@
+Hello, everybody.
+Since, we have just a limited time to to
+discuss a huge surface area,
+the Rx surface area.
+We have no time to discuss all
+the intimate details about Rx, so
+here what we're doing now is we're going
+to give you a little bit of a Potpourri of
+kind of, small things concerning
+Rx that might be interesting.
+But again, I would really advise you
+if you want to learn more about Rx, and
+more in depth that you kind of
+you look at the Rx wiki, or
+the ReactiveX io site,
+where you can find a lot more information.
+All right, let's look at this example
+here in the earthquakes example,
+we used this constructor, the Observable
+dot from that took a Future.
+When we were doing the reverse geocoding,
+so that the reverse geocoding returned
+a Future, and we wanted to turn that
+into an Observable, and I just kind of
+use that without, you know, thinking
+too much, or saying too much about it.
+But I think, it's interesting to see,
+how we can implement that, and
+we're going to implement that using an,
+a sync subject,
+which I said,
+was very much like a Future because
+it has only one value, or very much like a
+promise, I should say, because, you know?
+I can set it and it has only one value.
+So, here's the code for
+using the the apply constructor for here
+on Observables with overloading it with
+a Future, and we get back an Observable.
+Since, we are in this case,
+we want to remember the last
+value of our stream.
+What we're going is we're going to create
+an AsyncSubject, and then when the Future
+is complete,
+what were going to do is we're going to
+look at the two cases if the Future
+completes with an error,
+we're going to complete
+the AsyncSubject with an error.
+If the future completes with success were
+going to call on next on the subject,
+and then immediately complete it.
+Now, what this gives us is
+the behavior that we want
+from a Future is that it
+only executes once, right?
+When you, when you, kind of,
+you know, pass a call back, the un,
+the complete call back, the uncomplete
+call back to the Future, you know,
+if you pass it multiple times, the
+underlying computation is run only once.
+And that's the behavior that we get
+here by using the AsyncSubject.
+So, if you subscribe to this subject,
+it will always kind of give you the last
+value without rerunning the computations.
+Right?
+It's a subtle
+side effects are always subtle.
+You have to think hard about them to make
+sure that they don't get duplicated, or
+that things get run more than once.
+So, this code here is quite subtle,
+and therefore, you know,
+you shouldn't write these things yourself.
+The Rx library has most of these operators
+where, you know, all the details
+are taken care of, for you such that
+you don't have to worry about that.
+Now, the other thing if we
+look at the class Try of T,
+what we see is that really
+the two cases of success, and
+failure were represented
+by data structures, okay?
+And if you remember one of the very,
+very first lectures, where I said,
+oh, but if you get a function
+that takes a Try of T as a,
+a parameter, the first thing you're going
+to do is you're going to pattern match
+on these two cases, and
+you're going to use to functions.
+One that takes a T to unit, say, and the
+other one that takes a Throwable to unit.
+So, instead, of materializing
+the Try of T into a data structure,
+and then destructing it
+using pattern matching,
+you might as well immediately
+pass the two functions.
+But, of course, maybe in Rx,
+you want to do the same as Try of T.
+You want to materialize the Notifications.
+So, instead of, you know,
+passing three call backs,
+you might want to get an Observable, just
+like you want to get the Future of Try,
+you want to get an Observable
+of something that represents,
+you know, OnNext,
+OnError, and OnCompleted.
+And for that,
+we have the idea of a Notification, so
+a Notification is either OnNext,
+OnError, and OnCompleted.
+So, that's a data
+structure that represents
+the signal that sent on an Observable.
+And there's a function here materialize,
+that takes an observable of T, and
+turns it into an Observable
+of Notification of T.
+All right?
+And now, when you subscribe to this thing,
+you get, you have to put,
+your subscription has to pass a function
+from Notification of T to unit,
+just as what you got toward the Future.
+Okay?
+So, you can always kind of
+move between these two things.
+So, pattern matching, or
+passing the function separately.
+It's all the same thing.
+It's whatever you feel
+most comfortable with.
+Okay, so here's a marble diagram for
+materialize, and, you know,
+we materialize this thing.
+We see we get two onNext
+followed by an onComplete, and
+then the funny thing is that,
+that stream completes itself.
+So, there's two onCompletes because
+there's the onComplete that's
+materialized, but now,
+this materialized stream also completes.
+Okay.
+Now, the other things that we had
+with Futures was that we could block,
+and remember, I said that was really bad,
+you should never block because once you
+block, you know,
+all the asynchrony basically, evaporates.
+And, the same is true for Observables,
+once you are in Observable land everything
+should stream, you should never block.
+But sometimes, you know, for
+whatever reason, probably, you want to do
+debugging, or you want to do a little
+demo script, you want to block.
+And for that,
+we have an operator called toBlocking.
+And you know, really it should be called
+toBlocking is unsafe make sure that,
+you know what you're doing,
+if you're using this operator,
+something kind of ridiculous like that,
+but, you know?
+We just called it toBlocking, and
+what this returns is a blocking
+Observable that has ce,
+certain kind of convenience
+methods defined on it.
+And this kind of, you know, just blocks
+until the Observable is done and
+here's an example.
+So, we're going to do interval take(5).
+We say, toBlocking, and
+then we can do a list, and
+then we can print the list, and,
+or we can say, toBlocking, and
+make sure that's a single value, and
+if it's not one element, it, it will true.
+All right, but again, the,
+you should really not be using
+toBlocking except, for
+small demo programs.
+So, and, you know, you can look in
+the IntelliSense when you do toBlocking,
+or what matches there are.
+And but,
+I really recommend against using this.
+Once you're in a streaming
+Asynchronous world,
+you should never block in the first place.
+Okay, the next thing is some of
+the higher order operators that
+are available on interval, as well.
+And you might have questioned why,
+where is reduce?
+Where, or where is fault left,
+and fault right?
+And the thing is again,
+if you're in a Asynchronous world,
+reducing a value to a scalar type
+doesn't make a lot of sense.
+So, for example, if I want to
+reduce a stream to a single value.
+Well, this stream might be infinite.
+You know, or you want to kind of you know,
+it's like you have wait for
+a long time until you
+get the resulting value.
+And so, you'd,
+you usually don't use re, reduce a lot.
+And another difference is that,
+in just like a SQL,
+when you do a reduction on a table,
+you get back a table with a single row.
+And the same here, when in Rx,
+you reduce a stream to a single value,
+you don't get a scalar, you get
+an Observable that has that single value.
+All right?
+Whereas, with interval,
+when you reduce it, you will get a scalar.
+But here in this case we say, you know,
+once you're in the Observable monad,
+there's no way to escape,
+except, via toBlocking, and then
+you make it explicit that you're doing
+something bad, and something dangerous.
+As a last example, I want to show you, how
+to create an Observable from an interval.
+All right?
+And then, of course, you can also go
+from an interval, from an Observable
+to an interval with toBlocking, but
+I want to kind of go the other way now.
+Okay?
+So, but
+in some sense,
+you can go in both directions.
+And here, what we do is we're using
+the apply method that takes a subscriber,
+and returns Unit.
+And what we typically do here is we're go,
+just going to kind of take the interval,
+we're for reaching over it, and
+as long as we're not unsubscribed
+we're going to call onNext,
+when we're done we call onCompleted.
+Now, this can lead to problems
+because imagine that, you know?
+I have now, I subscribed to this,
+running on a different thread.
+Now, the consumer might be
+much slower than the producer.
+Okay?
+And in that case, it means,
+that we have to do unlimited buffering.
+For that Rx has a notion of Backpressure,
+and again,
+that's outside the scope of this course,
+but
+in the gem sessions, we will have
+a demo to show you how easy it
+is to add that Backpressure
+support in these cases.
+All right?
+And you can also go to the RX wiki,
+and there's a whole section
+that explains all the strategies
+that you can use to do Backpressure.
+So, that's the case where the consumer,
+and
+the producer are and
+don't run at the same speed.
+And you want to prevent build up
+of unlimited internal buffers.
+All right.
+Thanks.
+That was already again, the end of the,
+our RX Potpourri and see you next week.
+

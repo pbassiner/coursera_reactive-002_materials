@@ -1,0 +1,277 @@
+Hey, welcome back.
+One of the topics that we
+didn't really drill in,
+we mentioned it in passing kind of,
+you know, is the idea of subscriptions.
+When we derive observables and
+observer from iterable iterator,
+we mentioned that in observable for
+operational reasons,
+we wanted to be able to remove
+the observer from an observable when,
+you know, the consumer was not interested
+anymore in receiving more values.
+In this lecture, we're going to kind
+of drill in a little bit
+into the subscription type.
+Here's example of earthquakes.
+So we have a stream of earthquakes and
+we subscribe to this twice.
+Okay?
+So then we get back to subscriptions,
+as one and as zero.
+And the important thing here is
+that when we unsubscribe as one,
+so we remove the first observer here,
+that s2 will keep receiving
+earthquake notifications.
+But s1 or observer one, I should say,
+will not receive anymore.
+Okay?
+Now sometimes, we but
+when we say, subscription and,
+you know, unsubscribe,
+we mean cancel or we say, cancel.
+But that's not really the case, right?
+Because both, the, the other one
+keeps receiving notifications.
+Now, you know,
+together with this notion of subscription
+comes the idea of hot
+versus cold observables.
+And this idea is also present for
+iterables,
+but maybe it's not so
+apparent as with observables,
+but it, it happens there as well.
+So what is a cold observable?
+Well, a cold observable is when
+you subscribe to an observer,
+you get your own private
+copy of the string.
+So, in this case, because the way we
+implemented the code using retrofit.
+Whenever we subscribe to the earthquake's
+stream, they're creating
+a separate connection to the US Geological
+Server Service and you will kind
+of keep receiving your own values and
+that's called a cold observable.
+Another example of a cold observable
+is say that you want to create
+a stream of random numbers.
+Now, every time you
+subscribe to that stream,
+you want to get your own
+copy of random numbers.
+You don't want to share the random numbers
+between the different subscribers.
+So, one way to look at the cold
+observable is as an observable,
+where the subscription
+causes a side effect.
+So you subscribe to a stream,
+you get back a subscription and
+that function call will
+have a side effect.
+And that subscription kind of represents
+your own private copy of the stream.
+A hot observable is slightly different and
+there,
+you often think about a UI event,
+for example.
+If you look at mouse moves,
+the mouse is moving no matter what.
+So, if you subscribe to mouse moves,
+you're all kind of listening
+to the same underlying stream.
+And there one way to look at that,
+it's that subscribing to that
+stream has no effect, because you're
+not getting your private copy.
+So your subscription is
+all shared together.
+In the jam sessions,
+we will show some concrete examples of
+this where you can see the difference.
+But for now think of simple, you know,
+when you subscribe to an observable that
+subscribe action can have a side effect.
+In which case, we call it hot or
+it can have no side effect.
+Sorry, in that case, we have it cold.
+When it does not have a side effect,
+we call it hot.
+All right.
+So as I said, we often confuse the word
+cancellation and unsubscribing.
+But in general, when you have two
+subscriptions to one observable and
+one of the subscriptions is unsubscribed
+it has no influence on the other.
+So you're not cancelling
+the underlining computation and
+also, you know you,
+you it depends on the stream.
+If the stream is hot, you don't want
+to,even if there's no subscribers,
+you might not want to kill
+the underlying computation.
+Because later,
+a new subscriber might come in and
+then you want to kind of
+catch on where you were.
+You don't want to kind of introduce yet,
+another side effect.
+So these are all subtle issues
+when you are implementing your own
+observables to keep in mind.
+But again, there's no difference if you
+create your own iterables by implementing
+iterable and iterator directly, you have
+to think about all these issues as well.
+Okay.
+Let's now zoom in into
+our subscription type.
+So subscription has two methods.
+It's unsubscribe that you can check
+whether the subscription has been
+unsubscribed and then there's a side
+effecting function here, the unsubscribe
+that just kind of removes the observer
+that corresponds to the subscription.
+There's also a constructor for
+a subscription, so
+you can give it a function that returns
+units that's just as a side effect and
+you get back a subscription.
+Now the interesting part of subscriptions
+is that they form an interesting algebra.
+Okay?
+So
+there's at least three kinds
+of subscriptions in RX.
+The first one is a composite
+subscription and
+that represents a group of subscriptions
+that this unsubscribed together.
+So you kind of, you know,
+pull all your subscriptions together.
+And when you unsubscribe
+the outer subscription,
+all the inner subscriptions
+get unsubscribed.
+The second one is the multiple
+assignment subscription,
+which is a subscription that
+you can kind of, you know,
+replace it's called multiassignment
+subscription, sorry.
+So you can replace the underlying
+subscription and then there's the serial
+subscription, which is a special case
+of a multiassignment subscription.
+But where you kind of resubscr,
+when you subscribe another one,
+then the underlying subscription,
+the previous one gets unsubscribed.
+Okay?
+Whereas here, it just gets swapped out.
+Let's look at a concrete example.
+I create a new subscription.
+This call unsubscribe, this will
+print bye, bye, I'm gone fishing.
+When go subscribe again,
+it will do nothing.
+So we assume that
+subscriptions are item potent.
+So when you call them
+the action happens once,
+then the subscription is unsubcribed.
+You call unsubscribe again and
+nothing happens.
+And that's the reason that we have this
+unsubscribe, is unsubscribed state,
+because there's a big difference
+between a subscription that is still,
+you know, yet to be unsubscribed and a
+subscription that is already unsubscribed.
+But typically, it's item potent.
+All right.
+Here's another example where we are kind
+of, you know, doing the same thing, but
+then, we're printing isUnsubscribed.
+In this case, it will return false.
+And in this case, it will return true.
+So, after you unsubscribe calling
+isUnsubscribed will return true.
+Here's an simple example of
+a composite subscription.
+As I said, it's a group of subscriptions.
+So, if I have subscriptions A and B,
+I add them to my composite subscription.
+I ask are you unsubscribed?
+It says, no, because, you know,
+it's not yet unsubscribed.
+Now, I unsubscribe the composite and
+now the inner ones will be unsubscribed.
+And what happens you can ask yourself now,
+imagine that I have a composite
+subscription that's already unsubscribed.
+And now, I add a new subscription to that,
+subscription C.
+What will happen?
+Well, the, the giant choice we
+made is that when you add a new
+subscription to an already
+unsubscribed composite subscription,
+that new subscription will
+immediately be unsubscribed.
+Here, it's so that's kind of what happens.
+So, if it's not yet
+subscribed, nothing happens.
+If it's already unsubscribed,
+it will be immediately unsubscribed.
+Here's an example of
+the multiassignment subscription.
+We have a multiassignment
+subscription that has A.
+When we swap it out for
+C, nothing happens to A.
+When we unsubscribe it,
+then again when we add C to it,
+she will be immediately unsubscribed and
+that's what we see here.
+And the the the last one,
+the serial subscription
+as I said is where you're
+immediately unsubscribed
+the underlying subscription.
+So that was the,
+the algebra of subscriptions.
+In general, you know,
+typically the subscriptions are used
+not in user code, but
+when you implement your own operator.
+And we will see later when we
+talk about the creation of,
+of observable sequences there.
+The notion of subscription comes in.
+But otherwise,
+what you typically get is, you know,
+you subscribe to something and
+you get a subscription.
+And sometimes, you combine them
+if you want to pass it around.
+But in general, you know, the,
+this whole algebra of subscriptions
+is used inside other operators.
+All right?
+So this was a short brief
+introduction to subscriptions.
+I invite you to play around with them.
+There will be a couple of
+exercises in the labs about them.
+And hope you're having fun.
+Thank you.
+

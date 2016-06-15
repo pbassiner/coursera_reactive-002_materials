@@ -1,0 +1,640 @@
+1
+00:00:00,000 --> 00:00:04,563
+Hi there,
+we just finished simplifying the two
+
+2
+00:00:04,563 --> 00:00:09,696
+threads interval into one
+type that only has arrows,
+
+3
+00:00:09,696 --> 00:00:14,714
+and the reason we did that is
+that we wanted to used our
+
+4
+00:00:14,714 --> 00:00:19,734
+magic dualization trick to
+reverse the arrows, and
+
+5
+00:00:19,734 --> 00:00:27,250
+that requires us to have a type that
+is just expressed in terms of arrows.
+
+6
+00:00:27,250 --> 00:00:29,400
+So here's our type iterable.
+
+7
+00:00:29,400 --> 00:00:33,890
+It's a factory of factories
+
+8
+00:00:33,890 --> 00:00:39,010
+of values where the values can
+either be a single value or
+
+9
+00:00:39,010 --> 00:00:44,300
+nothing, or the whole creation
+of the value might fail.
+
+10
+00:00:44,300 --> 00:00:46,050
+And I love this type.
+
+11
+00:00:46,050 --> 00:00:50,830
+I mean, this type,
+there's no noise of traits or anything.
+
+12
+00:00:50,830 --> 00:00:54,690
+It's just the essence
+of what an iterable is.
+
+13
+00:00:54,690 --> 00:00:59,210
+It's a factory of factories, and
+that's also beautiful by itself.
+
+14
+00:01:00,400 --> 00:01:05,140
+But we're not going to talk
+about iterables anymore.
+
+15
+00:01:05,140 --> 00:01:09,080
+We're going to talk about
+the dual of iterables.
+
+16
+00:01:09,080 --> 00:01:15,140
+Namely a push based type
+where we can get sequences of
+
+17
+00:01:15,140 --> 00:01:19,580
+values in an asynchronous way
+because here you see that here the,
+
+18
+00:01:19,580 --> 00:01:21,360
+here you can see the synchrony.
+
+19
+00:01:21,360 --> 00:01:21,880
+Right?
+
+20
+00:01:21,880 --> 00:01:25,410
+I have a function from unit to try of T,
+and
+
+21
+00:01:25,410 --> 00:01:29,630
+that function is going to block
+until the next value arrives.
+
+22
+00:01:30,850 --> 00:01:37,340
+So let's turn the arrows around,
+flip the arrows around, and there we go.
+
+23
+00:01:37,340 --> 00:01:39,420
+We just flipped the arrows around.
+
+24
+00:01:39,420 --> 00:01:44,480
+And what we're going to do now is we're
+going to do the dual of simplification
+
+25
+00:01:44,480 --> 00:01:46,370
+which is complexification, so
+
+26
+00:01:46,370 --> 00:01:50,810
+we're going to take this type here and
+we're going to complexify it.
+
+27
+00:01:50,810 --> 00:01:54,570
+I'm not going to try to understand
+what it means right now.
+
+28
+00:01:54,570 --> 00:01:59,750
+The first thing I'm going to do is
+I'm going to complexify this type.
+
+29
+00:01:59,750 --> 00:02:06,250
+And complexify means that just
+when we remove traits and
+
+30
+00:02:06,250 --> 00:02:12,270
+turn them into functions we're going
+to now turn functions back into traits.
+
+31
+00:02:12,270 --> 00:02:15,060
+All right?
+So that's what I mean by complification.
+
+32
+00:02:16,580 --> 00:02:19,570
+So the first thing is to
+give this guy a name.
+
+33
+00:02:19,570 --> 00:02:23,640
+And let's call this type observable of T.
+
+34
+00:02:23,640 --> 00:02:29,970
+Fo, observable f,
+t is a setter of a setter, like this.
+
+35
+00:02:29,970 --> 00:02:30,870
+Okay.
+
+36
+00:02:30,870 --> 00:02:35,172
+Now, the first thing we're
+going to do is now look
+
+37
+00:02:35,172 --> 00:02:39,480
+at what part of this we can
+turn into its own thing.
+
+38
+00:02:39,480 --> 00:02:44,115
+And the first thing we're
+going to do here is to look at
+
+39
+00:02:44,115 --> 00:02:46,597
+this ugly try of option of t.
+
+40
+00:02:46,597 --> 00:02:50,892
+And, you know, as I said, it,
+it requires better matching, and
+
+41
+00:02:50,892 --> 00:02:55,725
+all the complexity, and in the end,
+the way you look at a function that does
+
+42
+00:02:55,725 --> 00:03:00,597
+pattern matching on a value of try of
+option of T, it will have three cases.
+
+43
+00:03:00,597 --> 00:03:04,371
+The try case, so that's,
+you get a throwable.
+
+44
+00:03:04,371 --> 00:03:08,967
+If it's not a throwable then there's
+two cases when there's nothing or
+
+45
+00:03:08,967 --> 00:03:10,860
+where there's just a value.
+
+46
+00:03:10,860 --> 00:03:12,000
+All right?
+
+47
+00:03:12,000 --> 00:03:17,060
+So when we pattern match over
+a function that has an argument
+
+48
+00:03:17,060 --> 00:03:21,720
+drive object of T really we get three
+cases, and those are the function.
+
+49
+00:03:21,720 --> 00:03:25,270
+So we just split this into
+these three functions.
+
+50
+00:03:25,270 --> 00:03:30,330
+So instead of tryOption of T to unit,
+we get three functions.
+
+51
+00:03:30,330 --> 00:03:34,750
+Now we see three functions, so
+what are we going to do with that?
+
+52
+00:03:34,750 --> 00:03:40,090
+Well, we're going to put those into its
+own type, and then substitute it in there.
+
+53
+00:03:40,090 --> 00:03:42,080
+So what is an observable now?
+
+54
+00:03:42,080 --> 00:03:45,020
+It's a function from observer to unit.
+
+55
+00:03:45,020 --> 00:03:49,090
+And an observer is a triple of functions.
+
+56
+00:03:49,090 --> 00:03:52,280
+Good, so
+now we have split the rope there and
+
+57
+00:03:52,280 --> 00:03:57,390
+now we're going to continue to
+complexify because instead of
+
+58
+00:03:57,390 --> 00:04:03,150
+having a triple of functions we're
+going to put those in a trait.
+
+59
+00:04:03,150 --> 00:04:06,420
+Then what we're going to do at the same
+time is we're going to turn these
+
+60
+00:04:06,420 --> 00:04:09,650
+functions Into definitions.
+
+61
+00:04:09,650 --> 00:04:12,750
+All right.
+So this triple of three functions becomes
+
+62
+00:04:12,750 --> 00:04:19,100
+one trade with three methods,
+onError, onCompleted and onNext.
+
+63
+00:04:19,100 --> 00:04:22,700
+And nothing here changes, right?
+
+64
+00:04:22,700 --> 00:04:26,580
+So the observable still
+takes an observer to unit.
+
+65
+00:04:27,860 --> 00:04:32,360
+But I just want to leave this here to
+remind you that these three functions
+
+66
+00:04:32,360 --> 00:04:36,488
+are now represented by that single trait.
+
+67
+00:04:36,488 --> 00:04:41,460
+Okay, continue complexification.
+
+68
+00:04:41,460 --> 00:04:46,682
+What we're going to do now is we're
+going to turn this observable Into it's
+
+69
+00:04:46,682 --> 00:04:52,230
+rate as well, by introducing a method,
+and let's call that method subscribe,
+
+70
+00:04:52,230 --> 00:04:56,167
+and that then takes an observer and
+returns unit, okay?
+
+71
+00:04:56,167 --> 00:05:02,221
+So, all we have done is we have
+kind of split this complicated
+
+72
+00:05:02,221 --> 00:05:06,986
+entry of option of T arrow
+unit into this trait.
+
+73
+00:05:06,986 --> 00:05:12,280
+And then we have introduced a trait for
+observable as well that takes an observer.
+
+74
+00:05:12,280 --> 00:05:15,910
+It's all straightforward,
+these things are all equal.
+
+75
+00:05:17,360 --> 00:05:23,480
+So here is our type after dualization.
+
+76
+00:05:23,480 --> 00:05:26,940
+And now it's time to
+interpret what this means.
+
+77
+00:05:26,940 --> 00:05:32,260
+Well, And
+observable is something that I can feed
+
+78
+00:05:32,260 --> 00:05:38,090
+a go back and
+that go back consists of three functions.
+
+79
+00:05:38,090 --> 00:05:40,380
+What happens when there's a regular value?
+
+80
+00:05:42,290 --> 00:05:48,250
+And the difference with futures is that
+this go back can be called many times,
+
+81
+00:05:48,250 --> 00:05:49,790
+zero or more.
+
+82
+00:05:49,790 --> 00:05:53,540
+And then the, so it represents a stream.
+
+83
+00:05:53,540 --> 00:05:59,810
+And then the stream can either complete
+normally or complete with an error.
+
+84
+00:05:59,810 --> 00:06:00,450
+All right?
+
+85
+00:06:00,450 --> 00:06:04,320
+So really it's, it's a little bit like
+in Java where you have a button and
+
+86
+00:06:04,320 --> 00:06:08,090
+a button has different call backs for
+clicks and mouseover and whatever.
+
+87
+00:06:08,090 --> 00:06:09,390
+So the same here.
+
+88
+00:06:09,390 --> 00:06:14,360
+There's an observable that
+takes a a trait that has
+
+89
+00:06:14,360 --> 00:06:18,980
+callbacks for
+various different events that can happen.
+
+90
+00:06:18,980 --> 00:06:24,620
+And, delivery of a value,
+the end of a stream or an exception.
+
+91
+00:06:26,670 --> 00:06:30,640
+Now the truth is a little
+bit more complicated,
+
+92
+00:06:30,640 --> 00:06:35,280
+because just like with a button where,
+where you have an event,
+
+93
+00:06:35,280 --> 00:06:40,580
+you add an event handler or a call back,
+you might want to remove the call back.
+
+94
+00:06:40,580 --> 00:06:41,340
+All right?
+
+95
+00:06:41,340 --> 00:06:46,680
+And what we do here is we
+have that when you subscribe
+
+96
+00:06:46,680 --> 00:06:52,110
+to an observable, with an observer,
+what you get back is a subscription.
+
+97
+00:06:52,110 --> 00:06:56,960
+And a subscription is this thread
+that allows you to unsubscribe.
+
+98
+00:06:56,960 --> 00:07:00,762
+It means,
+remove this observer from this observable.
+
+99
+00:07:00,762 --> 00:07:07,489
+And, when you know JavaScript or
+any language that uses events or
+
+100
+00:07:07,489 --> 00:07:12,859
+call backs like C# or
+as I said, JavaScript.
+
+101
+00:07:12,859 --> 00:07:16,692
+You have the same mechanism you can
+add an event and earn and do it,
+
+102
+00:07:16,692 --> 00:07:18,304
+and then you can remove it.
+
+103
+00:07:18,304 --> 00:07:23,632
+And in this case we remove it is
+by returning a special object with
+
+104
+00:07:23,632 --> 00:07:29,157
+a matter to remove it, and
+then you have a bouillon here as well that
+
+105
+00:07:29,157 --> 00:07:34,510
+you can check whether the,
+the call back has been removed.
+
+106
+00:07:35,760 --> 00:07:38,400
+All right, so
+let's put them side by side, and
+
+107
+00:07:38,400 --> 00:07:43,070
+now you see here, observable,
+it has this notion of subscription.
+
+108
+00:07:43,070 --> 00:07:47,200
+The onNext, onError, and
+onCompleted are really, kind of,
+
+109
+00:07:47,200 --> 00:07:51,410
+you know, encoding of these two methods
+plus the fact that this can throw.
+
+110
+00:07:51,410 --> 00:07:55,310
+And then you see here that
+the iterable and iterate.
+
+111
+00:07:55,310 --> 00:07:59,980
+I'm sorry, the iterable and
+the observable are similar
+
+112
+00:07:59,980 --> 00:08:05,328
+except that one returns an iterator and
+the other one takes an observer.
+
+113
+00:08:05,328 --> 00:08:10,510
+Now, in .NET and in other languages
+
+114
+00:08:10,510 --> 00:08:15,270
+the iterators,
+also have a notion of subscription.
+
+115
+00:08:15,270 --> 00:08:19,820
+Because if you're iterating over
+a collection, the consumer might want to
+
+116
+00:08:19,820 --> 00:08:24,800
+tell the producer I'm not
+interested in any more values.
+
+117
+00:08:24,800 --> 00:08:28,960
+And in that case it can be
+that the iterable iterator,
+
+118
+00:08:30,250 --> 00:08:33,660
+traits also have a notion of subscription.
+
+119
+00:08:33,660 --> 00:08:36,990
+But in Scholar and
+in Java that's not the case.
+
+120
+00:08:36,990 --> 00:08:42,170
+But if you look in Dart or
+C# there is the case.
+
+121
+00:08:43,812 --> 00:08:47,970
+All right, so
+now we have seen all four effects.
+
+122
+00:08:47,970 --> 00:08:57,090
+We started out with Try of T to make
+clear that computation could fail.
+
+123
+00:08:57,090 --> 00:08:59,470
+Then we moved on to futures.
+
+124
+00:08:59,470 --> 00:09:02,310
+Riches and monads that an effect,
+
+125
+00:09:02,310 --> 00:09:07,300
+that tells you that a computation
+takes time, and can fail.
+
+126
+00:09:07,300 --> 00:09:12,500
+We show that these two were
+connected via duralization.
+
+127
+00:09:12,500 --> 00:09:15,130
+Then we looked at synchronous collections.
+
+128
+00:09:15,130 --> 00:09:19,710
+So collections, of values where you pull,
+where you block.
+
+129
+00:09:19,710 --> 00:09:22,860
+Just like, you know, when you have
+a function here that you block.
+
+130
+00:09:22,860 --> 00:09:27,690
+And then we use the same dualization
+trick to go from here to here.
+
+131
+00:09:29,160 --> 00:09:29,830
+All right.
+
+132
+00:09:29,830 --> 00:09:31,166
+Thank you so much.
+
+133
+00:09:31,166 --> 00:09:36,103
+Now we know how all these
+four effects are deeply
+
+134
+00:09:36,103 --> 00:09:40,803
+connected via the magic
+of category theory.
+
+135
+00:09:40,803 --> 00:09:42,370
+Thank you so much and see you next time.
+
