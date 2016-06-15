@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html class="supports-svg" xmlns:fb="http://ogp.me/ns/fb#" itemtype="http://schema.org"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=IE7"><meta name="fragment" content="!"><meta name="robots" content="NOODP"><meta charset="utf-8"><meta property="og:title" content="Coursera"><meta property="og:type" content="website"><meta property="og:image" content="http://s3.amazonaws.com/coursera/media/Coursera_Computer_Narrow.png"><meta property="og:url" content="https://www.coursera.org/assignment/view?assignment_id=21"><meta property="og:site_name" content="Coursera"><meta property="og:locale" content="en_US"><meta property="og:description" content="Take free online classes from 80+ top universities and organizations. Coursera is a social entrepreneurship company partnering with Stanford University, Yale University, Princeton University and others around the world to offer courses online for anyone to take, for free. We believe in connecting people to a great education so that anyone around the world can learn without limits."><meta property="fb:admins" content="727836538,4807654"><meta property="fb:app_id" content="274998519252278"><meta name="twitter:site" content="Coursera"><meta name="twitter:app:name:iphone" content="Coursera"><meta name="twitter:app:name:ipad" content="Coursera"><meta name="twitter:app:name:googleplay" content="Coursera"><meta name="twitter:app:id:iphone" content="id736535961"><meta name="twitter:app:id:ipad" content="id736535961"><meta name="twitter:app:id:googleplay" content="org.coursera.android"><meta name="description" content="Take free online classes from 80+ top universities and organizations. Coursera is a social entrepreneurship company partnering with Stanford University, Yale University, Princeton University and others around the world to offer courses online for anyone to take, for free. We believe in connecting people to a great education so that anyone around the world can learn without limits."><meta name="image" content="http://s3.amazonaws.com/coursera/media/Coursera_Computer_Narrow.png"><meta name="apple-itunes-app" content="app-id=736535961"><title>Coursera</title>    <link href="assignment_files/spark.css" rel="stylesheet" type="text/css">
+      <link href="assignment_files/course.asc" rel="stylesheet" type="text/css">
+    <link href="https://spark-public.s3.amazonaws.com/reactive/static/images/favicon.ico" rel="icon">
+<script src="assignment_files/ga.js" async="" type="text/javascript"></script><script src="assignment_files/routes.js" data-requiremodule="pages/spark/routes" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/MathJax.js" type="text/javascript"></script><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><meta content="summary" name="twitter:card"><meta content="Coursera" name="twitter:title"><meta content="Take free online classes from 80+ top universities and organizations. Coursera is a social entrepreneurship company partnering with Stanford University, Yale University, Princeton University and others around the world to offer courses online for anyone to take, for free. We believe in connecting people to a great education so that anyone around the world can learn without limits." name="twitter:description"><meta content="http://s3.amazonaws.com/coursera/media/Coursera_Computer_Narrow.png" name="twitter:image:src"><script src="assignment_files/204.js" data-requiremodule="js/lib/204" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/400.js" data-requiremodule="js/lib/400" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/student-page_003.js" data-requiremodule="pages/spark/views/template/student-page" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/student-page_002.js" data-requiremodule="pages/spark/views/template/student-page.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sparkSurveyQuestionsSessionModel.js" data-requiremodule="bundles/assess/assessmentTypes/sparkSurveyQuestions/sparkSurveyQuestionsSessionModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sessionModel.js" data-requiremodule="bundles/assess/assessmentTypes/quickQuestions/sessionModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/student-page.js" data-requiremodule="pages/spark/views/template/nls/student-page" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/SessionModel.js" data-requiremodule="bundles/assess/assessmentTypes/SessionModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/QuestionCollection.js" data-requiremodule="bundles/assess/framework/QuestionCollection" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/QuestionModel.js" data-requiremodule="bundles/assess/framework/QuestionModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/backbone.js" data-requiremodule="bundles/assess/lib/backbone.hascollections" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/underscore.js" data-requiremodule="js/lib/underscore.extend" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/header.js" data-requiremodule="pages/spark/views/template/header" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sidebar.js" data-requiremodule="pages/spark/views/template/sidebar" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/readme.js" data-requiremodule="js/lib/readme" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/header_002.js" data-requiremodule="pages/spark/views/template/header.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/LearnerStoriesCollection.js" data-requiremodule="pages/analytics/models/LearnerStoriesCollection" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/assessApi.js" data-requiremodule="pages/spark-survey/assessApi" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sidebar_003.js" data-requiremodule="pages/spark/views/template/sidebar.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/signature_track.js" data-requiremodule="spark/app/signature/js/signature_track" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/header_003.js" data-requiremodule="pages/spark/views/template/nls/header" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/sidebar_002.js" data-requiremodule="pages/spark/views/template/nls/sidebar" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/LearnerStoryModel.js" data-requiremodule="pages/analytics/models/LearnerStoryModel" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/signatureTrackLastChanceModal.js" data-requiremodule="spark/app/signature/js/signatureTrackLastChanceModal.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/flexjoinLastChanceModal.js" data-requiremodule="spark/app/signature/js/flexjoinLastChanceModal.html" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/util.js" data-requiremodule="js/lib/util" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><script src="assignment_files/path.js" data-requiremodule="js/lib/path" data-requirecontext="_" async="" charset="utf-8" type="text/javascript"></script><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuTitle {background-color: #CCCCCC; margin: -5px 0 0 0; text-align: center; font-style: italic; font-size: 80%; color: #444444; padding: 2px 0; overflow: hidden}
+.MathJax_MenuArrow {position: absolute; right: .5em; color: #666666}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_Menu_Close {position: absolute; width: 31px; height: 31px; top: -15px; left: -15px}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style></head><body><div style="display: none;" id="MathJax_Message"></div><div id="fb-root"></div><div id="spark-help" class="hide"></div><a href="https://learner.coursera.help/hc/requests/new" target="_blank"><div style="z-index: 1" data-networkprioritysupportwidget="" role="button" class="helpwidget-tab hide">Premium Support</div></a><!-- - track IE8 and less browser for eventing purposes--><!--[if lte IE 8]><script>window._204 = window._204 || [];
+window._gaq = window._gaq || [];
+window._gaq.push(
+    ['_setAccount', 'UA-28377374-1'],
+    ['_setDomainName', window.location.hostname],
+    ['_setAllowLinker', true],
+    ['_trackPageview', window.location.pathname]);
+window._204.push(
+  ['client', 'home'],
+  {key:"pageview", value:window.location.pathname});</script><script src="https://dw0ugk4msqulk.cloudfront.net/61a7c1335d196f1295e3341330ed120d255fe89d/js/lib/204.js"></script><script src="https://ssl.google-analytics.com/ga.js"></script><![endif]--><div id="fb-root"></div><div id="origami" data-js="origami"><div><div><div class="coursera-page"><div class="coursera-header" role="menubar"><div class="hidden">This page features MathJax technology to render mathematical formulae.
+If you are using a screen reader, please visit <a href="http://www.dessci.com/en/products/mathplayer/">MathPlayer</a> to download the plugin for your browser. Please note that this is an Internet Explorer-only plugin at this time.</div><h1 class="hidden">Principles of Reactive Programming</h1><!-- UNTIL dashboard announcement expires 2014-12-01 (then delete this code)--><div class="helpcenter-announcement"><div style="visibility: visible; display: none;" class="readme" data-readme="helpcenter-announcement" data-readme-show-count="1" data-readme-show-until-closed="data-readme-show-until-closed" data-readme-expires="Mar 31, 2015"><div>Need technical help? Visit our new&nbsp;<a href="https://learner.coursera.help/" data-readme-close="data-readme-close">Learner Help Center!</a></div><div data-readme-close="data-readme-close" class="readme-close-icon"><span class="icon-remove"></span></div></div></div><div role="banner" class="course-topbar container-fluid"><div class="row-fluid"><div class="span3"><a href="https://www.coursera.org/" data-if-linkable="add-referrer" class="course-topbar-logo"></a></div><div style="float:right;" class="course-topbar-nav-container span9"><h2 class="hidden">Top Navigation Bar</h2><ul class="course-topbar-nav-list"><li class="course-topbar-nav-list-item"><a href="https://www.coursera.org/courses" data-if-linkable="add-referrer">Courses</a></li><li tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" aria-owns="course-topbar-my" data-popup="#course-topbar-my" data-popup-bind-open="mouseenter" data-popup-close="data-popup-close" style="cursor:pointer;" data-popup-direction="se" class="course-topbar-nav-list-item"><a data-user-id="4452529">Pol Bassiner<i class="icon-caret-down"></i></a></li></ul></div></div><div id="course-topbar-aboutus" class="course-topbar-sublist"><a href="https://www.coursera.org//about/" target="_new" data-if-linkable="add-referrer" class="internal-about course-topbar-sublist-item">About Us</a><a href="https://www.coursera.org//about/careers" target="_new" data-if-linkable="add-referrer" class="internal-about course-topbar-sublist-item">Careers</a><a href="https://www.coursera.org//about/people" target="_new" data-if-linkable="add-referrer" class="internal-about course-topbar-sublist-item">People</a><a href="https://www.coursera.org//about/contact" target="_new" data-if-linkable="add-referrer" class="internal-about course-topbar-sublist-item">Contact Us</a></div><div id="course-topbar-my" class="course-topbar-sublist"><a data-popup-close="data-popup-close" href="https://www.coursera.org/" target="_new" class="course-topbar-sublist-item">My Courses</a><a data-popup-close="data-popup-close" href="https://www.coursera.org/account/profile" target="_new" class="course-topbar-sublist-item">Profile</a><a data-popup-close="data-popup-close" href="https://www.coursera.org/account/accomplishments" target="_new" class="course-topbar-sublist-item">Course Records</a><a href="https://www.coursera.org/account/settings" target="_new" class="course-topbar-sublist-item">Settings</a><a href="https://class.coursera.org/reactive-002/class/preferences" class="course-topbar-sublist-item">Course Preferences</a><form action="/api/logoutSsr/v1?csrf3-token=1466229970.ZrUTwtrgt5rjI53y" method="post"><button data-popup-close="data-popup-close" type="submit" class="course-topbar-sublist-item">Sign Out</button></form></div></div><div class="course-topbanner-wrapper"><div class="course-topbanner"><div class="course-topbanner-university-logo"><a href="https://www.coursera.org/epfl" target="_blank" data-if-linkable="add-referrer" title="https://www.coursera.org/epfl" class="coursera-university-color"><img src="assignment_files/university_logo.asc" alt="epfl"></a></div><h1 class="course-topbanner-header"><a href="https://class.coursera.org/reactive-002/" data-if-linkable="modal-lock" class="course-topbanner-name coursera-university-color">Principles of Reactive Programming</a><br><span style="" class="course-topbanner-instructor">by Martin Odersky, Erik Meijer, Roland Kuhn</span></h1></div></div></div><div style="position:relative;" class="container-fluid"><div class="row-fluid"><div id="course-page-sidebar" role="navigation"><div class="coursera-sidebar" role="menubar"><div id="course-page-sidebar" role="navigation"><div class="course-navbar-container"><a href="https://class.coursera.org/reactive-002" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_index"><img src="assignment_files/logo.asc" style="width: 205px;height: 116px;margin: -15px 0px 8px 1px; box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.05);" alt="Course Home Page"></a><div data-coursera-course-search-nav-widget="data-coursera-course-search-nav-widget" class="input-append course-search-nav-box"><form method="get" action="/reactive-002/class/search" data-js-search-form="data-js-search-form" class="form-inline minimized-search"><label for="course-search-nav-input" class="accessible-text-for-reader">Search this course</label><input id="course-search-nav-input" name="q" data-js-search-input="data-js-search-input" type="text">&nbsp;<button type="submit" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="search" class="btn icon-search"><span class="accessible-text-for-reader">Search</span></button></form></div><h2 class="hidden">Side Navigation Bar</h2><ul class="course-navbar-list"><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/class/index" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Home" class="coursera-university-color"><span>Home </span><span></span></a></li><li class="course-navbar-item"></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/lecture/index" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Video_Lectures" class="coursera-university-color"><span>Video Lectures </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/LearningResources" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Learning_Resources" class="coursera-university-color"><span>Learning Resources </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/assignment/index" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Assignments" class="coursera-university-color"><span>Assignments </span><span></span></a></li><li class="course-navbar-item"></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/forum/index" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Discussion_Forums" class="coursera-university-color"><span>Discussion Forums </span><span></span></a></li><li class="course-navbar-item"></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/ToolsSetup" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Tools_Setup" class="coursera-university-color"><span>Tools Setup </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/SbtTutorial" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Sbt_Tutorial" class="coursera-university-color"><span>Sbt Tutorial </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/EclipseTutorial" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Eclipse_Tutorial" class="coursera-university-color"><span>Eclipse Tutorial </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/ScalaTutorial" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Scala_Tutorial" class="coursera-university-color"><span>Scala Tutorial </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/IntelliJ_IDEA" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_IntelliJ_Tutorial" class="coursera-university-color"><span>IntelliJ Tutorial </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/Troubleshooting" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Troubleshooting" class="coursera-university-color"><span>Troubleshooting </span><span></span></a></li><li class="course-navbar-item"></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/ScalaStyleGuide" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Scala_Style_Guide" class="coursera-university-color"><span>Scala Style Guide </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/CheatSheet" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Scala_Cheat_Sheet" class="coursera-university-color"><span>Scala Cheat Sheet </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/ReactiveCheatSheet" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Reactive_Cheat_Sheet" class="coursera-university-color"><span>Reactive Cheat Sheet </span><span></span></a></li><li class="course-navbar-item"><a href="https://class.coursera.org/reactive-002/wiki/GradingPolicy" data-if-linkable="modal-lock,gray,lock-icon" data-ab-user-convert-for="honorcode_to_welcome2" data-ab-user-convert="navclick_Grading_Policy" class="coursera-university-color"><span>Grading Policy </span><span></span></a></li></ul><ul style="list-style-type:none;margin-left: 10px;"><li><a href="https://accounts.coursera.org/i/zendesk/courserahelp?return_to=https://learner.coursera.help/hc/" target="_blank" title="Open help articles in new window" class="coursera-university-color"><i class="icon-question-sign"></i>Help Center</a></li></ul><ul style="list-style-type:none;margin-left: 10px;"></ul></div></div></div></div><div id="course-page-content" role="main"><div style="display: block;" id="spark" class="hide"><h2 class="course-page-header">
+  <span>Replicated KV Store: Instructions</span>
+
+  <a class="coursera-reporter-link" title="Click here if you're experiencing technical problems or found errors in the course materials." target="_blank" href="https://accounts.coursera.org/i/zendesk/courserahelp?return_to=https://learner.coursera.help/hc/articles/201212249-Programming-Assignments">
+     Help Center
+  </a>
+</h2>
+
+<p>
+</p><p>Attention: You are allowed to submit <b>an unlimited number of times</b>
+ for grade purposes. Once you have submitted your solution, you should 
+see your grade and a feedback about your code on the Coursera website 
+within 20 minutes. If you want to improve your grade, just submit an 
+improved solution. </p>
+
+<p><strong>NOTE:</strong> This assignment is the last one, there will be
+ no new assignment in week 7. The submission deadlines have been 
+extended accordingly, we recommend not rushing this exercise and solving
+ it in several steps as you see fit.</p>
+<p>To get started, <a href="https://d396qusza40orc.cloudfront.net/reactive/assignments/kvstore.zip">download the kvstore.zip</a> handout archive file and extract it somewhere on your machine.</p>
+<h2 id="simple-replicated-key-value-store">Simple Replicated Key-Value store</h2>
+<p>A key-value store is a very simple form of a database. Its entries 
+are key-value pairs, the key part acting as a unique identifier, and the
+ value being arbitrary data. In recent years, distributed versions of 
+key-value stores have become very popular. Your task in this assignment 
+is to implement a distributed, replicated storage of key-value pairs. 
+Each node (the replicas) in this distributed system will be represented 
+by one actor. You will also have to define some helper actors.</p>
+<p>In the simplified version that we will examine, your system will 
+include a primary node (the primary replica), which will be responsible 
+for replicating all changes to a set of secondary nodes (the secondary 
+replicas). The primary and the secondary replica nodes will form a 
+distributed database, where potential replica nodes might join and leave
+ at arbitrary times.</p>
+<p>The primary replica will be the only one accepting modification 
+events (insertions and removals) and replicate its current state to the 
+secondaries. Both the primary and the secondary replicas will accept 
+lookup (read) events, although the secondary nodes will be allowed to 
+give results that are "out-of-date" since it takes time for the replicas
+ to keep up with the changes on the primary replica.</p>
+<p>Compared to a full real-world solution several restricting 
+assumptions are made about the system to make the problem easier to 
+solve:</p>
+<ul>
+<li>Updates are only possible on a dedicated node, the primary replica.</li>
+<li>The primary (leader) node does not fail during the uptime of the system.</li>
+<li>Membership is handled reliably by a provided subsystem (see section "The Arbiter").</li>
+<li>The update rate is low, meaning that no incoming requests need to be rejected due to system overload.</li>
+<li>In case of rejecting an update the store is left in a possibly 
+inconsistent state which may require a subsequent succeeding write to 
+the same key to repair it.</li>
+<li>Clients are expected not to reuse request IDs before the request has been fully processed and responded to.</li>
+</ul>
+<p>For a more detailed discussion of these restrictions and on how 
+lifting them would affect the solution please refer to the last section 
+below.</p>
+<p><strong>This is a complex assignment. Please read the whole description before attempting to solve the exercise.</strong>
+ In the last section you will find a step-by-step list of which subtasks
+ you need to solve in order to have a complete solution. If you are 
+unable to arrive at a full solution due to time constraints, don’t 
+despair for you will have learnt a lot along the way.</p>
+<h3 id="overview-of-the-system-components">Overview of the system components</h3>
+<p>The key-value store and its environment consists of the following components:</p>
+<ul>
+<li><strong>The clustered key-value store:</strong> A set of nodes that 
+store key value pairs in a distributed fashion, cooperating to maintain a
+ certain set of guarantees (specified in section <em>“System Behavior - Consistency guarantees”</em>). This cluster of nodes consists of replicas and the provided <code>Arbiter</code> and <code>Persistence</code> modules:
+<ul>
+<li><strong>Primary replica</strong> A distinguished node in the cluster that accepts updates to keys and propagates the changes to secondary replicas.</li>
+<li><strong>Secondary replicas</strong> Nodes that are in contact with the primary replica, accepting updates from it and serving clients for read-only operations.</li>
+<li><strong>Arbiter:</strong> A subsystem that is provided in this exercise and which assigns the primary or secondary roles to your nodes.</li>
+<li><strong>Persistence:</strong> A subsystem that is provided in this exercise and which offers to persist updates to stable storage, but might fail spuriously.</li>
+</ul></li>
+<li><strong>Clients:</strong> Entities that communicate with one of the replicas to update and read key-value pairs.</li>
+</ul>
+<p>You are encouraged to use additional actors in your solution as you see fit.</p>
+<h3 id="clients-and-the-kv-protocol">Clients and The KV Protocol</h3>
+<p>Clients are external entities contacting the replica set (your 
+cluster) for reading and writing key-value pairs. It is your 
+responsibility to maintain the consistency guarantees for clients that 
+are described in the next section. Each node participating in the 
+key-value store (primary and secondaries) provides an interface for 
+clients. This interface is a set of messages and corresponding answers 
+that together form the KV Protocol.</p>
+<p>The KV Protocol itself contains two subsets of operations:</p>
+<ol style="list-style-type: decimal">
+<li>Update operations (insertion and removal).</li>
+<li>Lookup operation.</li>
+</ol>
+<p>Clients contacting the primary node directly can use all operations 
+on the key-value store, while clients contacting the secondaries can 
+only use lookups.</p>
+<p>The two set of operations in detail are:</p>
+<p><strong>Update Commands</strong></p>
+<ul>
+<li><code>Insert(key, value, id)</code> - This message instructs the primary to insert the (key, value) pair into the storage and replicate it to the secondaries: <code>id</code> is a client-chosen unique identifier for this request.</li>
+<li><code>Remove(key, id)</code> - This message instructs the primary to
+ remove the key (and its corresponding value) from the storage and then 
+remove it from the secondaries.</li>
+<li>A successful <code>Insert</code> or <code>Remove</code> results in a reply to the client in the form of an <code>OperationAck(id)</code> message where the <code>id</code> field matches the corresponding id field of the operation that has been acknowledged.</li>
+<li>A failed <code>Insert</code> or <code>Remove</code> command results in an <code>OperationFailed(id)</code>
+ reply. A failure is defined as the inability to confirm the operation 
+within 1 second. See the sections on replication and persistence below 
+for more details.</li>
+</ul>
+<p><strong>Lookup</strong></p>
+<ul>
+<li><code>Get(key, id)</code> - Instructs the replica to look up the 
+"current" (what current means is described in detail in the next 
+section) value assigned with the key in the storage and reply with the 
+stored value.</li>
+<li>A <code>Get</code> operation results in a <code>GetResult(key, valueOption, id)</code> message where the <code>id</code> field matches the value in the <code>id</code> field of the corresponding <code>Get</code> message. The <code>valueOption</code> field should contain <code>None</code> if the key is not present in the replica or <code>Some(value)</code> if a value is currently assigned to the given key in that replica.</li>
+</ul>
+<h3 id="system-behavior---consistency-guarantees">System Behavior - Consistency guarantees</h3>
+<p>Let's assume the scenario that one client issues the following commands to the primary replica (starting from empty storage), <strong>waiting for successful acknowledgement of each operation before proceeding with the next</strong> (see further below for the case of not awaiting confirmation):</p>
+<pre><code>Insert("key1", "a")
+Insert("key2", "1")
+Insert("key1", "b")
+Insert("key2", "2")</code></pre>
+<h4 id="ordering-guarantees-for-clients-contacting-the-primary-replica">Ordering guarantees for clients contacting the primary replica</h4>
+<p>A second client reading directly from the primary is not allowed to see:</p>
+<ul>
+<li><code>key1</code> containing <code>b</code> and then containing <code>a</code> <em>(since <code>a</code> was written before <code>b</code> for <code>key1</code>)</em></li>
+<li><code>key2</code> containing <code>2</code> and then containing <code>1</code> <em>(since <code>1</code> was written before <code>2</code> for <code>key2</code>)</em></li>
+</ul>
+<p>In other words, this second client sees the updates in order (although it might miss some updates, so it might see the value <code>2</code> for <code>key2</code> immediately without seeing the intermediate value <code>1</code>).</p>
+<p>In contrast, the second client may observe</p>
+<ul>
+<li><code>key1</code> containing <code>b</code> and then <code>key2</code> containing <code>1</code></li>
+<li><code>key2</code> containing <code>2</code> and then <code>key1</code> containing <code>a</code></li>
+</ul>
+<p>This means that the ordering guarantee only applies between reads and write <em>to the same key</em>,
+ not across keys. The store may choose to provide stronger semantics to 
+respect ordering across different keys, but clients will not be able to 
+rely on this; the reason is that lifting the restriction of having only 
+one non-failing primary replica would require breaking these stronger 
+guarantees.</p>
+<h4 id="ordering-guarantees-for-clients-contacting-a-secondary-replica">Ordering guarantees for clients contacting a secondary replica</h4>
+<p>For a second client reading from one of the secondary replicas 
+(during a conversation, the replica does not change) the exact same 
+requirements apply as if that client was reading from the primary, with 
+the following addition:</p>
+<ul>
+<li><p>it must be guaranteed that a client reading from a secondary 
+replica will eventually see the following (at some point in the future):</p>
+<ul>
+<li><code>key1</code> containing <code>b</code></li>
+<li><code>key2</code> containing <code>2</code></li>
+</ul></li>
+</ul>
+<h4 id="ordering-guarantees-for-clients-contacting-different-replicas">Ordering guarantees for clients contacting different replicas</h4>
+<p>If a second client asks different replicas for the same key, it may 
+observe different values during the time window when an update is 
+disseminated. The client asking for <code>key1</code> might see</p>
+<ul>
+<li>answer <code>b</code> from one replica</li>
+<li>and subsequently answer <code>a</code> from a different replica</li>
+</ul>
+<p>As per the rule stated in the previous section, and assuming that the
+ client keeps asking repeatedly, eventually all reads will result in the
+ value <code>b</code> if no other updates are done on <code>key1</code>.</p>
+<p><em>Eventual consistency</em> means that given enough time, all replicas settle on the same view. This also means that when you design your system <strong>clients contacting multiple replicas at the same time are not required to see any particular ordering.</strong> You do not need to design your solution for such scenarios and the grading system will not test these either.</p>
+<h4 id="durability-guarantees-of-updates-for-clients-contacting-the-primary-replica">Durability guarantees of updates for clients contacting the primary replica</h4>
+<p>The previous two sections prescribed possible transitions that the 
+clients are allowed to experience on key updates. In this section, we 
+will see what guarantees acknowledgement messages must obey (on the 
+primary replica).</p>
+<p>Whenever the primary replica receives an update operation (either <code>Insert</code> or <code>Remove</code>) it <strong>must</strong> reply with an <code>OperationAck(id)</code> or <code>OperationFailed(id)</code>
+ message, to be sent at most 1 second after the update command was 
+processed (the ActorSystem’s timer resolution is deemed to be 
+sufficiently precise for this).</p>
+<p>A positive <code>OperationAck</code> reply must be sent as soon as</p>
+<ul>
+<li>the change in question has been handed down to the <code>Persistence</code> module (provided) <strong>and</strong> a corresponding acknowledgement has been received from it <em>(the
+ persistence module is "flaky"—it fails randomly from time to time—and 
+it is your task to keep it alive while retrying unacknowledged 
+persistence operations until they succeed, see the persistence section 
+for details)</em></li>
+<li>replication of the change in question has been initiated <strong>and</strong> all of the secondary replicas have acknowledged the replication of the update.</li>
+</ul>
+<p>If replicas leave the cluster, which is signalled by sending a new <code>Replicas</code>
+ message to the primary, then outstanding acknowledgements of these 
+replicas must be waived. This can lead to the generation of an <code>OperationAck</code> triggered indirectly by the <code>Replicas</code> message.</p>
+<p>A negative <code>OperationFailed</code> reply must be sent if the conditions for sending an <code>OperationAck</code> are not met within the 1 second maximum response time.</p>
+<h4 id="consistency-in-the-case-of-failed-replication-or-persistence">Consistency in the case of failed replication or persistence</h4>
+<p>Assuming in the above scenario that the last write fails (i.e. an <code>OperationFailed</code>
+ is returned), replication to some replicas may have been successful 
+while it failed on others. Therefore in this case the property that 
+eventually all replicas converge on the same value for <code>key2</code> is not provided by this simplified key–value store. In order to restore consistency a later write to <code>key2</code>
+ would have to succeed. Lifting this restriction is an interesting 
+exercise on its own, but it is outside of the scope of this course.</p>
+<p>One consequence of this restriction is that each replica may 
+immediately hand out the updated value to subsequently reading clients, 
+even before the the new value has been persisted locally, and no 
+rollback is attempted in case of failure.</p>
+<h4 id="which-value-to-expect-while-an-update-is-outstanding">Which value to expect while an update is outstanding?</h4>
+<p>Sending an update request for a key followed by a <code>Get</code> 
+request for the same key without waiting for the acknowledgement of the 
+update is allowed to return either the old or the new value (or a third 
+value if another client concurrently updates the same key). An example, 
+assuming only this one client at this time:</p>
+<pre><code>Insert("key1", "a")
+&lt;await confirmation&gt;
+Insert("key1", "b")
+Get("key1")</code></pre>
+<p>The replies for the last two requests may arrive in any order, and the reply for the <code>Get</code> request may either contain <code>"a"</code> or <code>"b"</code>.</p>
+<h3 id="the-arbiter">The Arbiter</h3>
+<p>The <code>Arbiter</code> is an external subsystem that will be provided for use. The Arbiter follows a simple protocol:</p>
+<ul>
+<li>New replicas must first send a <code>Join</code> message to the <code>Arbiter</code> signaling that they are ready to be used.</li>
+<li>The <code>Join</code> message will be answered by either a <code>JoinedPrimary</code> or <code>JoinedSecondary</code>
+ message indicating the role of the new node. The first node to join 
+will get the primary role, other subsequent nodes are assigned the 
+secondary role.</li>
+<li>The arbiter will send a <code>Replicas</code> message to the primary replica whenever it receives the <code>Join</code> message. This message contains the set of available replica nodes including the primary and all the secondaries.</li>
+</ul>
+<h3 id="the-replicas">The Replicas</h3>
+<p>You have to provide an Actor representing a node of the system. Its declaration is:</p>
+<pre><code>class Replica(val arbiter: ActorRef) extends Actor</code></pre>
+<p>Please note that in this exercise the nodes (i.e. actors) are 
+executed within the same JVM, but the problems and their solutions apply
+ equally when distributing the system across multiple network hosts.</p>
+<p>When your actor starts, it must send a <code>Join</code> message to the Arbiter and then choose between primary or secondary behavior according to the reply of the <code>Arbiter</code> to the <code>Join</code> message (a <code>JoinedPrimary</code> or <code>JoinedSecondary</code> message).</p>
+<p>The primary replica must provide the following features:</p>
+<ul>
+<li>The primary must accept update and lookup operations from clients following the Key-Value protocol like <code>Insert</code>, <code>Remove</code> or <code>Get</code> as it is described in the <em>“Clients and The KV Protocol”</em> section, respecting the consistency guarantees described in <em>“Guarantees for clients contacting the primary replica”</em>.</li>
+<li>The primary must replicate changes to the secondary replicas of the 
+system. It must also react to changes in membership (whenever it gets a <code>Replicas</code> message from the <code>Arbiter</code>)
+ and start replicating to newly joined nodes, and stop replication to 
+nodes that have left; the latter implies terminating the corresponding <code>Replicator</code> actor. More details can be found in the section <em>“Replication Protocol”</em>.</li>
+</ul>
+<p>The secondary replicas must provide the following features:</p>
+<ul>
+<li>The secondary nodes must accept the lookup operation (<code>Get</code>) from clients following the Key-Value protocol while respecting the guarantees described in <em>“Guarantees for clients contacting the secondary replica”</em>.</li>
+<li>The replica nodes must accept replication events, updating their current state (see <em>“Replication Protocol”</em>).</li>
+</ul>
+<h3 id="the-replication-protocol">The Replication Protocol</h3>
+<p>Apart from providing the KV protocol for external clients, you must 
+implement another protocol involving the primary and secondary replicas 
+and some newly introduced helper nodes. The KV store will use this 
+protocol to synchronize its state between nodes.</p>
+<p>When a new replica joins the system, the primary receives a new <code>Replicas</code> message and must allocate a new actor of type <code>Replicator</code> for the new replica; when a replica leaves the system its corresponding <code>Replicator</code> must be terminated. The role of this <code>Replicator</code> actor is to accept <strong>update events</strong>, and propagate the changes to its corresponding replica (i.e. there is exactly one <code>Replicator</code> per secondary replica). <strong>Also, notice that at creation time of the <code>Replicator</code>, the primary must forward update events for every key-value pair it currently holds to the <code>Replicator</code>.</strong></p>
+<p>You task for this protocol will be to provide an Actor representing a <code>Replicator</code>. Its declaration is:</p>
+<pre><code>class Replicator(val replica: ActorRef) extends Actor</code></pre>
+<p>The protocol includes two pairs of messages. The first one is used by the replica actor which requests replication of an update:</p>
+<ul>
+<li><p><code>Replicate(key, valueOption, id)</code> is sent to the <code>Replicator</code> to initiate the replication of the given update to the <code>key</code>; in case of an <code>Insert</code> operation the <code>valueOption</code> will be <code>Some(value)</code> while in case of a <code>Remove</code> operation it will be <code>None</code>.</p></li>
+<li><p><code>Replicated(key, id)</code> is sent as a reply to the corresponding <code>Replicate</code> message once replication of that update has been successfully completed (see <code>SnapshotAck</code>).</p></li>
+</ul>
+<p>The second pair is used by the replicator when communicating with its partner replica:</p>
+<ul>
+<li><p><code>Snapshot(key, valueOption, seq)</code> is sent by the <code>Replicator</code> to the appropriate secondary replica to indicate a new state of the given key. <code>valueOption</code> has the same meaning as for <code>Replicate</code> messages.</p>
+<p>The <code>Snapshot</code> message provides a sequence number (<code>seq</code>)
+ to enforce ordering between the updates. Updates for a given secondary 
+replica must be processed in contiguous ascending sequence number order;
+ this ensures that updates for every single key are applied in the 
+correct order. Each <code>Replicator</code> uses its own number sequence starting at zero.</p>
+<p>When a snapshot arrives at a <code>Replica</code> with a sequence 
+number which is greater than the currently expected number, then that 
+snapshot must be ignored (meaning no state change and no reaction).</p>
+<p>when a snapshot arrives at a <code>Replica</code> with a sequence 
+number which is smaller than the currently expected number, then that 
+snapshot must be ignored and immediately acknowledged as described 
+below.</p>
+<p>The sender reference when sending the <code>Snapshot</code> message must be the <code>Replicator</code> actor (not the primary replica actor or any other).</p></li>
+<li><p><code>SnapshotAck(key, seq)</code> is the reply sent by the secondary replica to the <code>Replicator</code>
+ as soon as the update is persisted locally by the secondary replica. 
+The replica might never send this reply in case it is unable to persist 
+the update.</p>
+<p>The acknowledgement is sent immediately for requests whose sequence number is less than the next expected number.</p>
+The expected number is set to the greater of
+<ul>
+<li>the previously expected number</li>
+<li>the sequence number just acknowledged, incremented by one</li>
+</ul></li>
+</ul>
+<p>You should note that the Replicator may handle multiple snapshots of a
+ given key in parallel (i.e. their replication has been initiated but 
+not yet completed). It is allowed—but not required— to batch changes 
+before sending them to the secondary replica, provided that each 
+replication request is acknowledged properly and in the right sequence 
+when complete. An example:</p>
+<pre><code>Replicate("a_key", Some("value1"), id1)
+Replicate("a_key", Some("value2"), id2)</code></pre>
+<p>might have reached the <code>Replicator</code> before it got around to send a <code>Snapshot</code> message for <code>a_key</code> to its replica. These two messages could then result in only the following replication message</p>
+<pre><code>Snapshot("a_key", Some("value2"), seq)</code></pre>
+<p>skipping the state where <code>a_key</code> contains the value <code>value1</code>.</p>
+<p>Since the replication protocol is meant to symbolize remote replication you must consider the case that either a <code>Snapshot</code> message or its corresponding <code>SnapshotAck</code> message is lost on the way. Therefore the <code>Replicator</code>
+ must make sure to periodically retransmit all unacknowledged changes. 
+For grading purposes it is assumed that this happens roughly every 100 
+milliseconds. To allow for batching (see above) we will assume that a 
+lost <code>Snapshot</code> message will lead to a resend at most 200 milliseconds after the <code>Replicate</code> request was received (again, the ActorSystem’s scheduler service is considered precise enough for this purpose).</p>
+<h3 id="persistence">Persistence</h3>
+<p>Each replica will have to submit incoming updates to the local <code>Persistence</code>
+ actor and wait for its acknowledgement before confirming the update to 
+the requester. In case of the primary, the requester is a client which 
+sent an <code>Insert</code> or <code>Remove</code> request and the confirmation is an <code>OperationAck</code>, whereas in the case of a secondary the requester is a <code>Replicator</code> sending a <code>Snapshot</code> and expecting a <code>SnapshotAck</code> back.</p>
+<p>The used message types are:</p>
+<ul>
+<li><code>Persist(key, valueOption, id)</code> is sent to the <code>Persistence</code> actor to request the given state to be persisted (with the same field description as for the <code>Replicate</code> message above).</li>
+<li><code>Persisted(key, id)</code> is sent by the <code>Persistence</code> actor as reply in case the corresponding request was successful; no reply is sent otherwise.</li>
+</ul>
+<p>The provided implementation of this persistence service is a mock in 
+the true sense, since it is rather unreliable: every now and then it 
+will fail with an exception and not acknowledge the current request. It 
+is the job of the <code>Replica</code> actor to create and appropriately supervise the <code>Persistence</code>
+ actor; for the purpose of this exercise any strategy will work, which 
+means that you can experiment with different designs based on resuming, 
+restarting or stopping and recreating the <code>Persistence</code> actor. To this end your <code>Replica</code> does not receive an <code>ActorRef</code> but a <code>Props</code> for this actor, implying that the <code>Replica</code> has to initially create it as well.</p>
+<p>For grading purposes it is expected that <code>Persist</code> is retried before the 1 second response timeout in case persistence failed. The <code>id</code> used in retried <code>Persist</code> messages must match the one which was used in the first request for this particular update.</p>
+<h3 id="your-task">Your Task</h3>
+<p>Since this assignment is a longer one, we have prepared the test 
+suite in a way that supports the solution step by step. You can use the <code>test-only</code>
+ sbt command to run individual tests separately. In the following you 
+can find a suggestion for how to proceed with the solution, but you can 
+of course choose any path leading up to twenty points that you like.</p>
+<ol style="list-style-type: decimal">
+<li>Implement the primary replica role so that it correctly responds to 
+the KV protocol messages without considering persistence or replication.</li>
+<li>Implement the secondary replica role so that it correctly responds 
+to the read-only part of the KV protocol and accepts the replication 
+protocol, without considering persistence.</li>
+<li>Implement the replicator so that it correctly mediates between replication requests, snapshots and acknowledgements.</li>
+<li>Implement the use of persistence at the secondary replicas.</li>
+<li>Implement the use of persistence and replication at the primary replica.</li>
+<li>Implement the sending of the initial state replication to newly joined replicas.</li>
+</ol>
+<h3 id="hints-tips">Hints, Tips</h3>
+<p>The logic for collecting acknowledgements of persistence and 
+replication can be made such that it is usable both in primary and 
+secondary replicas.</p>
+<p>You should write (versions of) tests which exercise the behavior under unreliable persistence (i.e. when using a <code>Persistence</code> actor created with <code>flaky = true</code>) or unreliable communication between primary and secondaries. The latter can be done by having the <code>Arbiter</code> wrap the secondary nodes’ ActorRefs in small actors which normally forward messages but sometimes forget to do so.</p>
+<p>Resending snapshots from the <code>Replicator</code> without pause is
+ not the intended solution—the resend rate needs to be kept reasonable. 
+This fact is exploited implicitly by the test suite in step 3.</p>
+<h3 id="the-effect-of-the-restrictions">The Effect of the Restrictions</h3>
+<p>This section is meant to offer further insights for those who want to
+ take the assignment as a starting point for continuing their own 
+studies beyond what the course provides. It is not necessary to read 
+this section in order to complete the assignment.</p>
+<h4 id="updates-are-only-accepted-by-a-distinguished-primary-replica">Updates are only accepted by a distinguished primary replica</h4>
+<p>Accepting writes only on one node at any given time simplifies 
+conflict resolution, because request arrival order at that node can be 
+used to serialize updates to a given key. The downside of this is that 
+this node clearly limits the amount of requests that can be handled per 
+second, it is a single point of bottleneck.</p>
+<p>In order to scale the possible update rate beyond what a single node 
+can digest it would also be possible to divide the key space into shards
+ and distribute them across the members, making each member a primary 
+for a certain portion of the key space. The clients would then need to 
+either be told which one the right node is for updating a certain key, 
+or every node could include a ConsistentHashingRouter which dispatches 
+incoming requests to the right node on the client’s behalf (see the 
+diagram below). Moving the primary role for a shard from one member to 
+another would then be necessary to rebalance the allocation when nodes 
+join or leave the cluster.</p>
+<div class="figure">
+<img src="assignment_files/cassandra-ring2.png" alt="node ring"><p class="caption">node ring</p>
+</div>
+<p>The service which determines the placement of shards does not need to
+ be a single point of bottleneck, as we can see the distribution of 
+shards by using consistent hashing can be done without going through a 
+central point. The only thing that needs special care is the hand-off 
+period when shards move between nodes.</p>
+<h4 id="the-primary-node-does-not-fail">The primary node does not fail</h4>
+<p>A real system would have to tolerate a failure of the primary node, 
+which otherwise would be a single point of failure, making the system 
+not resilient. In order to support this, the primary role must be 
+transferred by the arbiter to another node, which transitions from 
+secondary to primary and starts accepting updates. During this 
+transition updates will be left without a reply, but since confirmations
+ are only sent out after all replicas have acknowledged an update, the 
+new primary node will be able to continue where the old one left off.</p>
+<p>One problem are unconfirmed or even rejected updates which have in 
+fact been accepted by all secondary replicas. The store will in this 
+case be internally consistent, but its contents possibly does not match 
+what the client assumes if it received an <code>OperationFailed</code> 
+message. Having received that message signals a possibly inconsistent 
+state due to other reasons as well, and it could be an option to require
+ the client to attempt to repair it by sending another write to the same
+ key if needed.</p>
+<h4 id="membership-is-handled-reliably-by-a-provided-subsystem">Membership is handled reliably by a provided subsystem</h4>
+<p>A service which reliably handles membership is available in the form 
+of the Akka Cluster module. The arbiter of this assignment can be a <a href="http://doc.akka.io/docs/akka/2.2.3/scala/cluster-usage.html#Cluster_Singleton_Pattern">ClusterSingleton</a>
+ to which replicas register and which uses DeathWatch to monitor them, 
+or the cluster membership list could be used directly, determining the 
+primary role by sorting the member addresses and using the first one.</p>
+<h4 id="the-update-rate-is-low">The update rate is low</h4>
+<p>Without this restriction the resend mechanism for example in the <code>Replicator</code>
+ would have to manage the size of the buffer in which snapshots are kept
+ while awaiting their acknowledgement. This means that the replication 
+mechanism could either lose updates or the <code>Replica</code> would need to start rejecting requests with <code>OperationFailed</code> as soon as a limit on the number of outstanding requests is exceeded.</p>
+<p>Especially when considering the next restriction, latency of 
+confirmations is a performance sensitive topic. One further possible 
+optimization is to distribute the burden of ensuring consistency between
+ the primary and secondary nodes by requiring that only a certain number
+ of secondaries have sent their confirmation before acknowledging an 
+update. In order to restore consistency in case of a replication failure
+ (e.g. if the primary stops working for whatever reason) the secondaries
+ have to ask their peers for the key and a reply is only sent once 
+enough have replied with the same value. If the number of write 
+confirmations is W and the count of agreeing reads is denoted R, then 
+the condition for consistency is R+W&gt;N, where N is the total number 
+of replicas. This equation must be interpreted with some care because N 
+can change during a replication or read process.</p>
+<h4 id="disregarding-inconsistencies-after-operationfailed">Disregarding inconsistencies after OperationFailed</h4>
+<p>This is the toughest restriction to lift because it touches on the 
+fundamental choice of which flavor of weak consistency eventually shall 
+be reached. The restriction allows the system to stay responsive in case
+ of failure (by providing an <code>OperationFailed</code> reply), but making that reply mean that the update will eventually disappear from all nodes is not possible in general.</p>
+<p>Assuming that the primary does not fail for a sufficiently long time 
+period after the operation failure, the first step would be to ensure 
+that for a given key only up to one update can be “in flight” at any 
+given time. If the primary determines that this update has failed, it 
+will then replicate the previous state for that key to all replicas, 
+awaiting confirmation without a timeout. This favors consistency over 
+availability, since it makes the service of updating that key 
+unavailable while the system is experiencing a malfunction.</p>
+<h4 id="clients-are-not-expected-to-reuse-request-ids">Clients are expected not to reuse request IDs</h4>
+<p>This restriction makes your solution simpler and it also removes the 
+need for some grading tests which would have been hard to formulate in a
+ way which does not assume too much about your solution. In a real 
+system you might even find this restriction as specified operational 
+requirement.</p><p></p>
+<script type="text/x-mathjax-config;executed=true">
+MathJax.Hub.Config({
+  config: ["MMLorHTML.js"],
+  
+  styleSheets: [],
+  styles: {},
+
+  jax: ["input/TeX"],
+  
+  extensions: ["tex2jax.js"],
+
+  preJax: null,
+  postJax: null,
+
+  preRemoveClass: "MathJax_Preview",
+
+  showProcessingMessages: true,
+
+  messageStyle: "none",
+  
+  displayAlign: "center",
+  displayIndent: "0em",
+  
+  delayStartupUntil: "none",
+
+  skipStartupTypeset: false,
+  
+  elements: [],
+  
+  tex2jax: {
+	    inlineMath: [
+	                 ['$$','$$'],      // uncomment this for standard TeX math delimiters
+	                 ['\\(','\\)']
+	                 ],
+
+	                 displayMath: [
+	                 ['\\[','\\]']
+	                 ],
+
+    skipTags: ["script","noscript","style","textarea","pre","code"],
+    ignoreClass: "tex2jax_ignore",
+    processClass: "tex2jax_process",
+    processEscapes: false,
+    processEnvironments: true,
+    preview: "TeX"
+    
+  },
+  
+  mml2jax: {
+    preview: "alttext"
+    
+  },
+  
+  jsMath2jax: {
+    preview: "TeX"
+    
+  },
+
+  TeX: {
+    TagSide: "right",
+    TagIndent: ".8em",
+    MultLineWidth: "85%",
+    Macros: {},
+
+    extensions: ["AMSmath.js", "AMSsymbols.js"]
+    
+  },
+
+  //============================================================================
+  //
+  //  These parameters control the MathML inupt jax.
+  //
+  MathML: {
+    //
+    //  This specifies whether to use TeX spacing or MathML spacing when the
+    //  HTML-CSS output jax is used.
+    //
+    useMathMLspacing: false
+  },
+  
+  //============================================================================
+  //
+  //  These parameters control the HTML-CSS output jax.
+  //
+  "HTML-CSS": {
+    
+    scale: 100,
+    
+    availableFonts: ["STIX","TeX"],
+    
+    preferredFont: "TeX",
+    
+    webFont: "TeX",
+    
+    imageFont: "TeX",
+    
+    undefinedFamily: "STIXGeneral,'Arial Unicode MS',serif",
+      
+    showMathMenu: true,
+
+    styles: {},
+    
+    tooltip: {
+      delayPost: 600,          // milliseconds delay before tooltip is posted after mouseover
+      delayClear: 600,         // milliseconds delay before tooltip is cleared after mouseout
+      offsetX: 10, offsetY: 5  // pixels to offset tooltip from mouse position
+    }
+  },
+  
+  //============================================================================
+  //
+  //  These parameters control the NativeMML output jax.
+  //
+  NativeMML: {
+
+    scale: 100,
+
+    showMathMenu: true,
+    showMathMenuMSIE: true,
+
+    styles: {}
+  },
+  
+  MathMenu: {
+    delay: 400,
+    
+    helpURL: "http://www.mathjax.org/help/user/",
+
+    showRenderer: true,
+    showFontMenu: false,
+    showContext:  false,
+
+    windowSettings: {
+      status: "no", toolbar: "no", locationbar: "no", menubar: "no",
+      directories: "no", personalbar: "no", resizable: "yes", scrollbars: "yes",
+      width: 100, height: 50
+    },
+    
+    styles: {}
+    
+  },
+
+  MMLorHTML: {
+    prefer: {
+      MSIE:    "MML",
+      Firefox: "HTML",
+      Opera:   "HTML",
+      other:   "HTML"
+    }
+  }
+});
+</script>
+</div></div></div></div></div><div class="coursera-footer"></div></div></div></div><!--[if gte IE 9]><script>document.getElementById("coursera-loading-js").style.display = 'block';</script><![endif]-->
+<!--[if lte IE 8]><script>document.getElementById("coursera-loading-nojs").style.display = 'block';</script><![endif]-->
+<!--[if !IE]> --><script>document.getElementById("coursera-loading-js").style.display = 'block';</script><!-- <![endif]--><script>if (/zh/i.test(window.localStorage ? localStorage.getItem('locale') : '') || '{{ locale }}') {
+  document.getElementById('get-browser-zh').style.display = 'block';
+}</script><!--[if !IE]> --><script>document.getElementById('coursera-loading-js').style.display = 'block';</script><!-- <![endif]-->
+    <script src="assignment_files/jquery.js"></script>
+      <script src="assignment_files/loadOrRefreshMathJax.js"></script>
+  <script src="assignment_files/require.js"></script><script data-baseurl="https://dw0ugk4msqulk.cloudfront.net/61a7c1335d196f1295e3341330ed120d255fe89d/" data-version="61a7c1335d196f1295e3341330ed120d255fe89d" data-timestamp="1465424411607" data-debug="0" data-locale="en_US" id="_require">if(document.getElementById('coursera-loading-js').style.display == 'block') {
+  (function(el) {
+     require.config({
+       //enforceDefine: true,
+       waitSeconds: 75,
+       baseUrl: el.getAttribute('data-baseurl'),
+       urlArgs: el.getAttribute('data-debug') == '1' ? 'v=' + el.getAttribute('data-timestamp') : '',
+       shim: {
+          'underscore': {
+             exports: '_'
+          },
+          'backbone': {
+             deps: ['underscore', 'jquery'],
+             exports: 'Backbone',
+             init: function(_, $) {
+               Backbone.$ = $;
+               return Backbone;
+             }
+          },
+          'pages/hg/thirdparty/js/backbone.marionette': {
+            deps: ['backbone']
+          },
+          'pages/hg/thirdparty/js/webshims/polyfiller': {
+            deps: ['jquery']
+          },
+          'pages/hg/thirdparty/js/webshims/extras/mousepress': {
+            deps: ['jquery', 'pages/hg/thirdparty/js/webshims/polyfiller']
+          },
+          'pages/hg/thirdparty/js/jquery.throttle': {
+            deps: ['jquery']
+          },
+          'js/lib/jquery.linkify': {
+            deps: ['jquery']
+          },
+          'pages/hg/thirdparty/js/js/bootstrap/alert': {
+            deps: ['jquery', 'pages/hg/thirdparty/js/bootstrap/transition']
+          },
+          'spark/core/js/jquery_ui': {
+            deps: ['jquery']
+          },
+          'spark/core/js/jquery.history': {
+            deps: ['jquery']
+          },
+          'js/lib/bootstrap.tooltip': {
+            deps: ['jquery']
+          },
+          'pages/hg/thirdparty/js/bootstrap/transition': {
+            deps: ['jquery']
+          },
+          'pages/hg/thirdparty/js/bootstrap/tab': {
+            deps: ['jquery']
+          },
+          'bundles/videojs/lib/video.4.3.0': {
+            exports: 'vjs'
+          }
+       },
+       paths: {
+          'q': 'js/vendor/q.v1-0-1',
+          'react-with-addons': 'js/vendor/react-with-addons.v0-12',
+          'jquery':                         'pages/spark/jquery',
+          'underscore':                     'js/vendor/underscore.v1-5-2',
+          'backbone':                       'js/vendor/backbone.v1-1-0',
+          'backbone.relational':            'js/lib/backbone.relational.0.8.6',
+          'i18n':                           'js/lib/i18n._t',
+          'css':                            'js/vendor/require.css.v0-1-2',
+          'memoize':                        'js/lib/require.memoize.v0-0-1',
+          'pages/spark/models/user.json':   'empty:',
+          'pages/spark/models/course.json': 'empty:',
+          'pages/spark/models/navbar.json': 'empty:'
+       },
+       callback: function() {
+                    require(['pages/spark/routes']);
+                },
+       config: {
+         i18n: {
+           locale: (window.localStorage ? localStorage.getItem('locale') : '') || el.getAttribute('data-locale')
+         }
+       }
+     });
+  })(document.getElementById('_require'));
+}
+</script><script>define('pages/spark/models/user.json', [], function(){
+      return JSON.parse("{\"id\":4452529,\"email_address\":\"polbassiner@gmail.com\",\"full_name\":\"Pol Bassiner\",\"locale\":\"en_US\",\"timezone\":\"Europe\\\/Madrid\",\"access_group_id\":\"4\",\"registration_time\":\"1424978274\",\"last_access_time\":\"1465970306\",\"last_access_ip\":\"213.229.148.26\",\"signature_track_register_time\":\"0\",\"email_announcement\":\"1\",\"email_forum\":\"1\",\"in_signature_track\":\"0\",\"wishes_proctored_exam\":\"0\",\"first_name\":\"Pol\",\"permissions\":[\"default\",\"allow_site_access\"],\"group\":\"Student\",\"anonymous\":false,\"forum_title\":\"Student\",\"signature_track_state\":1,\"verified_quizzes\":[],\"submitted_quizzes\":[\"51\",\"55\",\"61\",\"67\",\"93\",\"95\",\"101\",\"131\",\"133\"],\"scheduled_proctored_exam\":null,\"last_chance_modal\":1,\"flexjoin_last_chance_modal\":null}");
+  });
+define('pages/spark/models/course.json', [], function(){
+      return JSON.parse("{\"id\":974748,\"isPrivate\":false,\"type\":\"public\",\"name\":\"Principles of Reactive Programming\",\"instructor\":\"Martin Odersky, Erik Meijer, Roland Kuhn\",\"sessionName\":\"reactive-002\",\"externalBaseURL\":\"https:\\\/\\\/www.coursera.org\\\/\",\"shortname\":\"reactive\",\"host\":\"https:\\\/\\\/www.coursera.org\\\/\",\"assetUnversionedLink\":\"https:\\\/\\\/dw0ugk4msqulk.cloudfront.net\\\/\",\"cheggID\":\"\",\"hasLTI\":true,\"badgevilleDomain\":\"\",\"linkable\":false,\"universityShortname\":\"epfl\",\"signatureTrackStatus\":{\"signature_track_enabled\":1},\"courseURLs\":{\"log_in_link\":\"https:\\\/\\\/www.coursera.org\\\/login?post_redirect=https%3A%2F%2Fwww.coursera.org%2Flogin%3Fuser_action%3Dclass%26course_id%3D974748%26post_redirect%3Dhttps%253A%252F%252Fclass.coursera.org%252Freactive-002%252Fauth%252Fauth_redirector%253Ftype%253Dlogin%2526subtype%253Dnormal%2526visiting%253D\",\"sign_up_link\":\"https:\\\/\\\/www.coursera.org\\\/signup?enroll_cid=974748&enroll_sn=reactive&enroll_n=Principles of Reactive Programming\",\"view_course_info_link\":\"https:\\\/\\\/www.coursera.org\\\/course\\\/reactive\",\"sign_up_link_cant_enroll\":\"https:\\\/\\\/www.coursera.org\\\/signup?post_redirect=https%3A%2F%2Fwww.coursera.org%2Fcourse%2Freactive\"},\"courseBase\":\"https:\\\/\\\/class.coursera.org\\\/reactive-002\\\/\",\"search\":true,\"hideWiki\":true,\"aceStartRegistrationDate\":\"Thu  1 Jan 1970  1:00 AM CET\",\"aceEndRegistrationDate\":\"Thu  1 Jan 1970  1:00 AM CET\",\"aceExamStartDate\":\"Thu  1 Jan 1970  1:00 AM CET\",\"aceExamEndDate\":\"Thu  1 Jan 1970  1:00 AM CET\",\"aceExamRules\":\"\",\"aceExamDuration\":\"\",\"aceBeforeExam\":false,\"aceAfterExam\":true,\"aceHours\":null,\"aceCreditType\":\"\",\"acePrice\":null,\"aceExamID\":null,\"aceEligible\":false,\"canRegisterForACE\":false,\"specialization\":null,\"supportForums\":true,\"textbooks\":\"\",\"inVideoQuizV2\":false,\"in_flexjoin\":0,\"honorCodeExtraText\":\"\",\"honorCodeCustomTitle\":\"\",\"honorCodeCustomButton\":\"\",\"studentAccessDisabled\":0,\"disableQQs\":false}");
+  });
+  define('pages/spark/models/navbar.json', [], function(){
+      return JSON.parse("{\"items\":[{\"name\":\"Home\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"class:index\"},{\"name\":\"\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"\"},{\"name\":\"Video Lectures\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"lecture:index\"},{\"name\":\"Learning Resources\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"LearningResources\"},{\"name\":\"Assignments\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"assignment:index\"},{\"name\":\"\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"\"},{\"name\":\"Discussion Forums\",\"icon\":\"forum\",\"link_type\":\"circuit\",\"link_data\":\"forum:index\"},{\"name\":\"\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"\"},{\"name\":\"Tools Setup\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"ToolsSetup\"},{\"name\":\"Sbt Tutorial\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"SbtTutorial\"},{\"name\":\"Eclipse Tutorial\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"EclipseTutorial\"},{\"name\":\"Scala Tutorial\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"ScalaTutorial\"},{\"name\":\"IntelliJ Tutorial\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"IntelliJ_IDEA\"},{\"name\":\"Troubleshooting\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"Troubleshooting\"},{\"name\":\"\",\"icon\":\"\",\"link_type\":\"circuit\",\"link_data\":\"\"},{\"name\":\"Scala Style Guide\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"ScalaStyleGuide\"},{\"name\":\"Scala Cheat Sheet\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"CheatSheet\"},{\"name\":\"Reactive Cheat Sheet\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"ReactiveCheatSheet\"},{\"name\":\"Grading Policy\",\"icon\":\"\",\"link_type\":\"wiki\",\"link_data\":\"GradingPolicy\"}]}");
+  });
+</script><script>var coursera_enable_new_help_center = true;
+</script><div class="hide confirm-navigation modal"><div class="modal-header"><h3>Confirm Navigation</h3></div><div class="modal-body"><div class="confirm-navigation-message"></div><div>Are you sure you want to leave this page?</div></div><div class="modal-footer"><button data-modal-close="data-modal-close" class="btn confirm-navigation-stay">Stay on this Page</button><button data-modal-close="data-modal-close" class="btn btn-danger confirm-navigation-leave">Leave this Page</button></div></div><div style="display: none;" class="coursera-async-message"></div></body></html>

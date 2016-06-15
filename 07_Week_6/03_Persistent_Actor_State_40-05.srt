@@ -1,0 +1,2580 @@
+1
+00:00:01,500 --> 00:00:07,820
+The error kernel pattern allows us to
+keep important actors relatively safe.
+
+2
+00:00:07,820 --> 00:00:12,790
+But there are cases where we
+need to not lose state at all.
+
+3
+00:00:12,790 --> 00:00:14,000
+We need to persist it.
+
+4
+00:00:15,380 --> 00:00:18,469
+In this lecture,
+we look at how actors can do that.
+
+5
+00:00:19,840 --> 00:00:24,210
+The first observation is that
+losing state due to a restart
+
+6
+00:00:24,210 --> 00:00:26,320
+is not the only thing which can happen.
+
+7
+00:00:26,320 --> 00:00:31,500
+Not only our software can be buggy,
+our hardware can make mistakes too.
+
+8
+00:00:31,500 --> 00:00:34,980
+For example,
+the computer's power supply might fail, or
+
+9
+00:00:34,980 --> 00:00:40,140
+there might be a power outage in the whole
+region and the data center goes down.
+
+10
+00:00:40,140 --> 00:00:41,420
+In that case,
+
+11
+00:00:41,420 --> 00:00:45,380
+the running state of actors will be
+lost because it is only kept in memory.
+
+12
+00:00:46,460 --> 00:00:50,980
+If we need to keep that state across,
+for example the power outage,
+
+13
+00:00:50,980 --> 00:00:56,640
+then we need to make sure that it is
+stored on a hard drive, for example.
+
+14
+00:00:56,640 --> 00:01:01,530
+When the power comes back on, we can
+then read the last persisted state, and
+
+15
+00:01:01,530 --> 00:01:02,330
+start from there.
+
+16
+00:01:03,970 --> 00:01:09,250
+The same principle applies when it comes
+to a softer source of the restart.
+
+17
+00:01:10,760 --> 00:01:13,660
+The reason why we did it
+might be different, but
+
+18
+00:01:13,660 --> 00:01:15,910
+what needs to be done is exactly the same.
+
+19
+00:01:17,210 --> 00:01:21,230
+We need to store the result
+of successful processing, and
+
+20
+00:01:21,230 --> 00:01:26,890
+once the failure has happened when we
+recover from it, we need to recreate
+
+21
+00:01:26,890 --> 00:01:31,970
+the current running state, so that we
+can keep running from where we left off.
+
+22
+00:01:33,650 --> 00:01:37,220
+There are two main ways in
+which state can be persisted.
+
+23
+00:01:37,220 --> 00:01:40,900
+The first is to have the actor mirror,
+
+24
+00:01:40,900 --> 00:01:45,990
+a persistent storage location,
+and do in place updates of both.
+
+25
+00:01:45,990 --> 00:01:50,870
+So when the actor's state changes,
+the persistent location is also updated.
+
+26
+00:01:51,920 --> 00:01:56,765
+This persistent location could
+be files in the file system,
+
+27
+00:01:56,765 --> 00:02:01,045
+or it could also be a record
+in a relational database.
+
+28
+00:02:01,045 --> 00:02:06,278
+The other way is to not persist
+the state itself and update it,
+
+29
+00:02:06,278 --> 00:02:10,920
+but to persist the changes
+which are applied to state.
+
+30
+00:02:10,920 --> 00:02:15,564
+And this is done in an append only
+fashion, meaning that these change
+
+31
+00:02:15,564 --> 00:02:19,580
+records will never be deleted,
+they will only be added to.
+
+32
+00:02:21,150 --> 00:02:26,740
+The current state can then be derived by
+reapplying old changes from the beginning.
+
+33
+00:02:28,600 --> 00:02:36,370
+There are obvious benefits to persisting
+the state and doing in-place updates.
+
+34
+00:02:36,370 --> 00:02:41,050
+The first is that recovery of the latest
+state can be done in constant time,
+
+35
+00:02:41,050 --> 00:02:45,030
+because you just need to go to that
+one memory location and read it back.
+
+36
+00:02:46,710 --> 00:02:49,960
+The other advantage is that
+the data volume needed for
+
+37
+00:02:49,960 --> 00:02:55,050
+storage depends only on the number of
+records and not on their rate of change.
+
+38
+00:02:56,080 --> 00:02:59,320
+It is easy to see that if
+you persist the changes,
+
+39
+00:02:59,320 --> 00:03:02,390
+you will always persist at least as much.
+
+40
+00:03:02,390 --> 00:03:03,500
+And most of the time,
+
+41
+00:03:03,500 --> 00:03:08,250
+much more data than if you would
+just persist the records themselves.
+
+42
+00:03:08,250 --> 00:03:11,870
+But there are also benefits
+to persisting the changes.
+
+43
+00:03:13,080 --> 00:03:17,530
+For example, if you do that,
+you can go back to any point in time and
+
+44
+00:03:17,530 --> 00:03:19,170
+replay history.
+
+45
+00:03:19,170 --> 00:03:24,020
+Audit what happened in which order,
+or restore a certain state,
+
+46
+00:03:24,020 --> 00:03:30,230
+say from last Thursday because you need
+to either rerun what has happened or
+
+47
+00:03:30,230 --> 00:03:34,470
+you need to discard all the changes
+which have been done since then.
+
+48
+00:03:35,830 --> 00:03:41,110
+During a replay, the code which handles
+the processing could also have,
+
+49
+00:03:41,110 --> 00:03:44,990
+for example, been fixed,
+because it had a bug previously.
+
+50
+00:03:44,990 --> 00:03:48,760
+And that means that errors which
+correct into the current state
+
+51
+00:03:48,760 --> 00:03:51,320
+can be corrected retroactively.
+
+52
+00:03:51,320 --> 00:03:54,940
+This is not possible if you
+only store the current state,
+
+53
+00:03:54,940 --> 00:03:57,099
+because it will have the bug in it.
+
+54
+00:03:58,140 --> 00:04:02,050
+You all have seen the third
+advantage at work.
+
+55
+00:04:02,050 --> 00:04:05,080
+For example,
+if you were shopping at a large
+
+56
+00:04:06,500 --> 00:04:10,260
+shopping site on the internet,
+which we all well know.
+
+57
+00:04:10,260 --> 00:04:15,540
+If you look at the shopping cart, and
+you put an item in, it is in the shopping
+
+58
+00:04:15,540 --> 00:04:20,070
+cart, you might continue shopping,
+take it out, replace it by another one.
+
+59
+00:04:20,070 --> 00:04:22,670
+And finally, once you go to the checkout,
+
+60
+00:04:22,670 --> 00:04:27,680
+the current contents of the shopping
+cart is what you are actually buying.
+
+61
+00:04:27,680 --> 00:04:31,250
+If you only persist that,
+then the whole history is lost.
+
+62
+00:04:31,250 --> 00:04:33,850
+But it might be very
+interesting to keep statistics.
+
+63
+00:04:33,850 --> 00:04:40,110
+For example, this refrigerator has
+been replaced in 50% of the cases
+
+64
+00:04:40,110 --> 00:04:45,710
+by that other one, and people can then
+learn from other people's decisions.
+
+65
+00:04:45,710 --> 00:04:50,380
+Of course, these insights can also
+be used inside the company itself
+
+66
+00:04:50,380 --> 00:04:52,569
+to organize their logistics processes.
+
+67
+00:04:53,880 --> 00:04:57,920
+Storing all these events
+takes a lot of space, but
+
+68
+00:04:57,920 --> 00:05:02,150
+space is comparatively cheap nowadays,
+and therefore,
+
+69
+00:05:02,150 --> 00:05:06,530
+if profit can be made from analyzing
+these data, then it's well worth it.
+
+70
+00:05:08,120 --> 00:05:12,429
+The fourth advantage has to do
+with hardware and how that works.
+
+71
+00:05:13,480 --> 00:05:19,620
+If you write to an append only stream,
+you can write a much higher bandwidth
+
+72
+00:05:19,620 --> 00:05:24,930
+to IO, to network devices and
+also to hard disks.
+
+73
+00:05:24,930 --> 00:05:29,700
+The reason is, that in-place
+updates need to at least appear to
+
+74
+00:05:29,700 --> 00:05:32,710
+occur in exactly the order
+in which they were given.
+
+75
+00:05:32,710 --> 00:05:36,070
+Which limits the possibilities for
+optimization.
+
+76
+00:05:37,720 --> 00:05:41,010
+Finally, persisting immutable data
+
+77
+00:05:41,010 --> 00:05:46,090
+has the advantage we have seen throughout
+the functional programming course.
+
+78
+00:05:46,090 --> 00:05:51,800
+Anything which cannot possibly change
+can be freely shared and replicated.
+
+79
+00:05:51,800 --> 00:05:54,630
+There is no need to synchronize access.
+
+80
+00:05:54,630 --> 00:05:58,490
+And whether you store
+an event stream to one, two,
+
+81
+00:05:58,490 --> 00:06:01,420
+or three locations does
+not make a difference.
+
+82
+00:06:02,860 --> 00:06:07,900
+This point allows the benefits of
+both approaches to be combined.
+
+83
+00:06:07,900 --> 00:06:13,260
+Consider an actor which
+wants to persist its state.
+
+84
+00:06:13,260 --> 00:06:19,030
+It writes events describing all
+the changes into a event log.
+
+85
+00:06:22,720 --> 00:06:27,740
+Since this log is immutable,
+another process
+
+86
+00:06:27,740 --> 00:06:33,800
+could take this data and
+feed them into a database offline.
+
+87
+00:06:34,910 --> 00:06:37,370
+From which the actor could then
+
+88
+00:06:37,370 --> 00:06:41,950
+retrieve the latest persistent
+state in constant time.
+
+89
+00:06:43,330 --> 00:06:47,930
+Doing that for all changes can be
+the right answer in certain situations.
+
+90
+00:06:47,930 --> 00:06:52,440
+For example, if there are multiple
+readers for that state and
+
+91
+00:06:52,440 --> 00:06:56,730
+not only this actor, but if you only want
+to persist the state of an actor and
+
+92
+00:06:56,730 --> 00:07:02,450
+put an upper bound on the time a recovery
+may take, then you can also use snapshots.
+
+93
+00:07:04,860 --> 00:07:10,545
+So we have again our actor,
+producing the stream of changes.
+
+94
+00:07:13,586 --> 00:07:20,010
+And then to the side,
+there are snapshots, which it tags.
+
+95
+00:07:20,010 --> 00:07:25,171
+At this state, when it persists
+that event, that was my state.
+
+96
+00:07:28,295 --> 00:07:34,878
+And it can do so periodically,
+to keep the time short between these.
+
+97
+00:07:34,878 --> 00:07:39,295
+And if recovery is needed, then only
+the latest snapshot will be taken and
+
+98
+00:07:39,295 --> 00:07:41,370
+all events which came after that.
+
+99
+00:07:42,470 --> 00:07:48,675
+Snapshots, again, have the property that
+they are immutable so they can be written,
+
+100
+00:07:48,675 --> 00:07:53,104
+append in an efficient fashion and
+they can be freely shared.
+
+101
+00:07:53,104 --> 00:07:59,488
+With this background, we can look at how
+actors actually persist the changes.
+
+102
+00:07:59,488 --> 00:08:03,961
+You can picture an actor that is
+persistent as one that keeps taking notes
+
+103
+00:08:03,961 --> 00:08:09,136
+of things that are happening, things that
+it is doing or things that it wants to do.
+
+104
+00:08:09,136 --> 00:08:14,290
+In this is made available
+by the persist method.
+
+105
+00:08:14,290 --> 00:08:16,870
+We'll see the logic context in a minute.
+
+106
+00:08:17,930 --> 00:08:23,090
+It is important to first learn
+what it means to persist an event.
+
+107
+00:08:23,090 --> 00:08:26,260
+First of all,
+we must create the event itself.
+
+108
+00:08:26,260 --> 00:08:30,740
+Let's say we have a class MyEvent that
+we construct with some arguments here.
+
+109
+00:08:31,790 --> 00:08:36,310
+Passing this into the first
+argument list of the persist method
+
+110
+00:08:36,310 --> 00:08:40,010
+means that this event is sent
+to the so-called journal.
+
+111
+00:08:41,050 --> 00:08:46,490
+We have here our actor that
+wants to persist things.
+
+112
+00:08:46,490 --> 00:08:48,830
+And in the system, we have another actor
+
+113
+00:08:50,760 --> 00:08:54,500
+that understands a certain set of
+messages related to persistence.
+
+114
+00:08:55,580 --> 00:09:00,280
+Calling the persist method means
+sending a message to this journal
+
+115
+00:09:01,570 --> 00:09:07,390
+that we want to persist a certain event.
+
+116
+00:09:08,610 --> 00:09:11,560
+The journal can be implemented
+in many different ways.
+
+117
+00:09:11,560 --> 00:09:13,940
+It could write this to the local hard disk
+
+118
+00:09:13,940 --> 00:09:17,860
+which would not be perfect in
+case that hard disk fails.
+
+119
+00:09:17,860 --> 00:09:23,435
+So typically, it will also write it to
+some other hard disk somewhere else or
+
+120
+00:09:23,435 --> 00:09:25,105
+it might be stored in a different fashion.
+
+121
+00:09:25,105 --> 00:09:30,125
+It might be in databases
+that are held in many copies
+
+122
+00:09:30,125 --> 00:09:32,765
+in memory across all the globe.
+
+123
+00:09:32,765 --> 00:09:37,980
+It can be any system that can make sure
+that whatever they pass here, the event
+
+124
+00:09:37,980 --> 00:09:43,940
+that we want to persist is actually
+held such that it will not vanish.
+
+125
+00:09:43,940 --> 00:09:45,515
+And that it is always there.
+
+126
+00:09:45,515 --> 00:09:50,025
+Once that has been done,
+once that has been confirmed that
+
+127
+00:09:50,025 --> 00:09:54,077
+the event has been written to disk and
+replicated and
+
+128
+00:09:54,077 --> 00:09:59,075
+so on, the journal will reply to
+the actor with a confirmation.
+
+129
+00:10:01,617 --> 00:10:04,340
+This confirmation contains the event.
+
+130
+00:10:04,340 --> 00:10:09,260
+So the event travels once from the actor,
+to the journal,
+
+131
+00:10:09,260 --> 00:10:12,840
+is being persisted, and
+then travels back to the actor.
+
+132
+00:10:14,260 --> 00:10:16,150
+As soon as this journey is complete,
+
+133
+00:10:16,150 --> 00:10:20,670
+the second part of the persist method,
+this function here comes into play.
+
+134
+00:10:22,040 --> 00:10:24,890
+We receive the event as it
+comes back from the journal.
+
+135
+00:10:24,890 --> 00:10:27,360
+And now, whatever we do in here,
+
+136
+00:10:27,360 --> 00:10:32,350
+we can do in the knowledge that this
+event is stored safely somewhere.
+
+137
+00:10:33,520 --> 00:10:37,370
+We can rely on the fact that we
+can replay this event later.
+
+138
+00:10:37,370 --> 00:10:39,810
+We know that it has been persisted.
+
+139
+00:10:39,810 --> 00:10:44,865
+This is why we describe events
+as facts about the past.
+
+140
+00:10:44,865 --> 00:10:46,965
+Things that are certain and commentating.
+
+141
+00:10:48,135 --> 00:10:50,925
+In order to look at
+a more complete example,
+
+142
+00:10:50,925 --> 00:10:54,815
+we introduce a actor that
+does something useful.
+
+143
+00:10:54,815 --> 00:10:58,295
+In this case,
+it manages a set of block posts.
+
+144
+00:10:58,295 --> 00:11:02,230
+This actor understands
+a command called NewPost.
+
+145
+00:11:02,230 --> 00:11:08,690
+Which contains the string, the text of the
+blog post, and some ID, a correlation ID.
+
+146
+00:11:08,690 --> 00:11:12,920
+So that when the actor replies
+either with a positive BlogPosted or
+
+147
+00:11:12,920 --> 00:11:15,370
+a negative BlogNotPosted message,
+
+148
+00:11:16,530 --> 00:11:22,230
+we can use this ID to find out which
+posted was that was accepted or rejected.
+
+149
+00:11:22,230 --> 00:11:26,700
+In addition to this external
+protocols spoken by the actor,
+
+150
+00:11:26,700 --> 00:11:32,960
+we also define a set of events
+that this actor creates and emits.
+
+151
+00:11:32,960 --> 00:11:37,300
+The first one is taking notes
+of a post that has been created.
+
+152
+00:11:37,300 --> 00:11:41,840
+And this is the PostCreated event
+which holds the text of the blog post.
+
+153
+00:11:41,840 --> 00:11:44,960
+And the second one,
+to make this actor a bit more interesting,
+
+154
+00:11:44,960 --> 00:11:50,830
+records when the user who has submitted
+this blog post has reached their quota.
+
+155
+00:11:50,830 --> 00:11:55,810
+Let's say we have a really stupid
+limit of you can only create one post.
+
+156
+00:11:55,810 --> 00:11:57,350
+We'll see it on the next slide.
+
+157
+00:11:57,350 --> 00:12:01,900
+The final piece here is that
+the actor itself will keep state.
+
+158
+00:12:01,900 --> 00:12:04,820
+It accumulates the posts
+that were created and
+
+159
+00:12:04,820 --> 00:12:07,570
+keeps track of whether
+the quarter has been reached.
+
+160
+00:12:07,570 --> 00:12:13,540
+And this is held in a class called State
+here, which holds all the blog posts and
+
+161
+00:12:13,540 --> 00:12:16,770
+the disabled flag once
+the quota has been reached.
+
+162
+00:12:17,980 --> 00:12:21,400
+Remember that the purpose of
+events is to describe change.
+
+163
+00:12:22,580 --> 00:12:27,890
+This means that the events themselves are
+meaningful in the domain that we modeled.
+
+164
+00:12:27,890 --> 00:12:31,380
+So, we have blog PostCreated and
+QuotaReached.
+
+165
+00:12:31,380 --> 00:12:36,240
+But the events themselves do not know how
+this influences the state of the actor.
+
+166
+00:12:36,240 --> 00:12:40,340
+The state of the actor needs
+to know how events change it.
+
+167
+00:12:40,340 --> 00:12:45,370
+This is why the State object has
+an updated method which takes
+
+168
+00:12:45,370 --> 00:12:50,940
+an event and then it reacts accordingly
+to what the event type was.
+
+169
+00:12:50,940 --> 00:12:55,950
+If it was a PostCreated,
+we make a copy of the state depending
+
+170
+00:12:55,950 --> 00:12:59,850
+this text of the new blog post to
+the posts that are already there.
+
+171
+00:13:01,460 --> 00:13:07,130
+Once we see a QuotaReached event,
+we just switch on the disabled flag.
+
+172
+00:13:07,130 --> 00:13:11,980
+With these preparations out of the way,
+we can take a look at the actor itself.
+
+173
+00:13:11,980 --> 00:13:15,630
+The first thing to note is that
+instead of extending actor,
+
+174
+00:13:15,630 --> 00:13:17,530
+we extend PersistentActor.
+
+175
+00:13:19,510 --> 00:13:23,890
+This trait defines the persist
+method that we have seen earlier.
+
+176
+00:13:23,890 --> 00:13:29,770
+And it also runs this process of sending
+the to be persisted events to the journal,
+
+177
+00:13:29,770 --> 00:13:32,940
+and receiving them back when
+they have been persisted.
+
+178
+00:13:34,260 --> 00:13:38,960
+In order to do this, the PersistentActor
+must speak with the journal.
+
+179
+00:13:38,960 --> 00:13:43,070
+Must have a conversation that
+we do not see in this actor.
+
+180
+00:13:43,070 --> 00:13:47,816
+This is why the receive method has been
+implemented in the PersistentActor
+
+181
+00:13:47,816 --> 00:13:53,040
+already, and what has been written
+there delegates to two new methods.
+
+182
+00:13:53,040 --> 00:13:57,880
+The receiveCommand method is
+the correspondent of the receive in
+
+183
+00:13:57,880 --> 00:14:02,280
+a normal actor and that it defines
+its normal behavior during runtime.
+
+184
+00:14:02,280 --> 00:14:06,310
+There is another receiveRecover
+that we'll talk about later.
+
+185
+00:14:06,310 --> 00:14:10,820
+The crucial piece that defines
+the stateful behavior of this actor
+
+186
+00:14:10,820 --> 00:14:14,430
+is kept in a single variable called state.
+
+187
+00:14:14,430 --> 00:14:17,680
+It starts out with a state that
+has no blog posts in it and
+
+188
+00:14:17,680 --> 00:14:20,760
+is not in the disabled state.
+
+189
+00:14:20,760 --> 00:14:24,220
+When this actor receives
+a request to create a new post,
+
+190
+00:14:25,300 --> 00:14:28,620
+this will contain a text and
+this correlation ID.
+
+191
+00:14:28,620 --> 00:14:34,100
+And in this case, the actor checks if
+posting has been disabled in this state,
+
+192
+00:14:34,100 --> 00:14:36,040
+then the reply is pretty clear.
+
+193
+00:14:36,040 --> 00:14:42,500
+We send a BlogNotPosted for this ID,
+with a quota reached explanation in it.
+
+194
+00:14:42,500 --> 00:14:45,220
+The other case is
+the more interesting one.
+
+195
+00:14:45,220 --> 00:14:49,070
+We want to create a blog post,
+and we must take note of it.
+
+196
+00:14:49,070 --> 00:14:54,880
+So, first we create a PostCreated
+event with the text,
+
+197
+00:14:54,880 --> 00:15:01,120
+and we persist that once this
+event comes back from the journal,
+
+198
+00:15:01,120 --> 00:15:03,470
+we update the state of this actor.
+
+199
+00:15:03,470 --> 00:15:06,930
+I have written a utility
+method here which does it.
+
+200
+00:15:06,930 --> 00:15:11,760
+And then we can confirm to the sender
+of the new post request that
+
+201
+00:15:11,760 --> 00:15:14,060
+this blog has been posted.
+
+202
+00:15:14,060 --> 00:15:19,190
+In order to change the behavior
+of this actor to one which is
+
+203
+00:15:19,190 --> 00:15:24,117
+preventing further block posts,
+we also persist a QuotaReached event.
+
+204
+00:15:25,600 --> 00:15:29,733
+This demonstrates the usefulness
+of this updateState
+
+205
+00:15:29,733 --> 00:15:32,500
+method which I find
+myself writing typically.
+
+206
+00:15:33,800 --> 00:15:38,870
+Because this will just be expanded into
+a function that takes an event and
+
+207
+00:15:38,870 --> 00:15:42,710
+applies it, so
+we can use the name here just like that.
+
+208
+00:15:42,710 --> 00:15:49,479
+Now, what happens if this actor crashes,
+if the machine crashes that it is run on.
+
+209
+00:15:49,479 --> 00:15:51,148
+When we start it again,
+
+210
+00:15:51,148 --> 00:15:55,748
+the actor will process everything
+that it has persisted before.
+
+211
+00:15:55,748 --> 00:15:59,081
+And this is done in
+the receiveRecover method.
+
+212
+00:15:59,081 --> 00:16:03,887
+So whatever was successfully persisted,
+and it was post created, or
+
+213
+00:16:03,887 --> 00:16:10,100
+the quota reached, will afterwards be
+replayed in this receiveRecover method.
+
+214
+00:16:10,100 --> 00:16:14,910
+And here we simply take the event and
+update the state of this actor with it.
+
+215
+00:16:14,910 --> 00:16:19,520
+This means that the state of the actor
+will go through all the same steps
+
+216
+00:16:19,520 --> 00:16:21,230
+that it has gone through previously.
+
+217
+00:16:21,230 --> 00:16:24,160
+UpdateState here and
+an updateState there, and
+
+218
+00:16:24,160 --> 00:16:30,160
+the only thing that we leave out
+in this process is the other
+
+219
+00:16:30,160 --> 00:16:34,209
+actions that are taken in response
+to successful persistence of events.
+
+220
+00:16:36,060 --> 00:16:39,660
+While recovering,
+the sender of that blog post
+
+221
+00:16:39,660 --> 00:16:43,960
+that we received from the journal
+might not be there anymore.
+
+222
+00:16:43,960 --> 00:16:48,080
+This recovery might actually happen
+several years after the blog has been
+
+223
+00:16:48,080 --> 00:16:53,700
+posted so
+sending back to that sender is pointless.
+
+224
+00:16:53,700 --> 00:16:55,800
+But we need to update the state so
+
+225
+00:16:55,800 --> 00:17:01,290
+that we arrive at the same internal state
+after recovery as we had before the crash.
+
+226
+00:17:01,290 --> 00:17:06,320
+There is one important detail that I
+have glossed over on the last slide, and
+
+227
+00:17:06,320 --> 00:17:10,390
+it is best explained
+using some flow diagrams.
+
+228
+00:17:10,390 --> 00:17:12,270
+So what have we implemented?
+
+229
+00:17:12,270 --> 00:17:16,810
+We have the actor and
+time going downwards, and
+
+230
+00:17:16,810 --> 00:17:20,950
+we have the journal as
+the interesting parties.
+
+231
+00:17:23,005 --> 00:17:29,375
+When the actor receives a new post,
+we have done several things,
+
+232
+00:17:29,375 --> 00:17:35,395
+the first of which was to check whether
+posting is currently enabled or not.
+
+233
+00:17:35,395 --> 00:17:38,705
+I'll mark that with
+this red color here and
+
+234
+00:17:38,705 --> 00:17:43,545
+let us say the check was positive,
+then we persisted the new blog post.
+
+235
+00:17:45,870 --> 00:17:51,130
+Now, it takes some time for the journal
+to disseminate this event, to replicate
+
+236
+00:17:51,130 --> 00:17:56,520
+it to all the storage locations and
+to get back with the acknowledgement.
+
+237
+00:17:58,110 --> 00:17:59,190
+Let's say it happens here.
+
+238
+00:18:00,920 --> 00:18:02,480
+At this point,
+
+239
+00:18:02,480 --> 00:18:08,170
+the function was run that we gave to
+the persist method as the second argument.
+
+240
+00:18:08,170 --> 00:18:10,760
+And this was updating the internal state,
+
+241
+00:18:10,760 --> 00:18:16,160
+as well as sending the reply
+to the original requester.
+
+242
+00:18:16,160 --> 00:18:23,704
+So let's say this is updating the internal
+state, and then we send back Blog Posted.
+
+243
+00:18:23,704 --> 00:18:26,261
+Now the interesting question is,
+
+244
+00:18:26,261 --> 00:18:30,682
+what happens with a request
+that comes in in between these?
+
+245
+00:18:30,682 --> 00:18:37,242
+When using the persist method to make
+this round trip via the journal,
+
+246
+00:18:37,242 --> 00:18:43,913
+the persistent actor trait switches
+this actor in a sort of deaf state or
+
+247
+00:18:43,913 --> 00:18:48,600
+in a state where it does
+not receive new messages.
+
+248
+00:18:49,600 --> 00:18:55,520
+This means that the new post message
+that came in at this point in time
+
+249
+00:18:56,560 --> 00:19:02,160
+will not be handled until the previous
+process has been completed.
+
+250
+00:19:02,160 --> 00:19:06,782
+This is necessary because this
+check here depended on the state
+
+251
+00:19:06,782 --> 00:19:11,591
+being the current state, but
+we only update the state down here.
+
+252
+00:19:11,591 --> 00:19:14,282
+So if we perform this check again here,
+
+253
+00:19:14,282 --> 00:19:18,450
+we will find that the quota
+reached has not yet been applied.
+
+254
+00:19:18,450 --> 00:19:23,170
+We will persist another blog post even
+though that was not supposed to happen.
+
+255
+00:19:24,210 --> 00:19:31,620
+This is why the processing of this message
+is deferred internally until this point.
+
+256
+00:19:31,620 --> 00:19:36,230
+There is another method that can be used,
+so we'll draw the second case.
+
+257
+00:19:36,230 --> 00:19:42,180
+We have, again, the actor and
+the journal and their timelines.
+
+258
+00:19:42,180 --> 00:19:44,980
+We have a NewPost coming in.
+
+259
+00:19:44,980 --> 00:19:51,420
+We perform the check, and
+then we use a method called persistAsync.
+
+260
+00:19:51,420 --> 00:19:56,740
+This will also carry out the whole round
+trip for the event through the journal.
+
+261
+00:19:56,740 --> 00:20:00,380
+So, it will come back at some point here,
+but
+
+262
+00:20:00,380 --> 00:20:04,360
+it will not stop the actor from processing
+other messages in the meantime.
+
+263
+00:20:04,360 --> 00:20:10,820
+This means in order to keep the actor's
+processing consistent with our rules,
+
+264
+00:20:10,820 --> 00:20:14,480
+we need to apply the changes here,
+already.
+
+265
+00:20:16,050 --> 00:20:19,817
+Such that when the next post comes in,
+
+266
+00:20:19,817 --> 00:20:26,770
+it will be rejected because
+the quota reached has been applied.
+
+267
+00:20:26,770 --> 00:20:31,962
+Now what is left to do when the
+persistence round trip has been completed,
+
+268
+00:20:31,962 --> 00:20:35,159
+and the event's come
+back from the journal?
+
+269
+00:20:35,159 --> 00:20:39,932
+In this case,
+the state has already been updated, so
+
+270
+00:20:39,932 --> 00:20:47,400
+the only thing that is needed is the Blog
+Posted message to the original requester.
+
+271
+00:20:47,400 --> 00:20:51,930
+The difference between these two schemes
+of doing things becomes more clear
+
+272
+00:20:53,050 --> 00:20:58,650
+if we consider that the quota will
+only be reached after the 1000th
+
+273
+00:20:58,650 --> 00:21:01,760
+blog post and not after the first one.
+
+274
+00:21:01,760 --> 00:21:07,660
+This means that most of the time,
+this check will be successful,
+
+275
+00:21:07,660 --> 00:21:10,060
+and we will want to
+accept a new blog post.
+
+276
+00:21:11,980 --> 00:21:13,820
+In this case,
+
+277
+00:21:13,820 --> 00:21:19,420
+accepting a blog post is always deferred
+until the previous one has been completed.
+
+278
+00:21:19,420 --> 00:21:23,050
+This means that this round
+trip time through the journal
+
+279
+00:21:23,050 --> 00:21:27,930
+determines the maximum rate at
+which we can accept new commands.
+
+280
+00:21:29,060 --> 00:21:34,530
+In the persistAsync case on
+the other hand, we can go ahead and
+
+281
+00:21:34,530 --> 00:21:38,600
+have several new post
+commands outstanding.
+
+282
+00:21:38,600 --> 00:21:42,700
+The round trip will be made, that
+defines the latency between new post and
+
+283
+00:21:42,700 --> 00:21:47,520
+blog posted, but other things can
+be happening at the same time.
+
+284
+00:21:47,520 --> 00:21:51,750
+This means that the maximum
+throughput of this actor for
+
+285
+00:21:51,750 --> 00:21:57,970
+processing new blog posts will be much
+higher than in the left-hand side case.
+
+286
+00:21:57,970 --> 00:22:01,232
+The obvious question is,
+if it performs better,
+
+287
+00:22:01,232 --> 00:22:04,118
+why do we not always
+just use this approach?
+
+288
+00:22:04,118 --> 00:22:09,493
+Well, if you look at the history
+that these graphs express, you can
+
+289
+00:22:09,493 --> 00:22:15,860
+see that this actor here will always only
+be in states that have been persisted.
+
+290
+00:22:15,860 --> 00:22:21,920
+It only changes the state once
+recovery will lead to the same result.
+
+291
+00:22:21,920 --> 00:22:24,390
+If this actor crashes in here,
+
+292
+00:22:24,390 --> 00:22:27,470
+then it had reached a state
+here which was never persisted.
+
+293
+00:22:28,790 --> 00:22:33,580
+This means this can only work if
+this new internal state change here,
+
+294
+00:22:33,580 --> 00:22:39,330
+which is not yet fully committed, cannot
+have any externally visible effects.
+
+295
+00:22:39,330 --> 00:22:44,370
+For example, we must not reply
+to this new post that comes in
+
+296
+00:22:44,370 --> 00:22:49,870
+here before we have actually heard
+back from the journal at this point.
+
+297
+00:22:49,870 --> 00:22:52,660
+There are many use cases which
+can benefit from this, but
+
+298
+00:22:52,660 --> 00:22:56,490
+keep in mind that this is
+not a general solution.
+
+299
+00:22:56,490 --> 00:23:00,050
+There is one more aspect that
+these graphs can illustrate.
+
+300
+00:23:02,290 --> 00:23:06,980
+Let's say the whole system
+fails at this point.
+
+301
+00:23:08,100 --> 00:23:08,620
+For example,
+
+302
+00:23:08,620 --> 00:23:12,500
+there is a power outage in the computing
+center and everything goes down.
+
+303
+00:23:12,500 --> 00:23:17,090
+It is clear that the Blog Posted
+messages will not have been sent,
+
+304
+00:23:17,090 --> 00:23:17,970
+not in either case.
+
+305
+00:23:19,300 --> 00:23:23,290
+But it is not clear whether the change,
+the event,
+
+306
+00:23:23,290 --> 00:23:27,830
+has already has been written to disk and
+will, therefore, be replayed or not.
+
+307
+00:23:28,990 --> 00:23:34,049
+What this means is that the persistent
+location to which the journal
+
+308
+00:23:34,049 --> 00:23:39,210
+writes the events, becomes the one
+source of truth for this system.
+
+309
+00:23:40,710 --> 00:23:43,870
+Either it has been persisted,
+then it will be replayed.
+
+310
+00:23:43,870 --> 00:23:48,760
+Or it has not been persisted, and
+then the post has never been posted.
+
+311
+00:23:48,760 --> 00:23:51,772
+This is a fundamental aspect
+of distributed systems.
+
+312
+00:23:51,772 --> 00:23:56,669
+You can have only one source of truth
+because agreeing whether the post
+
+313
+00:23:56,669 --> 00:24:00,073
+has been posted between
+this storage location.
+
+314
+00:24:00,073 --> 00:24:05,730
+And the client that wanted the post to
+be posted is a process that takes time.
+
+315
+00:24:05,730 --> 00:24:09,950
+It is not an atomic action that
+can be either made or not.
+
+316
+00:24:09,950 --> 00:24:15,530
+The practical consequence is that
+the client which sent the new post is
+
+317
+00:24:15,530 --> 00:24:20,580
+either interested in having the post made
+and then it will wait for the blog posted,
+
+318
+00:24:20,580 --> 00:24:24,840
+and if it doesn't come, it will resend
+it for that purpose it had the ID.
+
+319
+00:24:26,620 --> 00:24:28,580
+Or, that client might not care anymore,
+
+320
+00:24:28,580 --> 00:24:33,330
+and then it will not resend and
+then the storage
+
+321
+00:24:33,330 --> 00:24:37,610
+location in the journal just determines
+whether the blog post was made or not.
+
+322
+00:24:38,990 --> 00:24:42,690
+In order to complete this, let us look at
+the code that corresponds to the second
+
+323
+00:24:42,690 --> 00:24:46,770
+way of doing things, using persistAsync.
+
+324
+00:24:46,770 --> 00:24:50,920
+In this case, we do the check first,
+then we create the event and
+
+325
+00:24:50,920 --> 00:24:53,080
+update the state accordingly.
+
+326
+00:24:54,570 --> 00:25:00,870
+And then we use persistAsync to send
+the creative event to the journal and when
+
+327
+00:25:00,870 --> 00:25:06,310
+it comes back we can reply to the original
+sender that the blog has been posted.
+
+328
+00:25:06,310 --> 00:25:10,080
+And we also need to cycle the quota
+reached from the Journal.
+
+329
+00:25:10,080 --> 00:25:13,000
+But when it comes back,
+there is nothing else for
+
+330
+00:25:13,000 --> 00:25:17,070
+us to do because the state
+change has already been applied.
+
+331
+00:25:17,070 --> 00:25:20,170
+When discussing that in
+a distributed system
+
+332
+00:25:20,170 --> 00:25:24,720
+you cannot have a distributed source
+of truth, they will just be one.
+
+333
+00:25:24,720 --> 00:25:29,690
+We'd already touched on the subject that
+if someone is interested in something else
+
+334
+00:25:29,690 --> 00:25:34,280
+happening somewhere else, then that
+someone needs to make sure of that,
+
+335
+00:25:34,280 --> 00:25:35,760
+needs to retry things.
+
+336
+00:25:35,760 --> 00:25:41,502
+This leads us to wanting better
+messaging guarantees in the at-most-ones
+
+337
+00:25:41,502 --> 00:25:47,460
+semantics that Accra and other actor
+implementations provide out of the box.
+
+338
+00:25:47,460 --> 00:25:54,200
+What we want is that the message is sent,
+and then resent if something got lost,
+
+339
+00:25:54,200 --> 00:26:00,640
+until it was successfully delivered
+this is called At-Least-Once delivery.
+
+340
+00:26:00,640 --> 00:26:03,000
+In order to implement this, the sender and
+
+341
+00:26:03,000 --> 00:26:06,000
+the receiver of the message
+need to collaborate.
+
+342
+00:26:06,000 --> 00:26:10,630
+The sender needs to be able to resend
+the message until it gets the confirmation
+
+343
+00:26:10,630 --> 00:26:14,910
+back and the recipient, of course,
+needs to provide that confirmation.
+
+344
+00:26:14,910 --> 00:26:17,770
+It needs to acknowledge
+the receipt of the message.
+
+345
+00:26:17,770 --> 00:26:20,700
+Otherwise the sender doesn't
+know when it can stop resending.
+
+346
+00:26:22,360 --> 00:26:27,930
+Now messages can be lost in any direction
+in this exchange and if the receipt
+
+347
+00:26:27,930 --> 00:26:33,360
+confirmations are lost, then the sender
+will faithfully continue sending messages.
+
+348
+00:26:33,360 --> 00:26:38,400
+So At-Least-Once does not only mean
+that messages are sent possibly
+
+349
+00:26:38,400 --> 00:26:44,110
+multiple times, they will also be
+received possibly multiple times.
+
+350
+00:26:44,110 --> 00:26:47,610
+So this is what At-Least-One entails.
+
+351
+00:26:47,610 --> 00:26:51,100
+But how does this relate
+to actor persistence?
+
+352
+00:26:51,100 --> 00:26:55,920
+Well, if you need to be able to retry
+something, you need to take note of that
+
+353
+00:26:55,920 --> 00:27:00,040
+because If the actor that
+wants to retry things crashes,
+
+354
+00:27:00,040 --> 00:27:02,140
+the machine crashes, and so on.
+
+355
+00:27:02,140 --> 00:27:06,310
+Then after I just restart it, it needs to
+remember that it was about to do something
+
+356
+00:27:07,960 --> 00:27:11,640
+and this is not only true for
+the messages that need to be resent,
+
+357
+00:27:11,640 --> 00:27:14,590
+and keeping track of that,
+that shall happen.
+
+358
+00:27:14,590 --> 00:27:17,720
+It must also encompass
+the acknowledgements
+
+359
+00:27:17,720 --> 00:27:22,130
+because the actor must also
+remember when to stop resending.
+
+360
+00:27:22,130 --> 00:27:26,382
+Here we look at a simplified
+version of our blog post
+
+361
+00:27:26,382 --> 00:27:31,820
+management actor that manages
+the blog post for one user.
+
+362
+00:27:31,820 --> 00:27:35,240
+This one extends PersistentActor
+as the previous one.
+
+363
+00:27:35,240 --> 00:27:38,570
+But it also mixes in
+the At-Least-Once Delivery trait.
+
+364
+00:27:39,910 --> 00:27:43,770
+This trait provides the deliver method.
+
+365
+00:27:43,770 --> 00:27:49,330
+Now, when a new post request comes in,
+we persist that we want
+
+366
+00:27:49,330 --> 00:27:54,680
+this post to be created, and when that has
+been written to the journal and the event
+
+367
+00:27:54,680 --> 00:28:00,410
+comes back, We tell the At-Least-Once
+Delivery trait that we want to deliver
+
+368
+00:28:00,410 --> 00:28:05,770
+a PublishPost command, containing
+the text, to a certain publisher.
+
+369
+00:28:07,120 --> 00:28:11,640
+Publisher is giving to this
+UserProcessor actor as an ActorPath, and
+
+370
+00:28:11,640 --> 00:28:13,500
+not an ActorRef.
+
+371
+00:28:13,500 --> 00:28:16,700
+The reason for this is that,
+and you may remember,
+
+372
+00:28:16,700 --> 00:28:22,170
+that an actor if is coupled to the life
+cycle of one actor incarnation.
+
+373
+00:28:22,170 --> 00:28:26,200
+If the whole system crashed and
+is restarted afterwards,
+
+374
+00:28:26,200 --> 00:28:30,510
+then the ActorRef in the old
+system Will no longer be valid.
+
+375
+00:28:30,510 --> 00:28:33,960
+If you wrote them to disc and
+read them back in, and
+
+376
+00:28:33,960 --> 00:28:38,820
+reconstruct the ActorRefs and try to send
+to them the messages will go nowhere
+
+377
+00:28:38,820 --> 00:28:42,300
+because the actors will all have
+been recreated from scratch.
+
+378
+00:28:44,270 --> 00:28:49,350
+The part of the actor identity that stays
+valid across such an event is its name.
+
+379
+00:28:51,520 --> 00:28:53,830
+And that is exactly what is
+captured in the ActorPath.
+
+380
+00:28:55,010 --> 00:28:59,770
+The other notable detail about
+the delivery method is that the second
+
+381
+00:28:59,770 --> 00:29:04,540
+argument it takes is
+not simply an event or
+
+382
+00:29:04,540 --> 00:29:10,470
+command it is a function that produces
+one by inserting something here.
+
+383
+00:29:11,830 --> 00:29:15,350
+What it inserts is a long integer number
+
+384
+00:29:15,350 --> 00:29:19,870
+that serves as a correlation ID that we
+will see how it's used in the following.
+
+385
+00:29:21,040 --> 00:29:26,435
+Now as I said, the actor needs to remember
+that it wants to publish this post.
+
+386
+00:29:26,435 --> 00:29:32,540
+And it does that whenever it
+sees its post creative message.
+
+387
+00:29:32,540 --> 00:29:36,770
+So we also need to run the same
+processing in the receiveRecover method.
+
+388
+00:29:39,190 --> 00:29:43,060
+Normally you would update the state of the
+actor in both cases which I left out of
+
+389
+00:29:43,060 --> 00:29:44,150
+this example.
+
+390
+00:29:44,150 --> 00:29:50,250
+It is just important to note that delivery
+must be re-initiated after a crash.
+
+391
+00:29:51,820 --> 00:29:53,750
+But what about the confirmations?
+
+392
+00:29:53,750 --> 00:29:56,020
+We said that send and
+receive any to collaborate.
+
+393
+00:29:57,180 --> 00:30:01,030
+Let us say that the publisher
+speaks a protocol where
+
+394
+00:30:01,030 --> 00:30:06,540
+you can send a published post and
+it will reply with a post published
+
+395
+00:30:06,540 --> 00:30:11,030
+confirmation which carries the same
+ID that was placed in here.
+
+396
+00:30:13,280 --> 00:30:18,300
+What we do whenever we get that
+acknowledgement, is that we inform the at
+
+397
+00:30:18,300 --> 00:30:23,020
+least once delivery traits that this
+delivery has been confirmed with this ID.
+
+398
+00:30:24,450 --> 00:30:29,000
+And it is also important to do
+the very same thing to your recovery.
+
+399
+00:30:31,520 --> 00:30:35,040
+Picture this actor crashing
+after three years and
+
+400
+00:30:35,040 --> 00:30:37,730
+handling thousands of blog posts.
+
+401
+00:30:37,730 --> 00:30:42,080
+Then it will, for all of them,
+see a PostCreated and
+
+402
+00:30:42,080 --> 00:30:47,780
+a PostPublished pair,
+which means it will start redelivery
+
+403
+00:30:47,780 --> 00:30:51,760
+of something that was two years ago and
+then immediately stop redelivering.
+
+404
+00:30:53,450 --> 00:30:57,060
+Of course the At-Least-Once Delivery
+trait is smart enough so
+
+405
+00:30:57,060 --> 00:31:03,640
+that it does not actually start sending
+the outstanding events or commands.
+
+406
+00:31:03,640 --> 00:31:06,400
+It waits until recovery is complete.
+
+407
+00:31:06,400 --> 00:31:11,620
+So deliver and confirm, deliver and
+confirm means putting it in the lists
+
+408
+00:31:11,620 --> 00:31:15,980
+of things to be resend and taking it out
+again and only what is still outstanding
+
+409
+00:31:15,980 --> 00:31:21,830
+after recovery finishes will
+then be sent to the publisher.
+
+410
+00:31:21,830 --> 00:31:25,450
+When we talk about what messaging
+solutions we need to provide,
+
+411
+00:31:25,450 --> 00:31:30,360
+which semantics they shall do us
+At-Least-Once is not normally what we say.
+
+412
+00:31:31,510 --> 00:31:35,950
+Normally what we want to have
+is when we send a thing,
+
+413
+00:31:35,950 --> 00:31:40,360
+then once the messaging
+system takes this thing and
+
+414
+00:31:40,360 --> 00:31:44,590
+goes about sending it, we want
+the messaging solution to make sure for
+
+415
+00:31:44,590 --> 00:31:49,800
+us that processing happens for
+this item exactly once.
+
+416
+00:31:49,800 --> 00:31:54,877
+We can capture this in a little sketch
+to make the responsibilities clear.
+
+417
+00:31:54,877 --> 00:31:58,511
+We have a sender and a recipient.
+
+418
+00:31:58,511 --> 00:32:01,670
+Between them, we have.
+
+419
+00:32:01,670 --> 00:32:07,924
+A way to transmit messages,
+which has at-most-once semantics.
+
+420
+00:32:07,924 --> 00:32:11,727
+At-least-once is
+the responsibility of the sender.
+
+421
+00:32:14,257 --> 00:32:17,235
+The sender needs to remember and
+resend things.
+
+422
+00:32:17,235 --> 00:32:22,800
+Exactly-once is the responsibility
+of the recipient.
+
+423
+00:32:22,800 --> 00:32:28,620
+The recipient needs to remember what it
+has done and then avoid redoing it again.
+
+424
+00:32:28,620 --> 00:32:30,900
+In order to demonstrate this in code,
+
+425
+00:32:30,900 --> 00:32:34,370
+let us look at the publisher
+that we sent our block post to.
+
+426
+00:32:35,580 --> 00:32:37,410
+This will be a PersistentActor,
+
+427
+00:32:37,410 --> 00:32:41,720
+because it needs to take note of
+what it has already published.
+
+428
+00:32:41,720 --> 00:32:46,320
+The user processor used at-least-once
+semantics to make sure that
+
+429
+00:32:46,320 --> 00:32:50,300
+the PublishPost messages
+arrive at this point.
+
+430
+00:32:51,360 --> 00:32:53,960
+And now we need to implement
+the deed application.
+
+431
+00:32:55,125 --> 00:33:00,555
+For this purpose,
+an id is included in the PublishPost.
+
+432
+00:33:00,555 --> 00:33:05,555
+We're using here the ID that is generated
+by the at-least-once delivery trait
+
+433
+00:33:05,555 --> 00:33:10,705
+because that starts at zero and
+then is incremented contiguously.
+
+434
+00:33:10,705 --> 00:33:15,105
+When the publisher and
+the user processor startup,
+
+435
+00:33:15,105 --> 00:33:19,850
+they will both start their
+id sequence numbering at 0,
+
+436
+00:33:19,850 --> 00:33:24,440
+so we expert the first post
+to have an id of 0 here.
+
+437
+00:33:24,440 --> 00:33:27,980
+When the PublishPost comes in,
+we check the id to see
+
+438
+00:33:29,010 --> 00:33:34,240
+if it comes from the future and
+this means that we need to ignore it.
+
+439
+00:33:34,240 --> 00:33:37,870
+It is something that is
+newer than what we expect.
+
+440
+00:33:37,870 --> 00:33:39,010
+There is a message missing.
+
+441
+00:33:40,410 --> 00:33:46,980
+Otherwise, if the id is smaller than
+the next expectedId, that means
+
+442
+00:33:46,980 --> 00:33:52,430
+that we previously confirmed this id, but
+the confirmation must have been lost.
+
+443
+00:33:52,430 --> 00:33:54,690
+So we just need to confirm it again.
+
+444
+00:33:56,060 --> 00:33:59,350
+Otherwise, the id must
+equal the expectedId, and
+
+445
+00:33:59,350 --> 00:34:02,020
+this is where the interesting
+action happens.
+
+446
+00:34:02,020 --> 00:34:07,710
+First, we persist the event
+that we published this post.
+
+447
+00:34:07,710 --> 00:34:12,310
+Only once this is committed to stable
+memory, we get back this event,
+
+448
+00:34:12,310 --> 00:34:14,930
+we inform the sender of this confirmation.
+
+449
+00:34:16,390 --> 00:34:19,970
+And we do the actions of
+actually publishing the post.
+
+450
+00:34:19,970 --> 00:34:22,310
+Let's say we modify some
+website to do that.
+
+451
+00:34:23,500 --> 00:34:27,590
+As a last step,
+we need to increment the expectedId so
+
+452
+00:34:27,590 --> 00:34:30,940
+that we can receive the next
+PublishPost command.
+
+453
+00:34:30,940 --> 00:34:36,470
+This sequence makes sure that
+we persist the PostPublished
+
+454
+00:34:36,470 --> 00:34:40,610
+exactly in sequence for
+the IDs zero, one, two, and so on.
+
+455
+00:34:40,610 --> 00:34:43,690
+During recovery,
+the only thing that we need to
+
+456
+00:34:43,690 --> 00:34:48,520
+do is to keep track of what
+we have already published.
+
+457
+00:34:48,520 --> 00:34:50,830
+What we have already confirmed.
+
+458
+00:34:50,830 --> 00:34:56,306
+This process makes sure that we
+will persist the PostPublished for
+
+459
+00:34:56,306 --> 00:34:59,050
+each ID exactly-once.
+
+460
+00:34:59,050 --> 00:35:05,922
+Now, what happens if the machine that this
+actor is running on crashes at some point?
+
+461
+00:35:05,922 --> 00:35:08,988
+There are several different
+points where this could happen.
+
+462
+00:35:08,988 --> 00:35:13,810
+It's rather interesting if it happens here
+because we would ignore things anyway.
+
+463
+00:35:13,810 --> 00:35:17,130
+The most interesting part is
+within these braces here.
+
+464
+00:35:18,860 --> 00:35:24,790
+Let us consider that the PostPublished
+was persisted successfully.
+
+465
+00:35:24,790 --> 00:35:27,110
+We start executing the function, but
+
+466
+00:35:27,110 --> 00:35:30,550
+the machine crashes right here,
+before we send the message.
+
+467
+00:35:33,010 --> 00:35:37,151
+This means the same thing as
+if the acknowledgment that
+
+468
+00:35:37,151 --> 00:35:41,660
+we would normally send back
+would have been lost on the way.
+
+469
+00:35:41,660 --> 00:35:44,748
+The sender will retry the message.
+
+470
+00:35:44,748 --> 00:35:49,052
+We will see this expectedId
+is smaller as the one that we
+
+471
+00:35:49,052 --> 00:35:53,120
+expect because persistence was successful.
+
+472
+00:35:53,120 --> 00:35:56,885
+So we have during recovery
+incremented the expectedId.
+
+473
+00:35:57,950 --> 00:36:00,239
+But what about the modifications
+to the website?
+
+474
+00:36:01,570 --> 00:36:03,100
+These will not be retried.
+
+475
+00:36:03,100 --> 00:36:06,700
+They are the responsibility
+of the publisher actor.
+
+476
+00:36:06,700 --> 00:36:10,610
+We have persisted
+the confirmation here already, so
+
+477
+00:36:10,610 --> 00:36:14,100
+during replay,
+we do not modify the website.
+
+478
+00:36:14,100 --> 00:36:17,620
+Again, that is the purpose of this block.
+
+479
+00:36:17,620 --> 00:36:22,533
+This demonstrates that exactly-once
+delivery of messages is not
+
+480
+00:36:22,533 --> 00:36:24,820
+usually what you really want.
+
+481
+00:36:25,900 --> 00:36:29,470
+What you really want is
+exactly-once processing
+
+482
+00:36:29,470 --> 00:36:32,030
+of the effects that these
+messages should have.
+
+483
+00:36:33,170 --> 00:36:36,740
+This also should make it clear
+that no messaging solution
+
+484
+00:36:36,740 --> 00:36:39,410
+can ever take care of this for you.
+
+485
+00:36:39,410 --> 00:36:43,120
+If the machine crashes
+at the exact wrong time,
+
+486
+00:36:43,120 --> 00:36:45,100
+then the message may have been delivered.
+
+487
+00:36:45,100 --> 00:36:46,850
+But it has not yet had its effect.
+
+488
+00:36:47,900 --> 00:36:51,000
+The underlying issue is a fundamental one.
+
+489
+00:36:51,000 --> 00:36:56,140
+Performing an effect and
+persisting that it was performed can,
+
+490
+00:36:56,140 --> 00:36:59,000
+in almost all cases,
+not be done atomically.
+
+491
+00:37:00,360 --> 00:37:03,090
+You need to do either one then the other.
+
+492
+00:37:03,090 --> 00:37:05,080
+Or the other way around.
+
+493
+00:37:05,080 --> 00:37:08,258
+If you perform the effect
+before persisting it,
+
+494
+00:37:08,258 --> 00:37:11,370
+then you achieve at-least-once semantics.
+
+495
+00:37:12,418 --> 00:37:13,740
+Because you might perform it,
+
+496
+00:37:13,740 --> 00:37:17,680
+the machine crashes, you have no
+memory that you have performed it.
+
+497
+00:37:17,680 --> 00:37:19,890
+So you perform it again and
+then you persist.
+
+498
+00:37:19,890 --> 00:37:21,580
+You have done it twice.
+
+499
+00:37:21,580 --> 00:37:25,770
+The other choice is what I
+implemented on the previous slide,
+
+500
+00:37:25,770 --> 00:37:31,220
+namely to perform the effect of updating
+the website after persisting that this
+
+501
+00:37:31,220 --> 00:37:36,640
+has been done, and this achieves,
+as we have seen, at-most-once semantics.
+
+502
+00:37:36,640 --> 00:37:39,360
+Commercially available messaging solutions
+
+503
+00:37:39,360 --> 00:37:42,790
+usually pick the second of
+these alternatives, but
+
+504
+00:37:42,790 --> 00:37:46,840
+if you have a choice, you should make it
+based on your underlying business model.
+
+505
+00:37:47,970 --> 00:37:55,450
+What costs more, doing the effect
+one too many, or one too few times?
+
+506
+00:37:55,450 --> 00:37:59,990
+This choice to be made is
+usually between two evils.
+
+507
+00:37:59,990 --> 00:38:03,820
+If you think about,
+you need to build a credit card, and
+
+508
+00:38:03,820 --> 00:38:08,440
+you want to do it exactly-once for
+one purchase, as is usual.
+
+509
+00:38:08,440 --> 00:38:14,470
+Then, doing it zero times is maybe
+just as bad as doing it two times.
+
+510
+00:38:14,470 --> 00:38:16,570
+In one case, the company loses money.
+
+511
+00:38:16,570 --> 00:38:19,760
+In the other case,
+the customer will be very unhappy.
+
+512
+00:38:19,760 --> 00:38:21,920
+So is there not a third way?
+
+513
+00:38:21,920 --> 00:38:25,100
+The key to solving this
+dilemma is called idempotency.
+
+514
+00:38:26,230 --> 00:38:31,600
+An action is idempotent if executing
+it multiple times has the same effect
+
+515
+00:38:31,600 --> 00:38:36,750
+as executing it once, it does not matter
+whether you repeat the action or not.
+
+516
+00:38:36,750 --> 00:38:40,280
+We have seen an example of
+this on the previous slide,
+
+517
+00:38:40,280 --> 00:38:43,790
+where the actor assigned the expectedId.
+
+518
+00:38:43,790 --> 00:38:46,470
+No matter how many times
+the actor restarts, and
+
+519
+00:38:46,470 --> 00:38:50,690
+makes the very same assignment,
+the result is always the same.
+
+520
+00:38:50,690 --> 00:38:55,510
+Combining idempotent actions with
+at-least messaging semantics
+
+521
+00:38:55,510 --> 00:38:58,380
+achieves effectively
+exactly-once processing.
+
+522
+00:38:59,590 --> 00:39:02,340
+We have seen that actors
+persist their state
+
+523
+00:39:02,340 --> 00:39:05,210
+by recording the changes that
+they intend to make to it.
+
+524
+00:39:07,320 --> 00:39:11,400
+Each event is a fact that represents
+knowledge about the past and
+
+525
+00:39:11,400 --> 00:39:14,930
+that can be freely replicated,
+shared and sent around.
+
+526
+00:39:14,930 --> 00:39:18,930
+Other components can use the events
+immediate by one to learn
+
+527
+00:39:18,930 --> 00:39:24,060
+of that other components progress and
+make changes to its own state.
+
+528
+00:39:24,060 --> 00:39:28,010
+The state that existed at
+any given point in the past
+
+529
+00:39:28,010 --> 00:39:33,050
+can be reconstructed by replaying
+the events that lead up to that state.
+
+530
+00:39:33,050 --> 00:39:37,070
+Snapshots can be used to reduce
+the time that this takes,
+
+531
+00:39:37,070 --> 00:39:42,840
+because if you use them, recovery does not
+need to start at the beginning of time but
+
+532
+00:39:42,840 --> 00:39:46,240
+it can be started at
+the most recent snapshot.
+
+533
+00:39:46,240 --> 00:39:51,010
+Keep in mind, though, that snapshots do
+not represent the meaningful business
+
+534
+00:39:51,010 --> 00:39:57,010
+events of the domain, they represent
+the internal state of a component.
+
+535
+00:39:57,010 --> 00:40:02,541
+As such, they are less durable and
+less valuable than the events themselves.
+

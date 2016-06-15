@@ -1,0 +1,532 @@
+This week, we will turn our view to the
+last crucial missing piece.
+And that is how to handle failure in actor
+systems.
+This model was inspired by Erlang, and
+it is centered around the concept of
+supervision.
+So when you have a failure, it is
+contained and
+delegated to a supervisor who is then
+supposed to handle it.
+This gives rise to the question of how
+an actor's state is supposed to be
+handled,
+which will lead us to the error kernel
+pattern,
+and we'll also talk about how to persist
+and actor such that its state survives a
+failure.
+So far we have looked at actors which
+do exactly as they are told, and nothing
+unforeseen
+happens, but we need to concern ourselves
+also with
+handling the cases which we did not
+foresee, and
+that is what we will do in the following.
+In an asynchronous system which is
+completely based on asynchronous
+message passing, there is the problem
+where failure should go.
+Normally, when you call a method, an
+exception is thrown, and the
+caller gets this exception and then also
+is obliged to handle it.
+When you send a message to an actor, that
+actor
+processes the message long after the call
+in context is gone.
+The sender has gone onto something else.
+So where should failure go?
+In the actor model, there's just one way
+to communicate, and that is by
+way of messages which means that failure
+also needs to be sent as a message.
+We take the exception which was thrown
+inside the actor.
+We reify it as a message.
+And we send it, well, to whom?
+One possibility would be to send it back
+to that actor
+which had sent the message during whose
+processing we just failed.
+Let's step back a bit and try to visualize
+what that means.
+Let's say you're standing in front of a
+vending machine
+and you put in the coins and you select
+your product.
+Which means you make a request to the
+machine.
+And then something goes wrong, the ma, the
+machine is not
+in a state where it can sell you things,
+and then you
+get to handle the exception.
+That basically means that the customer of
+the
+vending machine, you, is responsible for
+fixing it.
+With actors we can do much better than
+this.
+The inspiration for how actors collaborate
+is taken from how we humans work together.
+Just like we form teams, actors work in
+systems.
+And the failure of an individual
+is handled by the team leader or, in that
+case, by another actor.
+In our society, we apply this pattern in a
+hierarchical fashion.
+Let's look at, for example, a big
+corporation.
+This
+big corporation might be divided into
+different divisions.
+For example, marketing, sales,
+and engineering.
+And engineering, for example,
+might have different product teams.
+And
+within the storage group, for example, we
+might have the file systems and
+the database.
+All of these teams on all levels have
+multiple members and one leader.
+The leader of the whole corporation is for
+example the CEO.
+And in the database team it might be the
+project leader for the database.
+Let's say that in this team someone falls
+sick.
+Now the leader has to either redistribute
+the work
+among the remaining members of the team or
+ask
+for help and as additional resources.
+If he cannot fix the problem himself he
+will therefore have to escalate it to his
+boss.
+The boss of the storage coop might then
+decide either to pull in resources from
+file systems
+or if they're underwater as well She might
+just
+escalate it to the leader of the
+engineering department.
+And this goes on,
+onto the top, making sure that every
+failure is eventually handled.
+This is precisely how actor systems do it
+as well.
+Resilience means recovering from a
+deformation.
+So to get back to the proper shape and
+form
+and function that it used to have before
+something went wrong.
+In order to achieve this we need two
+things.
+First of all containment which means that
+a failure is
+isolated such that it does, cannot spread
+to other components.
+The actor
+model naturally takes care of this because
+we
+have seen that actors are fully
+encapsulated objects.
+The second is, that failure cannot be
+handled by the failed component, because
+it is presumably compromised, so the
+handling
+of failure must be delegated to another.
+For actors, this means that one other
+actor needs
+to decide what to do with a failed actor,
+whether it shall be terminated or
+restarted.
+Of course, it would be confusing if this
+decision would somehow be
+taken by more than one actor, because they
+would have to collaborate.
+So in practice, it needs to be done by
+exactly one.
+And this means that if you look at
+supervision, there is a hierarchy which is
+formed.
+So if you have one actor here, let's call
+it top, which supervises three other
+actors,
+A, B and C.
+It will handle all their failures, and in
+order to do that it must also be able to
+restart them, or when it terminates them
+to recreate
+them to get the service up and running
+again.
+This means that top is not only the
+supervisor
+of A B and C but also its parent.
+The two hierarchies which are formed, the
+supervision hierarchy and
+the creation hierarchy are the same.
+In Akka, we call this mandatory parental
+supervision.
+How does this supervision hierarchy
+reflect in code?
+Let us look at one example.
+This class called manager is an actor
+which supervises two children.
+It creates a DBActor and it creates and
+ImportantServiceActor.
+Let's call them
+db and service.
+This miniature much declare what shall
+happen in case of failure.
+We say override val supervisorStrategy to
+override the default
+.The default would restart all children
+when they fail.
+We want to do something else here.
+So we say we have a OneForOneStrategy.
+I'll cover variance in a second.
+And then we give it what we call a
+decider.
+This is a partial function here with three
+cases.
+In case, we have a DBException from the
+DBActor.
+Then we restart it.
+This will probably tell the DBActor to
+reestablish the connection to the database
+in hope that the failure was transient.
+And will be fixed by reconnecting.
+The second case describes what shall
+happen
+when the actor receives a kill message.
+You can write, actor, bang, kill, which is
+a case object.
+And this is handled automatically by the
+actor context.
+And, which will make the actor
+throw an exception, namely this
+ActorKilledException.
+And then the supervisor gets to decide
+what to do, and usually the intention was
+to
+stop the actor, so that's what we do here.
+But what if this very important service
+actor fails?
+This manager depends on it.
+It cannot function without it.
+So it cannot fix the problem itself,
+hence it escalates this exception to its
+own supervisor.
+We have started from the premise that
+failure is communicated as a message, just
+as anything else between actors, hence it
+also acts like a message.
+It is sent and processed like a message.
+This means that the supervisor strategy
+declared inside the actor has full
+access to the actor's state, just as any
+message processing would have.
+Processing failure messages
+is sequentially serialized with all other
+messages as well.
+They go through the same mailbox.
+Which means that no normal message can be
+processed while a failure is currently
+being handled.
+In this example, we use this power to
+implement a bit more refined scheme.
+First we create a map restarts from
+ActorRef to integers.
+Which defaults to zero for the values.
+Then when we get a DBException,
+we actually look in the restarts map for
+the sender of this failure.
+And check, if it has failed too many
+times,
+then we remove this actor from the map and
+stop it.
+Otherwise, we update the map, increasing
+the failure
+count for this actor and issue a restart.
+This is just a very simple example to make
+it fit on one slide.
+You can do any kind of processing you
+would like.
+It is important to note that this should
+be a value and
+not a death.
+It would also work if you write overwrite
+death but then
+this strategy would be re-instantiated
+during the handling of each failure.
+And that is usually not what you want and
+it is not particularly efficient.
+There are variations on what you can
+apply.
+For example, the one for one strategy
+always deals with each child actor in
+isolation.
+If a decision shall apply to all children,
+then there is also the all for one
+strategy.
+Which means that the supervisor is
+supervising a group
+of actors which need to live and die
+together.
+Let me show you an example of this.
+We have a supervisor here,
+who's just super.
+With three
+children,
+A, B and C.
+Now if A fails.
+So I go, send the failure.
+The supervisor gets to decide what to do.
+And if
+it will restart A, then all of them will
+restart.
+If A would have been stopped, all three
+would have been stopped together.
+Both the one for one strategy and the all
+for
+one strategy can be configured to include
+a simple rate trigger.
+This means you can tell it to only allow a
+finite number of restarts.
+Here's an example, one for one
+strategy allows the specification of more
+arguments.
+This max number of restarts, ten, means
+that after
+ten restarts a restart would turn into a
+stop.
+The other feature which is demonstrated
+here as well
+is that this can be applied within a time
+window.
+So if there come ten restarts within one
+minute it's still fine.
+The eleventh in the same minute will be
+turned into a stop.
+An actor is restarted in order to recover
+from failure.
+The benefit of this is that other actors
+can
+continue communicating with the service
+provided by this actor.
+Before and after the restart without
+having to fix the problem.
+That was the initial goal.
+But this requires that the identifier by
+which other actors
+refer to this actor must be stable across
+a restart.
+In Akka, the ActorRef stays valid during a
+restart.
+It is just the actor object behind it
+which is
+swapped out during the restart as we will
+soon see.
+There are other ways to implement that.
+For example, in Erlang, actors which fail
+always terminate.
+And they are replaced by new ones.
+In order to give them a stable identity,
+there is
+a name registry into which the so called
+PID is registered.
+One issue with this approach is that
+clients of this registry must be
+able to cope with the fact that a name
+might be registered at one time.
+Then when the actor fails there is no name
+registered.
+And then once it is restarted the name
+refers to a different actor.
+An actor in Akka has a richer life cycle
+than a
+PID in Erlang, which is a trade-off
+between this additional
+complexity and avoiding the race
+conditions during restart.
+So far we have talked about restarts in an
+abstract vision, saying that it fixes
+the problem.
+But what does that really mean?
+Expected error conditions within an actor
+are typically handled explicitly.
+The sender will get a failure response as
+we have seen in the bank account example.
+It is the unexpected errors which we
+are concerned with here and anything
+unexpected.
+So an exception which is thrown which we
+did not foresee, for example,
+indicates that some part of the actor
+state has become invalid.
+The decision whether a possible failure is
+treated as an expected or
+an unexpected error Is one which needs to
+be taken on a case-by-case basis.
+But the goal of the actor model is to keep
+each actor as clean
+as possible, concerned only with its own
+business, and have the
+supervisor handle the rest.
+As a consequence, the supervisor's
+action will be course-grained.
+It can only stop, restart or escalate.
+In this sense the only safe action a
+supervisor can take upon a restart is
+to cause the actor to install its initial
+behavior to return to the initial state.
+Because that supposedly is a valid one.
+Now how does an actor's lifecycle look
+like?
+At first, it will be started.
+This happens when the parent calls context
+dot actor of and giving it the props.
+When the call return this start action
+will be scheduled to run asynchronously.
+The first thing which happens
+is that the actor context, the actual
+machinery, creates a new actor instance.
+This will run the constructor of the actor
+clause.
+The second is to run a method, a call back
+called preStart.
+This is executed before the first message
+is processed.
+Until this point, messages may have
+already been buffered in the actor's
+mailbox.
+The actor
+then begins processing messages and maybe
+it
+fails here.
+The failure reaches the
+machinery, the actor context, which
+will then consult the supervisor what to
+do.
+Once the verdict comes back, let us say
+it was a restart.
+What then happens is
+that, on this actor instance, another hook
+is called, namely
+preRestart.
+Then this instance is terminated.
+The object is not referenced any longer.
+It will collect it by the virtual
+machine's garbage collector.
+The next is that a new instance of the
+actor will be created.
+Again, a hook is run, this time
+postRestart.
+No messages will be processed between the
+failure and here.
+The message which caused the failure will
+not be processed again,
+because presumably it could also have been
+the cause of the failure.
+Then after postRestart, the actor resumes
+its actions.
+After a while, let us say the actor wants
+to stop.
+It signals this to the actor context,
+which will initiate
+the stop procedure.
+As part of this,
+the last hook will be run
+called postStop.
+And then, the actor instance will be
+terminated.
+Restarts, so all of this, can happen zero,
+one or any number of times.
+But an actor will always have one start
+event and one stop.
+And after the stop, it is
+completely terminated and cannot be
+restarted anymore.
+And it should be noted that at this place,
+this is where the actor's state is cleared
+out, because
+it was supposedly invalid and replaced by
+a new one.
+No internal actor state can cross this red
+line.
+The actor lifecycle is reflected in source
+code by the actor lifestyle hooks.
+Here we have the preStart method, which
+does not get an argument.
+preRestart, we know the reasons by which
+the
+restart was caused, and we may know the
+message.
+Which was processed while the actor
+failed.
+The default behavior is to stop all
+children at this point.
+Because child actors are considered part
+of an actor's state.
+Then by default the postStop hook is
+invoked.
+After a restart, postRestart again is
+invoked with the reason.
+And this defaults to preStart.
+And the postStop hook is the one which
+will
+be called after the instance is no longer
+running anymore.
+Let me illustrate two different ways to
+use these hooks on to examples.
+The first one is an actor representing a
+database connection.
+This DBActor, in its constructor calls
+DB.openConnection
+to return a handle to a database.
+When the actor is stopped, it needs to
+close this connection.
+By default, during a restart of course the
+constructor will rerun, after
+the restart and before the restart the
+handle will have been closed.
+This means that the actor is fully
+reinitialized during a restart.
+Another possibility is an actor which has
+external state.
+This listener will register with a source
+to receive events.
+In preStart it sends to the source a
+message, RegisterListener
+self, which means it registers its
+ActorRef to receive the
+notifications which it desires.
+As we have seen the
+ActorRef stays valid over restart, so
+preRestart,
+we do nothing.
+And postRestart, there is no reason
+to re-register, because we did not
+unregister.
+Only in postStop do we send to the source
+the unregistration command.
+It is important to note that actor-local
+state cannot be kept across the restarts.
+Remember the red line.
+Only external state like this registration
+can be managed in this fashion.
+You will also have noticed that by
+overriding preRestart to do
+nothing, we also do not stop child actors
+upon a restart.
+In this case, the actor context will
+recursively restart the child actors,
+which were not stopped.
+

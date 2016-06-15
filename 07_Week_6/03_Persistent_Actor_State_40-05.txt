@@ -1,0 +1,976 @@
+The error kernel pattern allows us to
+keep important actors relatively safe.
+But there are cases where we
+need to not lose state at all.
+We need to persist it.
+In this lecture,
+we look at how actors can do that.
+The first observation is that
+losing state due to a restart
+is not the only thing which can happen.
+Not only our software can be buggy,
+our hardware can make mistakes too.
+For example,
+the computer's power supply might fail, or
+there might be a power outage in the whole
+region and the data center goes down.
+In that case,
+the running state of actors will be
+lost because it is only kept in memory.
+If we need to keep that state across,
+for example the power outage,
+then we need to make sure that it is
+stored on a hard drive, for example.
+When the power comes back on, we can
+then read the last persisted state, and
+start from there.
+The same principle applies when it comes
+to a softer source of the restart.
+The reason why we did it
+might be different, but
+what needs to be done is exactly the same.
+We need to store the result
+of successful processing, and
+once the failure has happened when we
+recover from it, we need to recreate
+the current running state, so that we
+can keep running from where we left off.
+There are two main ways in
+which state can be persisted.
+The first is to have the actor mirror,
+a persistent storage location,
+and do in place updates of both.
+So when the actor's state changes,
+the persistent location is also updated.
+This persistent location could
+be files in the file system,
+or it could also be a record
+in a relational database.
+The other way is to not persist
+the state itself and update it,
+but to persist the changes
+which are applied to state.
+And this is done in an append only
+fashion, meaning that these change
+records will never be deleted,
+they will only be added to.
+The current state can then be derived by
+reapplying old changes from the beginning.
+There are obvious benefits to persisting
+the state and doing in-place updates.
+The first is that recovery of the latest
+state can be done in constant time,
+because you just need to go to that
+one memory location and read it back.
+The other advantage is that
+the data volume needed for
+storage depends only on the number of
+records and not on their rate of change.
+It is easy to see that if
+you persist the changes,
+you will always persist at least as much.
+And most of the time,
+much more data than if you would
+just persist the records themselves.
+But there are also benefits
+to persisting the changes.
+For example, if you do that,
+you can go back to any point in time and
+replay history.
+Audit what happened in which order,
+or restore a certain state,
+say from last Thursday because you need
+to either rerun what has happened or
+you need to discard all the changes
+which have been done since then.
+During a replay, the code which handles
+the processing could also have,
+for example, been fixed,
+because it had a bug previously.
+And that means that errors which
+correct into the current state
+can be corrected retroactively.
+This is not possible if you
+only store the current state,
+because it will have the bug in it.
+You all have seen the third
+advantage at work.
+For example,
+if you were shopping at a large
+shopping site on the internet,
+which we all well know.
+If you look at the shopping cart, and
+you put an item in, it is in the shopping
+cart, you might continue shopping,
+take it out, replace it by another one.
+And finally, once you go to the checkout,
+the current contents of the shopping
+cart is what you are actually buying.
+If you only persist that,
+then the whole history is lost.
+But it might be very
+interesting to keep statistics.
+For example, this refrigerator has
+been replaced in 50% of the cases
+by that other one, and people can then
+learn from other people's decisions.
+Of course, these insights can also
+be used inside the company itself
+to organize their logistics processes.
+Storing all these events
+takes a lot of space, but
+space is comparatively cheap nowadays,
+and therefore,
+if profit can be made from analyzing
+these data, then it's well worth it.
+The fourth advantage has to do
+with hardware and how that works.
+If you write to an append only stream,
+you can write a much higher bandwidth
+to IO, to network devices and
+also to hard disks.
+The reason is, that in-place
+updates need to at least appear to
+occur in exactly the order
+in which they were given.
+Which limits the possibilities for
+optimization.
+Finally, persisting immutable data
+has the advantage we have seen throughout
+the functional programming course.
+Anything which cannot possibly change
+can be freely shared and replicated.
+There is no need to synchronize access.
+And whether you store
+an event stream to one, two,
+or three locations does
+not make a difference.
+This point allows the benefits of
+both approaches to be combined.
+Consider an actor which
+wants to persist its state.
+It writes events describing all
+the changes into a event log.
+Since this log is immutable,
+another process
+could take this data and
+feed them into a database offline.
+From which the actor could then
+retrieve the latest persistent
+state in constant time.
+Doing that for all changes can be
+the right answer in certain situations.
+For example, if there are multiple
+readers for that state and
+not only this actor, but if you only want
+to persist the state of an actor and
+put an upper bound on the time a recovery
+may take, then you can also use snapshots.
+So we have again our actor,
+producing the stream of changes.
+And then to the side,
+there are snapshots, which it tags.
+At this state, when it persists
+that event, that was my state.
+And it can do so periodically,
+to keep the time short between these.
+And if recovery is needed, then only
+the latest snapshot will be taken and
+all events which came after that.
+Snapshots, again, have the property that
+they are immutable so they can be written,
+append in an efficient fashion and
+they can be freely shared.
+With this background, we can look at how
+actors actually persist the changes.
+You can picture an actor that is
+persistent as one that keeps taking notes
+of things that are happening, things that
+it is doing or things that it wants to do.
+In this is made available
+by the persist method.
+We'll see the logic context in a minute.
+It is important to first learn
+what it means to persist an event.
+First of all,
+we must create the event itself.
+Let's say we have a class MyEvent that
+we construct with some arguments here.
+Passing this into the first
+argument list of the persist method
+means that this event is sent
+to the so-called journal.
+We have here our actor that
+wants to persist things.
+And in the system, we have another actor
+that understands a certain set of
+messages related to persistence.
+Calling the persist method means
+sending a message to this journal
+that we want to persist a certain event.
+The journal can be implemented
+in many different ways.
+It could write this to the local hard disk
+which would not be perfect in
+case that hard disk fails.
+So typically, it will also write it to
+some other hard disk somewhere else or
+it might be stored in a different fashion.
+It might be in databases
+that are held in many copies
+in memory across all the globe.
+It can be any system that can make sure
+that whatever they pass here, the event
+that we want to persist is actually
+held such that it will not vanish.
+And that it is always there.
+Once that has been done,
+once that has been confirmed that
+the event has been written to disk and
+replicated and
+so on, the journal will reply to
+the actor with a confirmation.
+This confirmation contains the event.
+So the event travels once from the actor,
+to the journal,
+is being persisted, and
+then travels back to the actor.
+As soon as this journey is complete,
+the second part of the persist method,
+this function here comes into play.
+We receive the event as it
+comes back from the journal.
+And now, whatever we do in here,
+we can do in the knowledge that this
+event is stored safely somewhere.
+We can rely on the fact that we
+can replay this event later.
+We know that it has been persisted.
+This is why we describe events
+as facts about the past.
+Things that are certain and commentating.
+In order to look at
+a more complete example,
+we introduce a actor that
+does something useful.
+In this case,
+it manages a set of block posts.
+This actor understands
+a command called NewPost.
+Which contains the string, the text of the
+blog post, and some ID, a correlation ID.
+So that when the actor replies
+either with a positive BlogPosted or
+a negative BlogNotPosted message,
+we can use this ID to find out which
+posted was that was accepted or rejected.
+In addition to this external
+protocols spoken by the actor,
+we also define a set of events
+that this actor creates and emits.
+The first one is taking notes
+of a post that has been created.
+And this is the PostCreated event
+which holds the text of the blog post.
+And the second one,
+to make this actor a bit more interesting,
+records when the user who has submitted
+this blog post has reached their quota.
+Let's say we have a really stupid
+limit of you can only create one post.
+We'll see it on the next slide.
+The final piece here is that
+the actor itself will keep state.
+It accumulates the posts
+that were created and
+keeps track of whether
+the quarter has been reached.
+And this is held in a class called State
+here, which holds all the blog posts and
+the disabled flag once
+the quota has been reached.
+Remember that the purpose of
+events is to describe change.
+This means that the events themselves are
+meaningful in the domain that we modeled.
+So, we have blog PostCreated and
+QuotaReached.
+But the events themselves do not know how
+this influences the state of the actor.
+The state of the actor needs
+to know how events change it.
+This is why the State object has
+an updated method which takes
+an event and then it reacts accordingly
+to what the event type was.
+If it was a PostCreated,
+we make a copy of the state depending
+this text of the new blog post to
+the posts that are already there.
+Once we see a QuotaReached event,
+we just switch on the disabled flag.
+With these preparations out of the way,
+we can take a look at the actor itself.
+The first thing to note is that
+instead of extending actor,
+we extend PersistentActor.
+This trait defines the persist
+method that we have seen earlier.
+And it also runs this process of sending
+the to be persisted events to the journal,
+and receiving them back when
+they have been persisted.
+In order to do this, the PersistentActor
+must speak with the journal.
+Must have a conversation that
+we do not see in this actor.
+This is why the receive method has been
+implemented in the PersistentActor
+already, and what has been written
+there delegates to two new methods.
+The receiveCommand method is
+the correspondent of the receive in
+a normal actor and that it defines
+its normal behavior during runtime.
+There is another receiveRecover
+that we'll talk about later.
+The crucial piece that defines
+the stateful behavior of this actor
+is kept in a single variable called state.
+It starts out with a state that
+has no blog posts in it and
+is not in the disabled state.
+When this actor receives
+a request to create a new post,
+this will contain a text and
+this correlation ID.
+And in this case, the actor checks if
+posting has been disabled in this state,
+then the reply is pretty clear.
+We send a BlogNotPosted for this ID,
+with a quota reached explanation in it.
+The other case is
+the more interesting one.
+We want to create a blog post,
+and we must take note of it.
+So, first we create a PostCreated
+event with the text,
+and we persist that once this
+event comes back from the journal,
+we update the state of this actor.
+I have written a utility
+method here which does it.
+And then we can confirm to the sender
+of the new post request that
+this blog has been posted.
+In order to change the behavior
+of this actor to one which is
+preventing further block posts,
+we also persist a QuotaReached event.
+This demonstrates the usefulness
+of this updateState
+method which I find
+myself writing typically.
+Because this will just be expanded into
+a function that takes an event and
+applies it, so
+we can use the name here just like that.
+Now, what happens if this actor crashes,
+if the machine crashes that it is run on.
+When we start it again,
+the actor will process everything
+that it has persisted before.
+And this is done in
+the receiveRecover method.
+So whatever was successfully persisted,
+and it was post created, or
+the quota reached, will afterwards be
+replayed in this receiveRecover method.
+And here we simply take the event and
+update the state of this actor with it.
+This means that the state of the actor
+will go through all the same steps
+that it has gone through previously.
+UpdateState here and
+an updateState there, and
+the only thing that we leave out
+in this process is the other
+actions that are taken in response
+to successful persistence of events.
+While recovering,
+the sender of that blog post
+that we received from the journal
+might not be there anymore.
+This recovery might actually happen
+several years after the blog has been
+posted so
+sending back to that sender is pointless.
+But we need to update the state so
+that we arrive at the same internal state
+after recovery as we had before the crash.
+There is one important detail that I
+have glossed over on the last slide, and
+it is best explained
+using some flow diagrams.
+So what have we implemented?
+We have the actor and
+time going downwards, and
+we have the journal as
+the interesting parties.
+When the actor receives a new post,
+we have done several things,
+the first of which was to check whether
+posting is currently enabled or not.
+I'll mark that with
+this red color here and
+let us say the check was positive,
+then we persisted the new blog post.
+Now, it takes some time for the journal
+to disseminate this event, to replicate
+it to all the storage locations and
+to get back with the acknowledgement.
+Let's say it happens here.
+At this point,
+the function was run that we gave to
+the persist method as the second argument.
+And this was updating the internal state,
+as well as sending the reply
+to the original requester.
+So let's say this is updating the internal
+state, and then we send back Blog Posted.
+Now the interesting question is,
+what happens with a request
+that comes in in between these?
+When using the persist method to make
+this round trip via the journal,
+the persistent actor trait switches
+this actor in a sort of deaf state or
+in a state where it does
+not receive new messages.
+This means that the new post message
+that came in at this point in time
+will not be handled until the previous
+process has been completed.
+This is necessary because this
+check here depended on the state
+being the current state, but
+we only update the state down here.
+So if we perform this check again here,
+we will find that the quota
+reached has not yet been applied.
+We will persist another blog post even
+though that was not supposed to happen.
+This is why the processing of this message
+is deferred internally until this point.
+There is another method that can be used,
+so we'll draw the second case.
+We have, again, the actor and
+the journal and their timelines.
+We have a NewPost coming in.
+We perform the check, and
+then we use a method called persistAsync.
+This will also carry out the whole round
+trip for the event through the journal.
+So, it will come back at some point here,
+but
+it will not stop the actor from processing
+other messages in the meantime.
+This means in order to keep the actor's
+processing consistent with our rules,
+we need to apply the changes here,
+already.
+Such that when the next post comes in,
+it will be rejected because
+the quota reached has been applied.
+Now what is left to do when the
+persistence round trip has been completed,
+and the event's come
+back from the journal?
+In this case,
+the state has already been updated, so
+the only thing that is needed is the Blog
+Posted message to the original requester.
+The difference between these two schemes
+of doing things becomes more clear
+if we consider that the quota will
+only be reached after the 1000th
+blog post and not after the first one.
+This means that most of the time,
+this check will be successful,
+and we will want to
+accept a new blog post.
+In this case,
+accepting a blog post is always deferred
+until the previous one has been completed.
+This means that this round
+trip time through the journal
+determines the maximum rate at
+which we can accept new commands.
+In the persistAsync case on
+the other hand, we can go ahead and
+have several new post
+commands outstanding.
+The round trip will be made, that
+defines the latency between new post and
+blog posted, but other things can
+be happening at the same time.
+This means that the maximum
+throughput of this actor for
+processing new blog posts will be much
+higher than in the left-hand side case.
+The obvious question is,
+if it performs better,
+why do we not always
+just use this approach?
+Well, if you look at the history
+that these graphs express, you can
+see that this actor here will always only
+be in states that have been persisted.
+It only changes the state once
+recovery will lead to the same result.
+If this actor crashes in here,
+then it had reached a state
+here which was never persisted.
+This means this can only work if
+this new internal state change here,
+which is not yet fully committed, cannot
+have any externally visible effects.
+For example, we must not reply
+to this new post that comes in
+here before we have actually heard
+back from the journal at this point.
+There are many use cases which
+can benefit from this, but
+keep in mind that this is
+not a general solution.
+There is one more aspect that
+these graphs can illustrate.
+Let's say the whole system
+fails at this point.
+For example,
+there is a power outage in the computing
+center and everything goes down.
+It is clear that the Blog Posted
+messages will not have been sent,
+not in either case.
+But it is not clear whether the change,
+the event,
+has already has been written to disk and
+will, therefore, be replayed or not.
+What this means is that the persistent
+location to which the journal
+writes the events, becomes the one
+source of truth for this system.
+Either it has been persisted,
+then it will be replayed.
+Or it has not been persisted, and
+then the post has never been posted.
+This is a fundamental aspect
+of distributed systems.
+You can have only one source of truth
+because agreeing whether the post
+has been posted between
+this storage location.
+And the client that wanted the post to
+be posted is a process that takes time.
+It is not an atomic action that
+can be either made or not.
+The practical consequence is that
+the client which sent the new post is
+either interested in having the post made
+and then it will wait for the blog posted,
+and if it doesn't come, it will resend
+it for that purpose it had the ID.
+Or, that client might not care anymore,
+and then it will not resend and
+then the storage
+location in the journal just determines
+whether the blog post was made or not.
+In order to complete this, let us look at
+the code that corresponds to the second
+way of doing things, using persistAsync.
+In this case, we do the check first,
+then we create the event and
+update the state accordingly.
+And then we use persistAsync to send
+the creative event to the journal and when
+it comes back we can reply to the original
+sender that the blog has been posted.
+And we also need to cycle the quota
+reached from the Journal.
+But when it comes back,
+there is nothing else for
+us to do because the state
+change has already been applied.
+When discussing that in
+a distributed system
+you cannot have a distributed source
+of truth, they will just be one.
+We'd already touched on the subject that
+if someone is interested in something else
+happening somewhere else, then that
+someone needs to make sure of that,
+needs to retry things.
+This leads us to wanting better
+messaging guarantees in the at-most-ones
+semantics that Accra and other actor
+implementations provide out of the box.
+What we want is that the message is sent,
+and then resent if something got lost,
+until it was successfully delivered
+this is called At-Least-Once delivery.
+In order to implement this, the sender and
+the receiver of the message
+need to collaborate.
+The sender needs to be able to resend
+the message until it gets the confirmation
+back and the recipient, of course,
+needs to provide that confirmation.
+It needs to acknowledge
+the receipt of the message.
+Otherwise the sender doesn't
+know when it can stop resending.
+Now messages can be lost in any direction
+in this exchange and if the receipt
+confirmations are lost, then the sender
+will faithfully continue sending messages.
+So At-Least-Once does not only mean
+that messages are sent possibly
+multiple times, they will also be
+received possibly multiple times.
+So this is what At-Least-One entails.
+But how does this relate
+to actor persistence?
+Well, if you need to be able to retry
+something, you need to take note of that
+because If the actor that
+wants to retry things crashes,
+the machine crashes, and so on.
+Then after I just restart it, it needs to
+remember that it was about to do something
+and this is not only true for
+the messages that need to be resent,
+and keeping track of that,
+that shall happen.
+It must also encompass
+the acknowledgements
+because the actor must also
+remember when to stop resending.
+Here we look at a simplified
+version of our blog post
+management actor that manages
+the blog post for one user.
+This one extends PersistentActor
+as the previous one.
+But it also mixes in
+the At-Least-Once Delivery trait.
+This trait provides the deliver method.
+Now, when a new post request comes in,
+we persist that we want
+this post to be created, and when that has
+been written to the journal and the event
+comes back, We tell the At-Least-Once
+Delivery trait that we want to deliver
+a PublishPost command, containing
+the text, to a certain publisher.
+Publisher is giving to this
+UserProcessor actor as an ActorPath, and
+not an ActorRef.
+The reason for this is that,
+and you may remember,
+that an actor if is coupled to the life
+cycle of one actor incarnation.
+If the whole system crashed and
+is restarted afterwards,
+then the ActorRef in the old
+system Will no longer be valid.
+If you wrote them to disc and
+read them back in, and
+reconstruct the ActorRefs and try to send
+to them the messages will go nowhere
+because the actors will all have
+been recreated from scratch.
+The part of the actor identity that stays
+valid across such an event is its name.
+And that is exactly what is
+captured in the ActorPath.
+The other notable detail about
+the delivery method is that the second
+argument it takes is
+not simply an event or
+command it is a function that produces
+one by inserting something here.
+What it inserts is a long integer number
+that serves as a correlation ID that we
+will see how it's used in the following.
+Now as I said, the actor needs to remember
+that it wants to publish this post.
+And it does that whenever it
+sees its post creative message.
+So we also need to run the same
+processing in the receiveRecover method.
+Normally you would update the state of the
+actor in both cases which I left out of
+this example.
+It is just important to note that delivery
+must be re-initiated after a crash.
+But what about the confirmations?
+We said that send and
+receive any to collaborate.
+Let us say that the publisher
+speaks a protocol where
+you can send a published post and
+it will reply with a post published
+confirmation which carries the same
+ID that was placed in here.
+What we do whenever we get that
+acknowledgement, is that we inform the at
+least once delivery traits that this
+delivery has been confirmed with this ID.
+And it is also important to do
+the very same thing to your recovery.
+Picture this actor crashing
+after three years and
+handling thousands of blog posts.
+Then it will, for all of them,
+see a PostCreated and
+a PostPublished pair,
+which means it will start redelivery
+of something that was two years ago and
+then immediately stop redelivering.
+Of course the At-Least-Once Delivery
+trait is smart enough so
+that it does not actually start sending
+the outstanding events or commands.
+It waits until recovery is complete.
+So deliver and confirm, deliver and
+confirm means putting it in the lists
+of things to be resend and taking it out
+again and only what is still outstanding
+after recovery finishes will
+then be sent to the publisher.
+When we talk about what messaging
+solutions we need to provide,
+which semantics they shall do us
+At-Least-Once is not normally what we say.
+Normally what we want to have
+is when we send a thing,
+then once the messaging
+system takes this thing and
+goes about sending it, we want
+the messaging solution to make sure for
+us that processing happens for
+this item exactly once.
+We can capture this in a little sketch
+to make the responsibilities clear.
+We have a sender and a recipient.
+Between them, we have.
+A way to transmit messages,
+which has at-most-once semantics.
+At-least-once is
+the responsibility of the sender.
+The sender needs to remember and
+resend things.
+Exactly-once is the responsibility
+of the recipient.
+The recipient needs to remember what it
+has done and then avoid redoing it again.
+In order to demonstrate this in code,
+let us look at the publisher
+that we sent our block post to.
+This will be a PersistentActor,
+because it needs to take note of
+what it has already published.
+The user processor used at-least-once
+semantics to make sure that
+the PublishPost messages
+arrive at this point.
+And now we need to implement
+the deed application.
+For this purpose,
+an id is included in the PublishPost.
+We're using here the ID that is generated
+by the at-least-once delivery trait
+because that starts at zero and
+then is incremented contiguously.
+When the publisher and
+the user processor startup,
+they will both start their
+id sequence numbering at 0,
+so we expert the first post
+to have an id of 0 here.
+When the PublishPost comes in,
+we check the id to see
+if it comes from the future and
+this means that we need to ignore it.
+It is something that is
+newer than what we expect.
+There is a message missing.
+Otherwise, if the id is smaller than
+the next expectedId, that means
+that we previously confirmed this id, but
+the confirmation must have been lost.
+So we just need to confirm it again.
+Otherwise, the id must
+equal the expectedId, and
+this is where the interesting
+action happens.
+First, we persist the event
+that we published this post.
+Only once this is committed to stable
+memory, we get back this event,
+we inform the sender of this confirmation.
+And we do the actions of
+actually publishing the post.
+Let's say we modify some
+website to do that.
+As a last step,
+we need to increment the expectedId so
+that we can receive the next
+PublishPost command.
+This sequence makes sure that
+we persist the PostPublished
+exactly in sequence for
+the IDs zero, one, two, and so on.
+During recovery,
+the only thing that we need to
+do is to keep track of what
+we have already published.
+What we have already confirmed.
+This process makes sure that we
+will persist the PostPublished for
+each ID exactly-once.
+Now, what happens if the machine that this
+actor is running on crashes at some point?
+There are several different
+points where this could happen.
+It's rather interesting if it happens here
+because we would ignore things anyway.
+The most interesting part is
+within these braces here.
+Let us consider that the PostPublished
+was persisted successfully.
+We start executing the function, but
+the machine crashes right here,
+before we send the message.
+This means the same thing as
+if the acknowledgment that
+we would normally send back
+would have been lost on the way.
+The sender will retry the message.
+We will see this expectedId
+is smaller as the one that we
+expect because persistence was successful.
+So we have during recovery
+incremented the expectedId.
+But what about the modifications
+to the website?
+These will not be retried.
+They are the responsibility
+of the publisher actor.
+We have persisted
+the confirmation here already, so
+during replay,
+we do not modify the website.
+Again, that is the purpose of this block.
+This demonstrates that exactly-once
+delivery of messages is not
+usually what you really want.
+What you really want is
+exactly-once processing
+of the effects that these
+messages should have.
+This also should make it clear
+that no messaging solution
+can ever take care of this for you.
+If the machine crashes
+at the exact wrong time,
+then the message may have been delivered.
+But it has not yet had its effect.
+The underlying issue is a fundamental one.
+Performing an effect and
+persisting that it was performed can,
+in almost all cases,
+not be done atomically.
+You need to do either one then the other.
+Or the other way around.
+If you perform the effect
+before persisting it,
+then you achieve at-least-once semantics.
+Because you might perform it,
+the machine crashes, you have no
+memory that you have performed it.
+So you perform it again and
+then you persist.
+You have done it twice.
+The other choice is what I
+implemented on the previous slide,
+namely to perform the effect of updating
+the website after persisting that this
+has been done, and this achieves,
+as we have seen, at-most-once semantics.
+Commercially available messaging solutions
+usually pick the second of
+these alternatives, but
+if you have a choice, you should make it
+based on your underlying business model.
+What costs more, doing the effect
+one too many, or one too few times?
+This choice to be made is
+usually between two evils.
+If you think about,
+you need to build a credit card, and
+you want to do it exactly-once for
+one purchase, as is usual.
+Then, doing it zero times is maybe
+just as bad as doing it two times.
+In one case, the company loses money.
+In the other case,
+the customer will be very unhappy.
+So is there not a third way?
+The key to solving this
+dilemma is called idempotency.
+An action is idempotent if executing
+it multiple times has the same effect
+as executing it once, it does not matter
+whether you repeat the action or not.
+We have seen an example of
+this on the previous slide,
+where the actor assigned the expectedId.
+No matter how many times
+the actor restarts, and
+makes the very same assignment,
+the result is always the same.
+Combining idempotent actions with
+at-least messaging semantics
+achieves effectively
+exactly-once processing.
+We have seen that actors
+persist their state
+by recording the changes that
+they intend to make to it.
+Each event is a fact that represents
+knowledge about the past and
+that can be freely replicated,
+shared and sent around.
+Other components can use the events
+immediate by one to learn
+of that other components progress and
+make changes to its own state.
+The state that existed at
+any given point in the past
+can be reconstructed by replaying
+the events that lead up to that state.
+Snapshots can be used to reduce
+the time that this takes,
+because if you use them, recovery does not
+need to start at the beginning of time but
+it can be started at
+the most recent snapshot.
+Keep in mind, though, that snapshots do
+not represent the meaningful business
+events of the domain, they represent
+the internal state of a component.
+As such, they are less durable and
+less valuable than the events themselves.
+
