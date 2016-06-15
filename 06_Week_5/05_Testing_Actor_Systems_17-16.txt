@@ -1,0 +1,420 @@
+You have seen now all that you need to
+know in order to
+write actors, and have them interact with
+each other, but one thing is missing.
+Testing actors is integral to developing
+them as we will see.
+You will notice, when testing them, when
+you have,
+for example, chosen a messaging pattern
+which does not
+lend itself well to testing, and that
+might be
+a hint that the design is also not so
+well-suited for production.
+For example, if you couple components too
+tightly, you will notice during testing.
+Therefore, we will look now at the tools
+available in the Akka toolbelt for this
+purpose.
+The first thing to note about actors,
+remember,
+is that they only interact using message
+passing.
+There is no way to reach into them and
+to check their current behavior without
+sending a message.
+And all you can ever get is a message
+back.
+This is what I mean when I say
+that tests can only verify externally
+observable effects.
+An example, this actor called Toggle has
+two states, happy and sad.
+You can ask this actor how it feels right
+now, and
+it will reply with either happy or sad.
+And on each reply it will switch its
+behavior.
+How do you test this actor?
+Well, there is only one way to do it.
+We must send it, how are you messages, and
+then we must observe
+which replies we get back, and they should
+alternate between happy and sad.
+Akka comes with a test kit, which makes
+this
+task quite easy.
+The central piece in it is called Test
+Probe.
+A Test Probe is like a little remote
+controlled actor.
+It's only purpose is to buffer incoming
+messages in an internal
+queue so that they can be inspected from
+the test procedure.
+When we write a test, we need to start the
+whole system, and we cannot use the
+Akka.main class for
+this purpose, which we have used so far.
+Here you can see how to explicitly create
+an Actor System.
+Like actors, Actor Systems also have
+names.
+We call this TestSys.
+Then we make this system implicitly
+available.
+The second step is to create our actor on
+the test.
+We create a Toggle, and then we create a
+Test Probe.
+Creating a test probe also creates this
+little actor inside for which it
+needs the system, and the system is picked
+up implicitly in this case.
+Now we have two actors, the actor on the
+test,
+and the probe, and they can have a little
+chat.
+The probe sends to the toggle, how are
+you, and
+then the probe expects the reply back,
+happy.
+When we do the same thing again, the
+expected reply will be sad.
+When we try to send something which the
+actor does not handle we did
+not foresee a case for that, so the actor
+will not react to this.
+So we do not expect a message.
+And we wait for one second, that should be
+enough to verify
+that no response is received.
+Since we created the Actor System in this
+test, we
+also need to make sure to properly shut it
+down.
+Because otherwise the threads, which it
+creates, will keep running.
+You might have wondered about
+system.actorOf because so far
+we have only seen context of actorOf, and
+the
+context was that one of an actor meaning
+that only an actor can create another
+actor.
+System.actorOf does the same thing behind
+the scenes.
+The Actor System comes with a so-called
+guardian actor and system actorOf
+sends a request to that guardian actor to
+create this actor for us.
+The Test Probe is a little actor which is
+driven from the
+outside but we can also use the test probe
+from the inside.
+We can run a test in the context of a
+probe.
+This is done by using the test kit class,
+which is initialized with an Actor System.
+Inside of this class the system is
+available with the name system.
+The trait with implicit sender makes the
+internal Small actor
+available implicitly, so that it will be
+picked up here, where we sent messages.
+The sender, which is picked up
+automatically here, is named
+testActor, and is an actor ref, which you
+can also use in this test if you need to
+send it explicitly.
+The second thing to notice as, is that
+we use expect message without a leading
+probe dot.
+This is because expect message is a method
+on TestKit.
+So it is directly available here.
+But then the test runs in exactly the same
+fashion, and at the end we
+still need to shut down the system.
+Some of the actors which you want to test
+will have external dependencies.
+For example, they need to talk to a
+database or a web service of
+some sort, and you do not want to use
+those real ones for testing.
+The traditional solution to this problem
+is
+to use dependency injection, to use
+different,
+for example, database handles during
+tests,
+during staging and then in production.
+You can use the same approach with actors.
+You could use, for example, Akka together
+with Spring.
+If you Google it you will find how to do
+that.
+We will look at a very simple solution
+here which is to simply add overridable
+factory methods.
+For example let's
+look at the Receptionist.
+The Receptionist needs to create a
+controller in,
+under certain circumstances, and if we
+hard wire
+the props controller in the actor of call,
+we cannot stub it out in a test.
+What we can simply do is to add a
+method, controllerProps, which gives these
+props with the known behavior.
+And this allows us to override
+this method in a test to create a
+different actor which, for
+example, does not really go to the Web to
+retrieve the links.
+Or, talking about that, if we look at the
+Getter, the Getter used WebClient get URL,
+if we want to switch out the WebClient
+from the real one which I've renamed
+AsyncWebClient here.
+To a fake one, we can just insert this
+method as shown, and
+then the test can override it.
+Let us look at this in practice.
+I have renamed the web client object to
+AsyncWebClient, and
+factored out the interface WebClient here
+with the get method.
+Within the getter, this def gives the
+AsyncWebClient which is used here.
+Next, I have prepared some code to fake a
+web client.
+First, we start out at a certain link and
+we take the
+actual html document, which shall live at
+this link, from this body's map here.
+And there is a links map, which for this
+link also has the desired output
+of the getter, the sequence of links
+encountered.
+Then, we create a FakeWebClient which
+implements the WebClient interface.
+When we get a URL we look simply in the
+bodies
+map and if there is none, we give a
+BadStatus(404), not found.
+If there is one we give it a successful
+future with the body.
+We can inject this into a getter as shown
+here in the fakeGetter method.
+This returns props describing how to
+create a getter which uses the
+FakeWebClient.
+We say props, new getter, and then we
+override in an anonymous class definition
+what client
+means, and we say this shall be the fake
+web client, instead of the real one.
+Before we can test the getter, we need one
+more thing.
+The getter actor sends to its parent.
+And that is what we want to verify, but
+the parent
+is something, if we have the system create
+a getter for us,
+then that would be the guardian, and that
+would not be
+very useful because we cannot monitor what
+gets sent to the guardian.
+Therefore, we need to create a StepParent
+for
+the getter.
+The StepParent is an actor which takes a
+description of how to
+create a child and the probe to which all
+messages shall be forwarded.
+It then creates the child, and whenever it
+receives a message, it sends to the probe
+with
+the tell method, to send the message, and
+to keep the original sender so that what
+arrives
+at the probe seems to come from the
+original sender.
+So it's, will seem to come from the
+getter, in that case.
+Before using that on the real getter, let
+me show you a slight variation of this
+pattern.
+If we want to inspect all the messages
+which are exchanged between a child and a
+parent,
+in both ways, then we could create a
+FosterParent,
+which mediates between the child and its
+real parent.
+The FosterParent again gets the
+description of
+how to create the child and the probe.
+Now it
+needs to remember the child actor ref
+because whenever the
+context.parent sends a message, then in
+addition
+to forwarding the message to the probe, we
+also forward the message to the child.
+This forward here is the same as shown
+previously, so it
+will use tell with the current sender as
+the sender argument.
+If we receive a message from another
+actor, presumably from the child, then we
+send it to the probe as well, but we
+forward it also to the parent.
+This way, this FosterParent is nearly
+completely transparent
+for all messages sent between parent and
+child.
+The only thing which does not quite work
+is if one of those two would expose
+the ref of this foster parent to external
+actors, because for that we do
+not have the necessary logic to find out
+where the message should have gone.
+Now we are ready to write the Getter
+specification.
+Class GetterSpec extends TestKit with an
+ActorSystem with an appropriate
+name, and I am using Scala Test with the
+WordSpecLike.
+BeforeAndAfterAll is needed so that after
+the tests
+have run we can shut down the system.
+An ImplicitSender is needed, as you have
+seen so that messages sent will have
+the right sender.
+Here we have the specification of the
+Getter and it has two
+test cases, and the first one we create a
+StepParent for a fakeGetter.
+Which starts at the first link of depth
+two.
+And we want to verify that we get the
+right response.
+The name we give to this test case, main
+actor, is rightBody.
+So we can see if something goes wrong.
+We look into the links map.
+Which we have in the test case for the
+first link.
+And for all links we expect, we
+say, expect message, controller.Check,
+link at depth two.
+And finally, the getter must terminate the
+exchange by saying, getter.done.
+In the second test case, we try to
+retrieve a URL which does not exist, and
+we only expect Getter.Done.
+If you installed the Scala test plugin for
+the
+Scala IDE, then with a right click in the
+Context
+menu under Run As there is Scala test
+file,
+if you click on it the test will be run.
+And we see the bar is green, everything
+has worked.
+Another example we can look at is how to
+test the Receptionist in isolation.
+For that, we need to create a
+FakeController.
+The FakeController here will be an actor,
+which
+when it receives a check, will just sleep
+for one second, simulating that something
+takes, takes
+time, and then it will send back the
+result.
+But wait a second, did I just say sleep?
+Actors shall not sleep, so let's fix this.
+We
+can replace this by the scheduler.
+Much better.
+This is just test code, you might say.
+But remember you need to think that actors
+should never block
+and not practicing it anywhere is a good
+way to achieve that.
+We wired this FakeController into a
+FakeReceptionist.
+Again by saying Props new Receptionist,
+and then in an anonymous class, we
+override the controller props to be
+pointing to this Fake Controller instead.
+The Receptionist Spec works in the same
+way as
+the Getter spec by using a TestKit with an
+ActorSystem.
+This time, with a different name, to make
+it clear which
+test is currently running, WordSpecLike,
+BeforeAndAfterAll,
+with the shutdown, and the ImplicitSender.
+And here, we have the test cases.
+In the first test case, we verify that the
+result is returned as specified.
+We create a receptionist, using the fake
+one, and we send it a get for my URL.
+This is tested completely in isolation, it
+will
+not call any getter, so any string will
+do.
+We expect back the message that the result
+for this myURL
+is exactly the set with just myURL in it.
+The other thing we are going to test
+is that the Receptionist properly queues
+and rejects requests as we have designed.
+So again we create one with the name
+rejectFlood and we send it
+five requests, each with a different
+string so that we can disambiguate them.
+First, we expect
+the failed for the last one, where the
+queue should be full and then
+we expect the other ones exactly in the
+order in which we sent them.
+Running this test
+will take a little longer because we built
+in the
+one second delay but the bar is green,
+everything worked.
+When testing Actor Hierarchies.
+So you have collaborating actors which
+work
+together and some are parents of others,
+you will of course want to test each actor
+in isolation as much as possible.
+But what you should also do is to work
+your way up the hierarchy by starting out
+from the leaves and then spawning the
+supervisor which will create the children
+actors in the test, testing them all
+together.
+This is more integration testing of your
+actors,
+and since you go from the leaves outwards,
+you're adding shells on top of what you
+currently have, I call this Reverse Onion
+Testing.
+It's like not peeling back the onion
+layers, it's like putting them onto the
+onion.
+With the techniques
+shown in this lecture, you should be all
+set to begin the exercises, and
+successfully complete them.
+I wish you the best of luck.
+

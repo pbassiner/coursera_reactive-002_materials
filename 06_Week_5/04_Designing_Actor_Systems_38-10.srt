@@ -1,0 +1,2407 @@
+1
+00:00:01,320 --> 00:00:06,390
+We have seen what actors are and
+how messages are passed between them, but
+
+2
+00:00:06,390 --> 00:00:10,280
+how does one go about actually
+writing actor systems?
+
+3
+00:00:10,280 --> 00:00:12,470
+This is what we will look
+at in the following, and
+
+4
+00:00:12,470 --> 00:00:16,320
+we will encounter a few other useful
+things to use in the actor toolbox.
+
+5
+00:00:17,890 --> 00:00:22,530
+When starting to design an actor
+application, it is helpful to visualize
+
+6
+00:00:22,530 --> 00:00:26,510
+first a room full of people, and you
+have all these people at your disposal.
+
+7
+00:00:27,610 --> 00:00:31,500
+You have your task which you need to
+solve, and what you need to figure out in
+
+8
+00:00:31,500 --> 00:00:36,950
+the process is how to divide the task
+into subtasks and sub subtasks.
+
+9
+00:00:36,950 --> 00:00:42,020
+So that every person knows what to do,
+and there is not too much to do for
+
+10
+00:00:42,020 --> 00:00:42,620
+any one of them.
+
+11
+00:00:44,740 --> 00:00:49,610
+Since actors have fairly low overhead,
+you can create many of them.
+
+12
+00:00:49,610 --> 00:00:53,370
+So consider this group of people
+to be of very large size for
+
+13
+00:00:53,370 --> 00:00:54,835
+all practical purposes.
+
+14
+00:00:54,835 --> 00:01:03,540
+As you know from organizing like a party
+or anything where people collaborate on,
+
+15
+00:01:03,540 --> 00:01:07,430
+it is important to keep an eye on
+who will have to talk to whom and
+
+16
+00:01:07,430 --> 00:01:11,350
+how much they will have to talk
+in order to fulfill their tasks.
+
+17
+00:01:11,350 --> 00:01:15,600
+It is important to optimize
+the communication paths in an actor system
+
+18
+00:01:15,600 --> 00:01:17,990
+just as it is in a human organization.
+
+19
+00:01:19,730 --> 00:01:23,190
+There is one aspect of this
+comparison between actors and
+
+20
+00:01:23,190 --> 00:01:26,640
+people which does not quite hold.
+
+21
+00:01:26,640 --> 00:01:33,830
+And that is that actors, in contrast to
+people, are easily spawned and terminated.
+
+22
+00:01:33,830 --> 00:01:38,150
+You can create as many of them as you want
+in the process of solving your problem,
+
+23
+00:01:38,150 --> 00:01:40,970
+and they can be short lived,
+just unlike people.
+
+24
+00:01:42,260 --> 00:01:47,845
+As you go about defining the tasks
+of certain actors in your system and
+
+25
+00:01:47,845 --> 00:01:54,070
+the role they play and the other actors
+they collaborate with, draw a diagram and
+
+26
+00:01:54,070 --> 00:01:58,190
+mark down the communication
+lines between the actors and
+
+27
+00:01:58,190 --> 00:01:59,410
+how they relate to each other.
+
+28
+00:02:00,710 --> 00:02:04,690
+I will demonstrate this process
+now on a simple project.
+
+29
+00:02:05,980 --> 00:02:10,160
+The problem which we want to solve
+is to write an application which,
+
+30
+00:02:10,160 --> 00:02:15,190
+given a URL, it will go to the web,
+retrieve the document, check for
+
+31
+00:02:15,190 --> 00:02:18,309
+links in it, and follow the links,
+and repeat the process.
+
+32
+00:02:19,440 --> 00:02:21,940
+Up to a certain maximum depth, of course.
+
+33
+00:02:21,940 --> 00:02:24,630
+Otherwise, it would be boundless.
+
+34
+00:02:24,630 --> 00:02:28,610
+And all links encountered in the process
+shall eventually be returned to
+
+35
+00:02:28,610 --> 00:02:31,160
+the one requesting that this be done.
+
+36
+00:02:32,330 --> 00:02:34,850
+How would you solve this
+with a bunch of people?
+
+37
+00:02:36,410 --> 00:02:41,420
+There will be one actor which
+we call Receptionist, and
+
+38
+00:02:41,420 --> 00:02:49,660
+this one is responsible for
+accepting incoming requests.
+
+39
+00:02:51,010 --> 00:02:54,400
+These will come from some external Client.
+
+40
+00:02:56,500 --> 00:03:01,680
+This Receptionist is a person who
+will just have the responsibility of
+
+41
+00:03:01,680 --> 00:03:05,650
+accepting your request noting
+down that it shall be done,
+
+42
+00:03:05,650 --> 00:03:11,250
+noting who was the Client, and then
+telling someone else to do the real job.
+
+43
+00:03:11,250 --> 00:03:14,720
+When traversing the web,
+we will encounter many links, and
+
+44
+00:03:14,720 --> 00:03:15,910
+there might even be cycles.
+
+45
+00:03:15,910 --> 00:03:19,040
+So when we see a link which
+we have already visited,
+
+46
+00:03:19,040 --> 00:03:22,070
+we need to stop there because
+otherwise we run in an endless loop.
+
+47
+00:03:23,660 --> 00:03:29,190
+It is best that we assign one person
+to the task of one such traversal
+
+48
+00:03:29,190 --> 00:03:32,730
+because that person will remember what
+has already been visited and what not.
+
+49
+00:03:34,440 --> 00:03:38,710
+Translating that into an actor,
+let's call it Controller.
+
+50
+00:03:40,610 --> 00:03:45,480
+This Controller will need help because its
+main job is to remember what was visited
+
+51
+00:03:45,480 --> 00:03:50,800
+and what still needs visiting, but
+it would be better if we had someone else
+
+52
+00:03:50,800 --> 00:03:55,630
+to do the actual visiting of a link and
+to extract the information which we want.
+
+53
+00:03:57,100 --> 00:04:01,836
+So let's put in another
+actor which we call Getter.
+
+54
+00:04:06,253 --> 00:04:08,230
+Getter is a rather simple one.
+
+55
+00:04:08,230 --> 00:04:11,910
+It will just go, look at one URL,
+retrieve the document,
+
+56
+00:04:11,910 --> 00:04:15,789
+extract the links which are in there, and
+then tell the Controller what it found.
+
+57
+00:04:17,710 --> 00:04:22,650
+The Controller can then spawn other
+Getters to visit the new links and so on.
+
+58
+00:04:24,130 --> 00:04:30,280
+To recap, let us now put in the messages
+which will be exchanged to achieve this.
+
+59
+00:04:30,280 --> 00:04:36,650
+The client sends a get request for a URL.
+
+60
+00:04:36,650 --> 00:04:41,397
+The Receptionist will
+create a Controller and
+
+61
+00:04:41,397 --> 00:04:48,765
+send it a check for
+a given URL with a certain depth,
+
+62
+00:04:48,765 --> 00:04:54,520
+because we do not want to do
+this in a boundless fashion.
+
+63
+00:04:55,950 --> 00:04:58,586
+The Controller will then tell the Getter
+
+64
+00:05:01,935 --> 00:05:05,837
+to retrieve what is at that URL.
+
+65
+00:05:09,753 --> 00:05:12,546
+And the Getter will then reply
+
+66
+00:05:16,295 --> 00:05:22,932
+with possibly multiple links and
+then finally a done message,
+
+67
+00:05:22,932 --> 00:05:27,690
+so that the Controller
+knows that this Getter
+
+68
+00:05:27,690 --> 00:05:32,586
+has exhausted all which
+was found at that URL.
+
+69
+00:05:32,586 --> 00:05:37,101
+All links which are found in the process
+should be treated as quickly as possible,
+
+70
+00:05:37,101 --> 00:05:40,190
+and they can also be
+retrieved in parallel.
+
+71
+00:05:40,190 --> 00:05:42,290
+So there will be multiple Getters,
+
+72
+00:05:46,600 --> 00:05:50,100
+which perform the subsequent
+checking of the links in parallel.
+
+73
+00:05:51,850 --> 00:05:54,590
+The Controller will have to keep track of
+
+74
+00:05:54,590 --> 00:05:57,590
+which URL was encountered
+at which search depth.
+
+75
+00:05:59,390 --> 00:06:02,594
+So let us say this comes
+down at depth one,
+
+76
+00:06:02,594 --> 00:06:07,330
+then the links come back at depth one, but
+
+77
+00:06:07,330 --> 00:06:12,830
+when they are checked by the next Getter,
+they will be at depth two, and so on.
+
+78
+00:06:14,350 --> 00:06:18,580
+It is best to keep this state
+travelling with the message, so
+
+79
+00:06:18,580 --> 00:06:23,870
+that this request contains the depth,
+and the responses contain the depth,
+
+80
+00:06:23,870 --> 00:06:27,030
+freeing the Controller from
+having to remember all of this.
+
+81
+00:06:28,050 --> 00:06:31,909
+Once the depth is exhausted and
+all Getters have sent their done messages,
+
+82
+00:06:34,240 --> 00:06:39,080
+the final result is communicated
+to the Receptionist.
+
+83
+00:06:40,638 --> 00:06:46,372
+The Receptionist was the one who kept
+track of which client requested which URL,
+
+84
+00:06:46,372 --> 00:06:55,070
+and it will send back the appropriate
+response to the client.
+
+85
+00:06:56,960 --> 00:06:59,920
+This is the whole process which we
+will implement in the following.
+
+86
+00:07:02,560 --> 00:07:07,280
+What we will do requires
+the use of some web client.
+
+87
+00:07:07,280 --> 00:07:12,878
+I will be using the async-http-client
+library, as given in this artifact here.
+
+88
+00:07:15,003 --> 00:07:19,720
+Then we need to write a Getter for
+processing the body which was retrieved.
+
+89
+00:07:19,720 --> 00:07:22,480
+Then we step up one level
+to write the Controller,
+
+90
+00:07:22,480 --> 00:07:26,790
+which takes care of the Getters and
+all links encountered.
+
+91
+00:07:26,790 --> 00:07:30,110
+And finally we will think
+about the Receptionist and
+
+92
+00:07:30,110 --> 00:07:31,630
+how that manages the Controller.
+
+93
+00:07:33,840 --> 00:07:35,980
+Let us start with the most simple example,
+
+94
+00:07:35,980 --> 00:07:40,760
+which is also given at the top of
+the documentation for AsyncHttpClient.
+
+95
+00:07:40,760 --> 00:07:47,308
+First, we create an instance of
+this class and store it away.
+
+96
+00:07:47,308 --> 00:07:51,241
+This client is able to perform
+multiple requests, and
+
+97
+00:07:51,241 --> 00:07:55,699
+it will cache connections to
+servers being quite efficient.
+
+98
+00:07:55,699 --> 00:07:58,623
+The client will be used by the get method.
+
+99
+00:07:58,623 --> 00:08:04,740
+We give a URL as a string and
+we expect back the body again as a string.
+
+100
+00:08:04,740 --> 00:08:09,870
+So, we call client.prepareGet for
+the URL, execute,
+
+101
+00:08:09,870 --> 00:08:16,130
+this gives us back a Future but,
+not a Scala Future which we call get.
+
+102
+00:08:16,130 --> 00:08:19,490
+And this will wait until
+the response is there, so
+
+103
+00:08:19,490 --> 00:08:21,260
+we have the response here to deal with.
+
+104
+00:08:22,410 --> 00:08:25,710
+Then we check the res, return status code.
+
+105
+00:08:25,710 --> 00:08:30,290
+If it is not an error code,
+then we look at the first 128
+
+106
+00:08:30,290 --> 00:08:34,180
+kilobytes of the body and give that back.
+
+107
+00:08:34,180 --> 00:08:37,420
+Otherwise, we reply with a BadStatus.
+
+108
+00:08:37,420 --> 00:08:41,240
+And the reply in a synchronous
+method like this one,
+
+109
+00:08:42,250 --> 00:08:45,890
+of a bad result, is done by
+throwing an exception as we know.
+
+110
+00:08:47,500 --> 00:08:51,060
+This looks very simple, but
+it is also problematic.
+
+111
+00:08:51,060 --> 00:08:52,720
+The problem is precisely here.
+
+112
+00:08:53,920 --> 00:08:57,350
+Here we block until the web
+server has replied and
+
+113
+00:08:57,350 --> 00:09:01,120
+given us the whole body, and
+we have stored it in memory.
+
+114
+00:09:02,500 --> 00:09:07,330
+If we, for example, use this method from
+an actor, then this actor will be blocked,
+
+115
+00:09:07,330 --> 00:09:11,960
+it will not be able to execute
+anything else until this finishes.
+
+116
+00:09:11,960 --> 00:09:15,900
+Which means that during this time
+the actor is deaf to other request.
+
+117
+00:09:15,900 --> 00:09:20,370
+For example, we will not be able to send
+it a request to cancel the operation.
+
+118
+00:09:22,000 --> 00:09:26,710
+The problem is that blocking in
+this fashion wastes one thread,
+
+119
+00:09:26,710 --> 00:09:31,860
+on our machine, and in the virtual machine
+you can have a few thousand threads,
+
+120
+00:09:31,860 --> 00:09:34,430
+but for
+sure you cannot have millions of them.
+
+121
+00:09:34,430 --> 00:09:36,240
+And you have millions of actors.
+
+122
+00:09:36,240 --> 00:09:40,740
+So there is a mismatch and
+we should always think that we should not
+
+123
+00:09:40,740 --> 00:09:43,290
+waste threads because they
+are a finite resource.
+
+124
+00:09:44,990 --> 00:09:46,820
+How do we fix this?
+
+125
+00:09:46,820 --> 00:09:52,460
+Well, we still use the same client, and
+as the name implies, it is an async
+
+126
+00:09:52,460 --> 00:09:57,590
+http client so it is capable of performing
+the operations in non-blocking fashion.
+
+127
+00:09:59,270 --> 00:10:02,880
+First, we do the same thing,
+but we stop at the execute.
+
+128
+00:10:02,880 --> 00:10:04,290
+This gives us back a Future.
+
+129
+00:10:05,700 --> 00:10:08,140
+We want to adapt this into a Scala Future,
+so
+
+130
+00:10:08,140 --> 00:10:11,520
+we construct a Promise,
+as you have seen two weeks ago.
+
+131
+00:10:12,620 --> 00:10:17,960
+The Future returned by AsyncHttpClient
+is not a java.util.concurrent Future,
+
+132
+00:10:17,960 --> 00:10:21,340
+it has some added functionality.
+
+133
+00:10:21,340 --> 00:10:23,030
+Namely that you can add a listener.
+
+134
+00:10:24,570 --> 00:10:27,080
+When this Future is completed,
+
+135
+00:10:27,080 --> 00:10:32,470
+this listener which we register
+a runnable on, will be run.
+
+136
+00:10:32,470 --> 00:10:34,490
+So this gets executed.
+
+137
+00:10:34,490 --> 00:10:38,310
+So when we call f.get in this code,
+
+138
+00:10:38,310 --> 00:10:41,260
+it will not block because we
+know that it has been completed.
+
+139
+00:10:42,280 --> 00:10:46,060
+Running this runnable,
+will need an executor,
+
+140
+00:10:46,060 --> 00:10:50,710
+because it is a task which is to be run
+asynchronously and that is a common theme,
+
+141
+00:10:50,710 --> 00:10:56,050
+theme that you will need a thread poll in
+the end on which to execute these tasks.
+
+142
+00:10:56,050 --> 00:10:58,570
+In the end we need to return a Future and
+
+143
+00:10:58,570 --> 00:11:02,334
+you get the Future from
+the promise by saying p.future.
+
+144
+00:11:04,740 --> 00:11:11,890
+AsyncHttpClient is a Java library
+using Java and its own Futures.
+
+145
+00:11:11,890 --> 00:11:16,610
+So what we have done here is
+in essence a mapping from
+
+146
+00:11:16,610 --> 00:11:20,779
+the listenable Future of HttpClient,
+to Scala's Futures.
+
+147
+00:11:22,380 --> 00:11:26,050
+I have included this here to
+demonstrate a common pattern.
+
+148
+00:11:26,050 --> 00:11:31,240
+If you have an event based source for
+something and you want to wait for
+
+149
+00:11:31,240 --> 00:11:36,500
+a single shot event, like in this case,
+it is best to wrap things in a Future.
+
+150
+00:11:36,500 --> 00:11:38,830
+And expose that as an API.
+
+151
+00:11:38,830 --> 00:11:41,480
+Then, if someone needs
+a synchronous version,
+
+152
+00:11:41,480 --> 00:11:45,380
+they can still await if
+they really need to, but
+
+153
+00:11:45,380 --> 00:11:49,990
+being asynchronous as the default
+is good for reactive Applications.
+
+154
+00:11:52,030 --> 00:11:54,540
+That was the main lesson
+to be learned here.
+
+155
+00:11:54,540 --> 00:11:57,267
+A reactive application needs
+to be non-blocking and
+
+156
+00:11:57,267 --> 00:11:59,660
+event-driven from top to bottom.
+
+157
+00:11:59,660 --> 00:12:01,950
+If there is one blocking piece in it,
+
+158
+00:12:01,950 --> 00:12:04,370
+it will infect all other
+code which tries to call it.
+
+159
+00:12:05,780 --> 00:12:11,049
+Therefore watch out and try to use
+asynchronous libraries where possible.
+
+160
+00:12:13,060 --> 00:12:16,870
+Now that we have the ability to
+retrieve documents from the web,
+
+161
+00:12:16,870 --> 00:12:19,260
+we just need to find the links in them.
+
+162
+00:12:19,260 --> 00:12:24,680
+This entails parsing the HTML of
+the body strings that we have here.
+
+163
+00:12:24,680 --> 00:12:29,000
+And for that purpose we use
+a Java library called Jsoup,
+
+164
+00:12:29,000 --> 00:12:32,050
+which we use from this artifact and
+import here.
+
+165
+00:12:34,240 --> 00:12:38,840
+Parsing a string of html
+text yields a document and
+
+166
+00:12:38,840 --> 00:12:44,870
+a document is a structured representation
+of the html tags which we can query.
+
+167
+00:12:44,870 --> 00:12:50,130
+In this case we look for
+all anchor tags which have an attribute.
+
+168
+00:12:50,130 --> 00:12:55,870
+We then grab an iterator over the set
+of these potential links to visit,
+
+169
+00:12:55,870 --> 00:13:00,320
+and convert it to a Scala one
+using the Java converters utility.
+
+170
+00:13:00,320 --> 00:13:03,520
+And then this for
+expression, for yields for
+
+171
+00:13:03,520 --> 00:13:08,670
+every link, the absolute URL,
+that is contained in the href attribute.
+
+172
+00:13:08,670 --> 00:13:14,370
+And that is then the iterator of URLs
+that gives us the further sites,
+
+173
+00:13:14,370 --> 00:13:16,400
+further links to visit.
+
+174
+00:13:16,400 --> 00:13:19,450
+With these preparations,
+we can write our first Actor.
+
+175
+00:13:19,450 --> 00:13:23,320
+This is the Getter,
+which gets the URL to visit and
+
+176
+00:13:23,320 --> 00:13:25,870
+the depth at which this
+is currently happening.
+
+177
+00:13:26,950 --> 00:13:31,810
+The first thing that this Actor needs to
+do is go to web, using the web client,
+
+178
+00:13:31,810 --> 00:13:33,530
+and fetch the url.
+
+179
+00:13:35,030 --> 00:13:37,960
+This gives us back a Future
+as we have programmed, and
+
+180
+00:13:37,960 --> 00:13:41,840
+when this Future completes it can
+either be successful or a failure.
+
+181
+00:13:43,010 --> 00:13:46,660
+In order to make the Actor aware of this,
+we need to send it a message,
+
+182
+00:13:46,660 --> 00:13:48,050
+that's all Actors do.
+
+183
+00:13:48,050 --> 00:13:53,320
+So in case of a success we retrieve
+the body stream that we obtained and
+
+184
+00:13:53,320 --> 00:13:55,710
+send it to this Actor for
+further processing.
+
+185
+00:13:56,900 --> 00:13:59,670
+If it is a failure,
+we also send it to this Actor,
+
+186
+00:13:59,670 --> 00:14:02,290
+wrapped as a status failure message.
+
+187
+00:14:02,290 --> 00:14:05,675
+This pattern Is so
+common that Akka includes it as the so
+
+188
+00:14:05,675 --> 00:14:07,655
+called pipeTo pattern.
+
+189
+00:14:07,655 --> 00:14:11,935
+When you import Akka to put under pipe,
+you can say future.pipeTo and
+
+190
+00:14:11,935 --> 00:14:15,755
+then some actor ref,
+usually the self address of the actor.
+
+191
+00:14:17,615 --> 00:14:22,350
+But we know using Scala syntax,
+we can make this even a bit more nice.
+
+192
+00:14:22,350 --> 00:14:26,670
+By removing the dots and the parenthesis,
+and then this reads like normal english.
+
+193
+00:14:26,670 --> 00:14:29,530
+WebClient get url pipeTo self.
+
+194
+00:14:29,530 --> 00:14:32,590
+It's a recipe for
+what this Actor does in the beginning.
+
+195
+00:14:32,590 --> 00:14:36,520
+Within this, we have two steps that
+are eh, executed asynchronously.
+
+196
+00:14:36,520 --> 00:14:41,980
+The get needs an executor and the pipeTo
+needs an execution context to run
+
+197
+00:14:41,980 --> 00:14:47,440
+a Java ListenableFuture and
+a Scala concurrent Future respectively.
+
+198
+00:14:47,440 --> 00:14:51,300
+These execution mechanisms are picked
+up implicitly from the surroundings
+
+199
+00:14:52,610 --> 00:14:58,100
+which we provide here by saying
+implicit val exec which is
+
+200
+00:14:58,100 --> 00:15:01,190
+an executor and an execution context.
+
+201
+00:15:01,190 --> 00:15:05,840
+And it just so
+happens that the context.dispatcher so
+
+202
+00:15:05,840 --> 00:15:10,620
+the machinery that runs the actor
+itself can also execute Futures,
+
+203
+00:15:10,620 --> 00:15:13,850
+both Java Futures and Scala Futures.
+
+204
+00:15:13,850 --> 00:15:18,280
+So this implicit value here is used in
+both places to make the Futures run.
+
+205
+00:15:19,810 --> 00:15:23,990
+Now that we have arranged for
+the data to arrive at the actor,
+
+206
+00:15:23,990 --> 00:15:27,310
+we need to write down it's behavior,
+what shall happen in this case.
+
+207
+00:15:28,900 --> 00:15:32,190
+If we get a string, which is the body,
+
+208
+00:15:32,190 --> 00:15:36,960
+then we use our find links method,
+to get an iterator of all the links and
+
+209
+00:15:36,960 --> 00:15:40,410
+for each of those links we
+send them in the message.
+
+210
+00:15:42,290 --> 00:15:46,513
+Context has another nice
+method which is called parent.
+
+211
+00:15:46,513 --> 00:15:51,579
+Remember that every Actor was
+created by exactly one other Actor,
+
+212
+00:15:51,579 --> 00:15:53,398
+and that is its parent.
+
+213
+00:15:53,398 --> 00:15:57,053
+We can access it like so,
+which gives us an Actor if.
+
+214
+00:15:57,053 --> 00:16:01,571
+Then we send the message to
+check the new link we found at
+
+215
+00:16:01,571 --> 00:16:04,430
+the depth which we have been told.
+
+216
+00:16:07,040 --> 00:16:11,030
+Once we have communicated all
+the links back to our parent,
+
+217
+00:16:11,030 --> 00:16:16,259
+we stop which means sending the parent
+a done message and stopping ourselves.
+
+218
+00:16:17,960 --> 00:16:22,990
+In case of a failure we just send
+the Done right away and stop.
+
+219
+00:16:25,250 --> 00:16:29,580
+What we have learned here is that
+actors are run by a dispatcher
+
+220
+00:16:29,580 --> 00:16:33,840
+which is potentially shared
+among multiple actors and
+
+221
+00:16:33,840 --> 00:16:36,780
+this dispatcher is also
+capable of running Futures.
+
+222
+00:16:38,900 --> 00:16:42,830
+The next actor which we'll,
+we'll be writing is the controller.
+
+223
+00:16:42,830 --> 00:16:46,740
+And in that one, we would like to
+log the progress which is made.
+
+224
+00:16:47,750 --> 00:16:50,940
+Logging is also something
+which is handled by Akka.
+
+225
+00:16:52,650 --> 00:16:56,410
+There are many flavors to solve
+this particular problem and
+
+226
+00:16:56,410 --> 00:16:58,310
+many frameworks out there.
+
+227
+00:16:58,310 --> 00:17:03,780
+This, the solution which we chose
+is specific to actors in the sense
+
+228
+00:17:03,780 --> 00:17:09,360
+that it is focusing on not blocking
+the entity which wants to do the logging.
+
+229
+00:17:09,360 --> 00:17:15,870
+The obvious way to achieve this is not to
+perform any IO like writing to the disk or
+
+230
+00:17:15,870 --> 00:17:21,270
+to the network directly, but
+to pass that off as a task to a dedicated
+
+231
+00:17:21,270 --> 00:17:25,570
+actor because we know that sending to
+an actor is a non logging operation.
+
+232
+00:17:27,050 --> 00:17:31,740
+You can set the overall log level
+with the setting akka.loglevel.
+
+233
+00:17:31,740 --> 00:17:33,760
+I put it to debug in this example.
+
+234
+00:17:35,210 --> 00:17:40,620
+You can conveniently use the logging
+by extending the actor trait with
+
+235
+00:17:40,620 --> 00:17:48,080
+ActorLogging which will give a log Method,
+that returns the logger for this actor.
+
+236
+00:17:49,900 --> 00:17:54,620
+The source information provided by this
+logger will contain the actor's name.
+
+237
+00:17:55,750 --> 00:17:58,280
+So there you have a case why
+
+238
+00:17:58,280 --> 00:18:01,269
+it is very important that you
+properly name your actors.
+
+239
+00:18:02,660 --> 00:18:07,460
+Here we simply log a debug statement that
+we received a certain message given here.
+
+240
+00:18:09,260 --> 00:18:13,250
+There is a very simple
+syntax using this pair of
+
+241
+00:18:13,250 --> 00:18:16,640
+braces to denote something
+which needs to be put in.
+
+242
+00:18:18,000 --> 00:18:21,039
+Without further ado, we will look
+at what the controller now does.
+
+243
+00:18:22,870 --> 00:18:23,640
+Remember?
+
+244
+00:18:23,640 --> 00:18:29,620
+The job of it was to accept that
+check messages for certain URLs,
+
+245
+00:18:29,620 --> 00:18:34,640
+and once everything is done,
+to send back the overall result.
+
+246
+00:18:34,640 --> 00:18:39,620
+The result needs to be collected
+somewhere, an this is the cache here.
+
+247
+00:18:39,620 --> 00:18:44,050
+Which is a set of strings, and the strings
+will be the links which were visited.
+
+248
+00:18:46,530 --> 00:18:52,600
+Whenever a check request arrives, we log
+it at debug level to see the progress.
+
+249
+00:18:53,630 --> 00:18:56,700
+Then, if the cache
+already contains the url,
+
+250
+00:18:56,700 --> 00:18:59,420
+we don't need to do anything about it.
+
+251
+00:18:59,420 --> 00:19:04,290
+Or if the maximum depth is 0,
+we don't need to do anything about it.
+
+252
+00:19:04,290 --> 00:19:07,800
+But otherwise,
+we need to create a new Getter.
+
+253
+00:19:07,800 --> 00:19:12,175
+Tell it about the URL to fetch and
+decreasing the depth by 1.
+
+254
+00:19:14,260 --> 00:19:19,450
+This is created using actor of
+which gives back the actor if, and
+
+255
+00:19:19,450 --> 00:19:23,950
+we need to keep track of all
+the children we have created.
+
+256
+00:19:23,950 --> 00:19:27,390
+This is kept in the second
+set named children up here,
+
+257
+00:19:27,390 --> 00:19:30,080
+which is a set of ActorRefs.
+
+258
+00:19:30,080 --> 00:19:35,560
+Finally, this url will have been visited,
+so we add it to the cache.
+
+259
+00:19:37,540 --> 00:19:42,200
+The Getter which we have just
+created will go to the web client,
+
+260
+00:19:42,200 --> 00:19:47,060
+ask it, retrieve the documents,
+get back the links and we'll send
+
+261
+00:19:47,060 --> 00:19:51,640
+other check requests at depths minus one,
+because that's what we taught it to do.
+
+262
+00:19:51,640 --> 00:19:57,590
+And at some point, it will be finished,
+and then it will send a Getter.Done.
+
+263
+00:19:57,590 --> 00:20:02,160
+At this point we remove it
+from the children's set, and
+
+264
+00:20:02,160 --> 00:20:07,390
+once no getter is running anymore we
+know that the whole process is finished.
+
+265
+00:20:07,390 --> 00:20:10,190
+So we tell our parents the result.
+
+266
+00:20:10,190 --> 00:20:15,260
+The result is just the set of links
+which we have encountered here.
+
+267
+00:20:17,230 --> 00:20:22,660
+At this point, it is important to note,
+that we are sharing the cache here.
+
+268
+00:20:24,570 --> 00:20:30,030
+If we would have used a var cache
+with a mutable set instead,
+
+269
+00:20:30,030 --> 00:20:34,920
+then sending that to the parent
+could have disastrous effects.
+
+270
+00:20:34,920 --> 00:20:38,290
+For example,
+this controller might be used to
+
+271
+00:20:38,290 --> 00:20:43,040
+process another query keeping the cache,
+would be a valid use case.
+
+272
+00:20:43,040 --> 00:20:47,640
+But then the result which had been
+sent back to the parent points to
+
+273
+00:20:47,640 --> 00:20:52,590
+the same set which is
+mutated by this actor and
+
+274
+00:20:52,590 --> 00:20:57,720
+then the other actor will be confused
+as to what the contents of the set are.
+
+275
+00:20:57,720 --> 00:21:02,020
+It is much better to prefer
+using variables here
+
+276
+00:21:02,020 --> 00:21:04,400
+which point to immutable data structures.
+
+277
+00:21:05,720 --> 00:21:12,480
+This way, they can safely be shared as
+is done here, and that is the third
+
+278
+00:21:12,480 --> 00:21:16,579
+point which we have encountered on our
+journey, the third lesson we learned.
+
+279
+00:21:19,140 --> 00:21:22,330
+The controller and getter,
+which we have written so far,
+
+280
+00:21:22,330 --> 00:21:27,200
+play well together as long as the web
+client always yields a result.
+
+281
+00:21:28,870 --> 00:21:33,030
+But what if, for example, a web server
+takes really long to respond or
+
+282
+00:21:33,030 --> 00:21:34,190
+does not respond ever?
+
+283
+00:21:35,380 --> 00:21:38,310
+For this we need to foresee a time out.
+
+284
+00:21:38,310 --> 00:21:43,240
+A simple possibility is to us another
+function of the actors context.
+
+285
+00:21:43,240 --> 00:21:45,780
+A capability to set a receive time out.
+
+286
+00:21:46,940 --> 00:21:49,860
+This receive time out is
+a timer which is reset, or
+
+287
+00:21:49,860 --> 00:21:54,490
+restarted, after the processing
+of each message.
+
+288
+00:21:54,490 --> 00:22:01,340
+So, whether we get a check or
+a Getter.Done or even this ReceiveTimeout.
+
+289
+00:22:01,340 --> 00:22:05,100
+Once we have processed it,
+the ReceiveTimeout will be reset again,
+
+290
+00:22:05,100 --> 00:22:06,090
+to ten seconds.
+
+291
+00:22:07,340 --> 00:22:13,880
+When it expires, we get namely
+this ReceiveTimeout object here.
+
+292
+00:22:13,880 --> 00:22:17,980
+And in this case,
+we tell all our children to abort.
+
+293
+00:22:19,500 --> 00:22:22,680
+Of course, we need to code this
+functionality in the getter as well.
+
+294
+00:22:23,770 --> 00:22:26,430
+Then we can see here, we add a new case.
+
+295
+00:22:26,430 --> 00:22:29,040
+Case abort in which we just stop.
+
+296
+00:22:30,900 --> 00:22:34,210
+In order to support services
+like the receive timeout,
+
+297
+00:22:34,210 --> 00:22:37,240
+Akka includes a basic scheduler.
+
+298
+00:22:37,240 --> 00:22:43,220
+The focus of this scheduler implementation
+is on supporting a very high frequency
+
+299
+00:22:43,220 --> 00:22:48,350
+of scheduled tasks, but
+also very frequent cancellation of these.
+
+300
+00:22:49,970 --> 00:22:54,260
+The flip side of this is that
+it is not terribly precise.
+
+301
+00:22:54,260 --> 00:22:58,800
+It's main use is to schedule
+the sending of a message to an actor
+
+302
+00:22:58,800 --> 00:23:02,320
+at a future point in time,
+which is the first variant given here.
+
+303
+00:23:03,940 --> 00:23:08,530
+The object which is returned from schedule
+once, is a cancellable which can,
+
+304
+00:23:08,530 --> 00:23:11,100
+which you can use to cancel the task.
+
+305
+00:23:11,100 --> 00:23:16,320
+But be aware that there might be a risk
+condition between the task firing and
+
+306
+00:23:16,320 --> 00:23:17,600
+you cancelling.
+
+307
+00:23:17,600 --> 00:23:21,580
+So it is possible to receive
+the message in the target actor
+
+308
+00:23:21,580 --> 00:23:22,949
+after cancel has been called.
+
+309
+00:23:24,180 --> 00:23:29,150
+This is usually not very problematic,
+because often it is the Actor itself
+
+310
+00:23:29,150 --> 00:23:33,190
+which schedules the message
+it wants to receive later.
+
+311
+00:23:33,190 --> 00:23:38,070
+And then the Actor can just store away the
+knowledge that it has cancelled the task,
+
+312
+00:23:38,070 --> 00:23:41,099
+and can then ignore the message
+should it arrive the nonetheless.
+
+313
+00:23:42,440 --> 00:23:45,998
+There are two other variants,
+this one more for scholar, and
+
+314
+00:23:45,998 --> 00:23:47,376
+this one more for Java.
+
+315
+00:23:47,376 --> 00:23:51,367
+For running an arbitrary block
+of code after the delay.
+
+316
+00:23:53,951 --> 00:24:00,052
+But these two methods
+should be used with care.
+
+317
+00:24:00,052 --> 00:24:03,490
+We could have implemented
+a timeout in a different fashion.
+
+318
+00:24:03,490 --> 00:24:07,490
+For example, if we wanted to have
+a timeout which fires ten seconds
+
+319
+00:24:07,490 --> 00:24:10,150
+after the controller starts and
+not not ten seconds
+
+320
+00:24:10,150 --> 00:24:14,420
+after the last message was processed
+then we might use the scheduler.
+
+321
+00:24:15,430 --> 00:24:19,970
+The context gives you access
+also to the whole system.
+
+322
+00:24:19,970 --> 00:24:23,970
+The system is the container
+in which all actors run and
+
+323
+00:24:23,970 --> 00:24:28,540
+it contains many services among
+others also, the scheduler.
+
+324
+00:24:28,540 --> 00:24:34,039
+And you can ask it to schedule once in
+ten seconds that this block of code runs.
+
+325
+00:24:35,450 --> 00:24:38,350
+Now we say that after these ten seconds we
+
+326
+00:24:38,350 --> 00:24:41,140
+want to tell all children
+that they shall abort.
+
+327
+00:24:42,820 --> 00:24:44,920
+What is the problem you
+see with this code?
+
+328
+00:24:46,540 --> 00:24:50,760
+Is it that it does not compile or
+is it not thread-safe, or
+
+329
+00:24:50,760 --> 00:24:52,700
+will the scheduled code simply not run?
+
+330
+00:24:55,370 --> 00:25:00,640
+The right answer is that
+it is not thread-safe and
+
+331
+00:25:00,640 --> 00:25:05,470
+the reason is that the scheduler
+will run this code and
+
+332
+00:25:05,470 --> 00:25:08,600
+it will run outside of
+the context of the actor.
+
+333
+00:25:08,600 --> 00:25:09,950
+It will not be run by the actor.
+
+334
+00:25:09,950 --> 00:25:12,260
+It will be run by the scheduler.
+
+335
+00:25:12,260 --> 00:25:17,340
+And this means that there is no
+protection that this code might run.
+
+336
+00:25:17,340 --> 00:25:20,980
+Concurrently with the actor,
+processing the next message.
+
+337
+00:25:20,980 --> 00:25:26,150
+And both of these codes, then,
+the actor and this block,
+
+338
+00:25:26,150 --> 00:25:30,980
+access the shared variable children,
+and they try to modify it or
+
+339
+00:25:30,980 --> 00:25:33,260
+try to read from it, and
+
+340
+00:25:33,260 --> 00:25:38,450
+that could have unpredictable results
+if there is no proper synchronization.
+
+341
+00:25:39,490 --> 00:25:40,610
+And the trick was,
+
+342
+00:25:40,610 --> 00:25:45,470
+that actors encapsulate their state
+such that no synchronization is needed.
+
+343
+00:25:45,470 --> 00:25:48,600
+This is plain var and
+we don't take any locks.
+
+344
+00:25:50,100 --> 00:25:54,170
+It would be nice if the compiler
+could tell us about this problem, and
+
+345
+00:25:54,170 --> 00:25:57,540
+give us an error that we
+did something wrong here.
+
+346
+00:25:57,540 --> 00:26:02,440
+That is unfortunately not yet available,
+or it would be nice if the actor could
+
+347
+00:26:02,440 --> 00:26:07,320
+somehow magically know that this code
+shall not be executed by the scheduler and
+
+348
+00:26:07,320 --> 00:26:12,830
+refuse to run it, but
+that also is impossible to realize, so
+
+349
+00:26:12,830 --> 00:26:15,570
+this is why you need to manually make sure
+
+350
+00:26:15,570 --> 00:26:19,690
+that this problem is not one
+which you invite into your code.
+
+351
+00:26:21,020 --> 00:26:23,180
+So how do we do this properly?
+
+352
+00:26:23,180 --> 00:26:27,750
+This is why I emphasize most the first
+variant of the scheduleOnce method
+
+353
+00:26:27,750 --> 00:26:31,670
+which takes, besides the delay,
+an ActorRef and the message.
+
+354
+00:26:32,700 --> 00:26:37,490
+And the scheduler then makes sure that the
+message is delivered after the delay has
+
+355
+00:26:37,490 --> 00:26:42,060
+lapsed to the ActorRef and
+we get it here in the behavior.
+
+356
+00:26:42,060 --> 00:26:45,440
+Here we can safely access
+the actor's state and
+
+357
+00:26:45,440 --> 00:26:47,940
+in this case tell all children to abort.
+
+358
+00:26:50,270 --> 00:26:54,399
+Similar issues can occur if
+you mix futures and actors.
+
+359
+00:26:56,060 --> 00:27:01,120
+As an example, we have here a simple
+cache actor which when it gets a request
+
+360
+00:27:01,120 --> 00:27:05,800
+to get a url if we look into its
+cache which is a variable here, and
+
+361
+00:27:05,800 --> 00:27:09,350
+if it finds something it will
+reply with the element in there.
+
+362
+00:27:09,350 --> 00:27:13,060
+Otherwise, it will have to go to the web
+and actually fetch the document.
+
+363
+00:27:14,650 --> 00:27:19,480
+As we remember, WebClient get url
+returns a future which we can use for
+
+364
+00:27:19,480 --> 00:27:23,800
+each upon to act when
+the body has been received.
+
+365
+00:27:23,800 --> 00:27:28,100
+And in this, that case we just update
+the cache and reply to the sender.
+
+366
+00:27:30,380 --> 00:27:34,170
+The first problem is exactly
+like in the scheduler case.
+
+367
+00:27:34,170 --> 00:27:39,170
+This access to the cache,
+which happens from outside of
+
+368
+00:27:39,170 --> 00:27:45,080
+the actor's scope, namely in the scope
+of the callback on the future.
+
+369
+00:27:45,080 --> 00:27:47,330
+And if the actor runs at the same time,
+
+370
+00:27:47,330 --> 00:27:52,179
+then both may access the cache
+variable and there might be clashes.
+
+371
+00:27:53,680 --> 00:27:56,580
+Fortunately, we know how to fix this.
+
+372
+00:27:56,580 --> 00:28:03,280
+So, we take this future, we map it and
+pipe the results to ourself.
+
+373
+00:28:03,280 --> 00:28:07,010
+And this result will contain the body,
+the url and
+
+374
+00:28:07,010 --> 00:28:11,280
+the sender of the original request,
+in one package.
+
+375
+00:28:11,280 --> 00:28:16,170
+And once we get it here we can safely
+update the cache and reply to the client.
+
+376
+00:28:16,170 --> 00:28:19,310
+But this actor contains another problem.
+
+377
+00:28:19,310 --> 00:28:23,500
+The transformation described by
+the map operation on the future,
+
+378
+00:28:23,500 --> 00:28:26,830
+runs the code which you give it,
+in the future.
+
+379
+00:28:26,830 --> 00:28:31,900
+And that means that the sender
+will be accessed in the future.
+
+380
+00:28:33,110 --> 00:28:39,780
+This is problematic because sender is
+giving you the actor ref which corresponds
+
+381
+00:28:39,780 --> 00:28:44,580
+to the actor which has sent the message
+which is currently being processed, but
+
+382
+00:28:44,580 --> 00:28:48,159
+when the future runs, the actor might
+do something completely different.
+
+383
+00:28:51,090 --> 00:28:56,780
+Therefore, we must cache the sender in
+a local value and when you reference
+
+384
+00:28:56,780 --> 00:29:02,430
+this local value in here and the closure
+which is formed by this function literal,
+
+385
+00:29:02,430 --> 00:29:06,980
+will contain the value itself and
+not the recipe of how to obtain it.
+
+386
+00:29:06,980 --> 00:29:08,489
+So it will not call the sender method.
+
+387
+00:29:09,940 --> 00:29:14,520
+So the fourth thing we learned is that
+we should make sure that we do not
+
+388
+00:29:14,520 --> 00:29:18,990
+refer to actor state from code
+which is running asynchronously.
+
+389
+00:29:18,990 --> 00:29:22,933
+For example, using the scheduler,
+or in the future combinators.
+
+390
+00:29:27,368 --> 00:29:30,710
+The last actor which we need
+to create is the receptionist.
+
+391
+00:29:32,210 --> 00:29:37,170
+In this implementation the receptionist
+always will accept requests, but
+
+392
+00:29:37,170 --> 00:29:42,170
+it will make sure that only one web
+traversal is running at any given time.
+
+393
+00:29:43,210 --> 00:29:46,580
+Thus, the receptionist
+can be in two states.
+
+394
+00:29:46,580 --> 00:29:49,900
+It can either be idle,
+waiting for the next command.
+
+395
+00:29:49,900 --> 00:29:52,310
+Or a command can also already be running.
+
+396
+00:29:53,640 --> 00:29:57,630
+When waiting, when we get a request,
+
+397
+00:29:57,630 --> 00:30:01,310
+we need to start the traversal and
+switch to the running state.
+
+398
+00:30:02,360 --> 00:30:06,950
+In the running state, when we get a
+request, we cannot execute it immediately,
+
+399
+00:30:06,950 --> 00:30:10,260
+so we append it to some queue and
+keep running.
+
+400
+00:30:11,780 --> 00:30:14,320
+When we get back a result
+from the controller,
+
+401
+00:30:14,320 --> 00:30:19,670
+we need to ship that back to the client
+and then run the next job if there is one.
+
+402
+00:30:19,670 --> 00:30:22,300
+If there is none,
+then we go back to the waiting state.
+
+403
+00:30:23,770 --> 00:30:28,260
+In our formulation of the two behaviors,
+we will need helper methods.
+
+404
+00:30:28,260 --> 00:30:33,300
+And the first one is run next whose job
+it is to pick the next job and run it.
+
+405
+00:30:34,930 --> 00:30:38,500
+Here a job is a type of a client,
+ActorRef,
+
+406
+00:30:38,500 --> 00:30:42,000
+which has sent the request, and
+the url, which shall be visited.
+
+407
+00:30:43,590 --> 00:30:48,280
+When the job queue is empty, then there
+is nothing for us to do and we go back to
+
+408
+00:30:48,280 --> 00:30:53,040
+the way things stayed, otherwise,
+we need to instantiate a new controller,
+
+409
+00:30:53,040 --> 00:30:58,250
+send it the work which is to check this
+given URL at the head of the queue.
+
+410
+00:30:58,250 --> 00:31:02,320
+And here I hardcoded the depth
+of the search to two.
+
+411
+00:31:02,320 --> 00:31:05,090
+And then we are in the running
+state with this queue.
+
+412
+00:31:06,930 --> 00:31:11,980
+As always it is a good idea to name
+actors, and these are controllers so
+
+413
+00:31:11,980 --> 00:31:16,650
+we name them C something, but
+there is one condition you,
+
+414
+00:31:16,650 --> 00:31:19,940
+you may remember that actor
+names need to be unique.
+
+415
+00:31:19,940 --> 00:31:23,200
+So we cannot call them
+all just controller.
+
+416
+00:31:23,200 --> 00:31:26,050
+To facilitate that, there is a variable
+
+417
+00:31:26,050 --> 00:31:30,520
+request number which gets incremented
+everytime we execute one next.
+
+418
+00:31:30,520 --> 00:31:34,737
+That means that during each run of this
+method, this number will be unique.
+
+419
+00:31:34,737 --> 00:31:39,786
+This number could've also be used,
+for example, for statistics purposes,
+
+420
+00:31:39,786 --> 00:31:44,998
+so that you can ask the receptionist how
+many requests it has already processed.
+
+421
+00:31:44,998 --> 00:31:50,603
+The second helper method
+is used to enqueue a job.
+
+422
+00:31:50,603 --> 00:31:54,305
+Give a queue which is a vector of jobs and
+a new job.
+
+423
+00:31:54,305 --> 00:31:58,306
+We simply check if a queue
+has a certain size.
+
+424
+00:31:58,306 --> 00:32:00,352
+We're limited to three here.
+
+425
+00:32:00,352 --> 00:32:06,450
+Then we immediately reply with a failure
+and stay in the current state.
+
+426
+00:32:06,450 --> 00:32:08,455
+Otherwise, we append it.
+
+427
+00:32:10,356 --> 00:32:12,733
+Now we can plug all things together,
+
+428
+00:32:12,733 --> 00:32:16,037
+to show the two behaviors
+in their full glory.
+
+429
+00:32:16,037 --> 00:32:21,070
+First, waiting,
+once we get a URL to check,
+
+430
+00:32:21,070 --> 00:32:26,910
+we become runNext off a queue
+with this one job in it.
+
+431
+00:32:29,170 --> 00:32:32,720
+Eventually, the controller
+which was spawned in here,
+
+432
+00:32:32,720 --> 00:32:35,429
+will send back a result of links.
+
+433
+00:32:36,690 --> 00:32:41,600
+We look at the queue head to find the job,
+extract the client, and
+
+434
+00:32:41,600 --> 00:32:47,280
+send the result with the links and
+the job URL back to it, then we
+
+435
+00:32:47,280 --> 00:32:51,860
+stop the controller, because we will want
+to use a new one for the next request.
+
+436
+00:32:53,220 --> 00:32:58,440
+The next request is obtained by using
+runNext with the tail of the queue.
+
+437
+00:32:59,450 --> 00:33:02,410
+This might be empty, then we would
+go back to the waiting state.
+
+438
+00:33:03,890 --> 00:33:06,010
+Or their might be something left,
+and then we stay here.
+
+439
+00:33:07,610 --> 00:33:11,222
+If in the running state
+a get request is received,
+
+440
+00:33:11,222 --> 00:33:15,437
+then we simply enqueue the job and
+stay running as we said.
+
+441
+00:33:17,998 --> 00:33:23,162
+During our journey of designing an act,
+actor system we have learned how
+
+442
+00:33:23,162 --> 00:33:28,174
+to do that, but we have also encountered
+the following valuable lessons.
+
+443
+00:33:29,517 --> 00:33:33,915
+First of all, a reactive application
+needs to be non-blocking and
+
+444
+00:33:33,915 --> 00:33:38,467
+event-driven from top to bottom,
+meaning that you should strive for
+
+445
+00:33:38,467 --> 00:33:42,189
+the use of only asynchronous
+libraries where possible.
+
+446
+00:33:42,189 --> 00:33:46,771
+Asynchronous libraries often have use for
+an executor or
+
+447
+00:33:46,771 --> 00:33:51,735
+a thread pool, and we have seen
+that the dispatcher which runs
+
+448
+00:33:51,735 --> 00:33:56,330
+actors is very useful also in that regard.
+
+449
+00:33:56,330 --> 00:34:00,988
+The third point was to always prefer
+immutable data structures because they can
+
+450
+00:34:00,988 --> 00:34:06,009
+be safely shared, and there is no problem
+in sending them across thread boundaries.
+
+451
+00:34:07,607 --> 00:34:13,219
+The fourth point was to always prefer
+context.become to model different states
+
+452
+00:34:13,219 --> 00:34:18,595
+of actors, and to keep the data local
+to the behavior where that makes sense.
+
+453
+00:34:18,595 --> 00:34:24,400
+I have shown you some examples of
+where deviation might be useful.
+
+454
+00:34:24,400 --> 00:34:29,410
+If in doubt, always code both ways and
+compare them, and
+
+455
+00:34:29,410 --> 00:34:33,960
+choose the one which is more readable,
+more clear, or more concise.
+
+456
+00:34:33,960 --> 00:34:36,910
+And also consult with your colleagues,
+who will have to maintain that code.
+
+457
+00:34:38,390 --> 00:34:43,643
+And the fifth and very important lesson
+is, do not leak the actor's internal state
+
+458
+00:34:43,643 --> 00:34:49,363
+to code which runs asynchronously, because
+that breaks the actor model encapsulation.
+
+459
+00:34:51,351 --> 00:34:54,956
+We have assembled all the pieces for
+our program.
+
+460
+00:34:54,956 --> 00:34:56,980
+Now we also want to see it in action.
+
+461
+00:34:58,000 --> 00:35:04,960
+For that, I have created a main actor, as
+you have seen before, which will run it.
+
+462
+00:35:04,960 --> 00:35:10,420
+The first it will do is to create
+a receptionist, and then it will send
+
+463
+00:35:10,420 --> 00:35:16,500
+a request to this receptionist to
+check a well known website for links.
+
+464
+00:35:18,900 --> 00:35:25,240
+The reply will be received here, and
+it can either be a positive, in which case
+
+465
+00:35:26,320 --> 00:35:31,510
+we take the set of links, convert it
+to a linear structure from a set,
+
+466
+00:35:31,510 --> 00:35:36,270
+sort that one and convert it to
+a string by saying, results for
+
+467
+00:35:36,270 --> 00:35:40,510
+this URL, and
+then on each line is one link.
+
+468
+00:35:41,540 --> 00:35:44,620
+If we get the failed result,
+we print failed to fetch.
+
+469
+00:35:45,720 --> 00:35:48,440
+Finally, we want this
+application to terminate
+
+470
+00:35:48,440 --> 00:35:52,110
+if no more messages
+are received after ten seconds.
+
+471
+00:35:52,110 --> 00:35:55,448
+In that case, we get the received
+time out and stop the program.
+
+472
+00:35:56,936 --> 00:36:01,692
+It should be noted that the ACHDP client
+in here has some resources which it
+
+473
+00:36:01,692 --> 00:36:05,156
+needs to shut down for
+the JVM to properly terminate.
+
+474
+00:36:07,159 --> 00:36:11,901
+I have created a run configuration
+as before using the main
+
+475
+00:36:11,901 --> 00:36:16,858
+class akka.main, and if we run it,
+we will see the output.
+
+476
+00:36:16,858 --> 00:36:22,220
+Results for http://www.google.com.
+
+477
+00:36:22,220 --> 00:36:25,220
+We see a number of links were found.
+
+478
+00:36:25,220 --> 00:36:28,980
+The search depth was two,
+if you remember correctly.
+
+479
+00:36:28,980 --> 00:36:31,400
+So first it was going to that.
+
+480
+00:36:32,540 --> 00:36:33,690
+I can tell you I tried it.
+
+481
+00:36:33,690 --> 00:36:37,240
+This gives you a redirect
+to google.com/ and
+
+482
+00:36:37,240 --> 00:36:42,240
+then some very complicated cookies,
+and if you follow that one you
+
+483
+00:36:42,240 --> 00:36:45,960
+get the actual search page, which you
+see in your browser when you open it.
+
+484
+00:36:45,960 --> 00:36:49,794
+And that contains a lot of links,
+some international links.
+
+485
+00:36:49,794 --> 00:36:54,283
+I have a German set browser and
+I'm currently in Switzerland,
+
+486
+00:36:54,283 --> 00:36:58,161
+so you see here all what is on,
+on the front page of Google.
+
+487
+00:37:00,556 --> 00:37:03,928
+Now let us try to give
+the receptionist a bit more work.
+
+488
+00:37:09,628 --> 00:37:14,516
+You may recall that we limited the queue
+it keeps to the depth of three.
+
+489
+00:37:14,516 --> 00:37:17,721
+Meaning, it will start
+processing the first request,
+
+490
+00:37:17,721 --> 00:37:21,687
+then it will queue these three, and
+it should fail on the fourth one.
+
+491
+00:37:25,636 --> 00:37:29,244
+Running it again,
+we see the first failure, here,
+
+492
+00:37:29,244 --> 00:37:31,383
+fourth request was rejected.
+
+493
+00:37:31,383 --> 00:37:36,050
+Then we see the result for
+the first one, which we already know.
+
+494
+00:37:37,410 --> 00:37:42,350
+And after that we have the results for
+slash one, two, and three.
+
+495
+00:37:42,350 --> 00:37:46,110
+These are URLs on which there
+is nothing to find on Google, so
+
+496
+00:37:46,110 --> 00:37:50,115
+they turn up just the link,
+which we gave initially as visited.
+
+497
+00:37:52,138 --> 00:37:55,285
+This program is of course
+no proper link checker.
+
+498
+00:37:55,285 --> 00:37:58,043
+You would have to augment
+the functionality,
+
+499
+00:37:58,043 --> 00:38:01,320
+especially in the getter to make it right.
+
+500
+00:38:01,320 --> 00:38:04,633
+But I'm sure this can serve as
+a good starting point if you would
+
+501
+00:38:04,633 --> 00:38:06,269
+ever choose to implement one.
+
