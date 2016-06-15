@@ -1,0 +1,163 @@
+Hey, welcome back.
+Remember we were trying to make
+sending packets resilient to failure.
+And we kind of messed around a little
+bit with the naive approach,
+and then we had a better solution
+using recover and recoverWith.
+But that was unsatisfactory, because
+we returned the wrong error message
+in case something did go wrong when
+both calls would go wrong, all right?
+So what we're going to try to do now
+is we're going to write a better
+recovery combinator, and
+that's called fallbackTo.
+And what that tries to
+do is it will try to
+execute the computation that,
+so that's kind of, you know,
+if this, or, sorry, it will try to,
+this is defined on Future of T, so
+what it will do is it will
+try to run this future.
+When that fails,
+it will kind of, you know,
+try the fallback future, but
+if that fails, it will return the error
+that the first failure was.
+All right?
+So we first try to run the this.
+If that succeeds, we're done.
+If that fails, we try the fallback.
+If that fails, we know that the this
+failed, so we return the error message,
+the error from that one.
+All right.
+So, if we had that function,
+then we can define sendToSafe as follows.
+We first try to send it to Europe.
+If that fails, we fall back to
+sending the message to the USA.
+And then we recover by getting
+the europeError message,
+because that's what
+the fallbackTo gives us, and
+then we can kind of, you know,
+turn that back into the Byte array.
+All right.
+So this looks much better.
+So this fallbackTo is a very nice
+combinator that's very useful.
+So how are we going to implement that?
+Well, it's surprisingly simple.
+You're going to notice it yourself.
+When we kind of, you know,
+looked at this code here
+because instead of getting the US error,
+we would just return the Europe error,
+and in this case,
+that is represented by this.
+So fallbackTo is simply defined as
+this recoverWith, in that case,
+we just can throw away the error message.
+And then we try that, and
+if that fails, we recover with this.
+And this is a future, but we know that
+it failed, so everything goes right.
+So, look at this code for
+a few seconds, and
+you have to admit that this is beautiful.
+All right, so you try this, if that fails,
+you try that, and then, you know,
+in the end, you say, okay,
+if both fails, then we just return this.
+Now the reason we introduced futures
+was that we had computations
+that took a long time and
+we didn't want to block on them,
+we didn't want to block, you know,
+several years in human time for
+a computation to finish.
+So that's why we had futures
+where we pass a callback.
+Now, sometimes, when you're testing code,
+you still want to block.
+Because, you know, you just want
+to print something or whatever.
+So, you know,
+this code is dangerous to use, but
+it's useful for testing cases or
+when you're writing small sample scripts.
+So there's a special trait here
+the Awaitable, and that has,
+you know, these two functions
+in here that will allow you to
+block on a Future with
+a kind of timeout duration.
+So don't use this in production code.
+If you see one of your colleagues use
+this while you're doing a code review,
+you know, you scream, should scream
+bloody murder, you should never use this.
+Only in small demos and kind of,
+you know, little scripts.
+All right?
+So for example, what we can do here is,
+we can kind of, you know,
+read from memory, send the packet back,
+we get a confirmation, and
+now we want to print the confirmation.
+So what we can do is we can say we want to
+wait at most two seconds, and now we can,
+you know, we get an array of Bytes,
+and we can turn that into text.
+So you know, you should always,
+once you're asynchronous,
+you should never ever block, except,
+you know, when you're debugging or
+doing little scripts, okay?
+So promise that to me, never block when
+you have an asynchronous computation.
+And we will see the same when
+we're doing Observables.
+There we have a similar mechanism to allow
+blocking, but that's only for convenience.
+But never use this in production, because
+once you block somewhere in this whole
+pipeline, you might as well, kind of,
+you know, have not used asynchrony.
+Okay?
+So the reason that you introduced
+futures was because there was latency.
+As soon as you introduce blocking,
+you're destroying all of that.
+So promise me one thing.
+Don't do that, okay?
+You're introducing futures, and
+now you're stuck in future-land.
+Good.
+There's one nice thing here in,
+in Scala that I have to show you.
+These are the postfix operators.
+So when you want to kind of
+create a duration for, you know,
+a number of seconds or
+minutes, if you import
+scala.language.postfixOps, then
+you can write, you know,
+a number followed by minutes, so
+it looks very much like units of measure.
+So five years, that is 1,826 minutes.
+All right, good.
+So thank you very much.
+This was the lecture on
+combinators on futures.
+In the exercises, what we will
+do in the homework, or the labs,
+what we will do is, we will show you
+a different design for futures, and
+then you will have to implement
+your own combinators on those.
+So, thank you, and see you next time.
+

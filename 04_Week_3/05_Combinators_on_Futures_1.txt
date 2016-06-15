@@ -1,0 +1,215 @@
+Welcome back to,
+our discussion about futures.
+And I left you a little bit in the dark,
+the last time when
+I showed you how to, you know,
+express reading from memory.
+Followed by sending the packets from
+the US and Europe back, with futures.
+And I don't know if you remember but
+our code looked a little bit like a mesh,
+where we couldn't you know,
+get everything to wire up together.
+But fortunately, futures have a,
+a lot of higher order
+operators defined on them.
+And, and you will recognize the same
+higher order operators that we
+saw on try and that we see on list.
+And that we see, many, many times,
+everywhere, such as filter, flatMap.
+And then of course, there are certain
+domain specific operators
+that are only defined on future,
+and that one is recoverWith.
+And recoverWith there, you see,
+takes a partial function that takes
+a throwable and returns a future.
+All right?
+And there we have, our friends,
+the future constructor.
+So now let's see how we can
+use this to improve our code.
+This is what we were stuck with.
+And we read from memory, and then we kind
+of, you know, did packet onComplete.
+And then, you know, we had the
+confirmation of the right type but this,
+you know, like all this pattern matching
+and nesting, it just looks messy.
+This is not codes that looks beautiful and
+elegant.
+And if we're doing, you know,
+functional programming style coding,
+one of the main things that we want to
+achieve is that the code looks elegant.
+This doesn't look elegant,
+how can we improve that?
+By using flatMap.
+So flatMap, again,
+will hide all this plumbing and
+pattern matching for us, such that we can
+write nice, smooth, straight line code.
+So, let's use flatMap, and here we go!
+What we do is we read from memory.
+We get a Future of Array of Bytes.
+That's called that packet.
+And then we just flatMap over that.
+So, flatMap will take a Future
+of Array of Bytes and
+give us in that function,
+p is now of type Array of Bytes.
+And now we can send it to Europe, which
+would return a Future of Array of Bytes.
+And the type of flatMap,
+go here, will all work out.
+All right, so
+I'm pretty sure that you agree that
+this code looks messy and
+this code looks beautiful.
+So again, flatMap comes to the rescue,
+all right.
+Now, let's, drive in,
+dive in a little bit and,
+and look kind of, you know,
+how packets are sent under the covers.
+Again, this is, you know, all, toy code.
+And the reason is that we need some
+concrete code to, to build some examples.
+But this is of course,
+not production code.
+But let's look here.
+Imagine that we have an imaginary
+HTTP library that has a constructor,
+that given a URL, and the request,
+will return a response.
+Now, an HTTP library is probably going
+to make a call across a network.
+So, the result of, calling apply on HTTP,
+will be a Future of a Response.
+And it runs an HTTP request,
+asynchronously.
+We don't care.
+As long as, given the URL and the Request,
+we now get a Future of a Response.
+So now how can we implement sent packets
+from the US to Europe and back with this?
+Well, we first create a URL
+to some server in Europe.
+We create a Request from the packet.
+And then we call that, we call then filter
+such that we, they're response is okay.
+And then we map their response
+back to an Array of Bytes.
+Now, this is still not safe in the general
+sense because it can still fail,
+because maybe, you know, the packet,
+the, the network is down.
+So this packet will not reach Europe.
+So let's try to make this code
+more resilient, all right?
+So we want to make 100% sure
+that when we send the packet,
+that it actually reaches
+the server in Europe.
+One way to do that is why don't we
+send this packet kind of twice,
+all right, to two different servers.
+So here is what we do is we kind of,
+you know,
+send the packet to
+a mail server in Europe.
+We send the packet to a mail server
+in the US just, you know, to be safe.
+And then we zip the confirmations, to get,
+you know, the, the, a pair of the,
+response from sending
+the packet to Europe and
+the response from sending
+the packet to the US, right?
+So now, we should be safe because
+we're sending it kind of twice.
+But is this any better really?
+Well, not because if you remember
+what zip does with lists.
+Zip, if it takes an empty list and another
+list, it will just return the empty list.
+So zip will always kind of confirm to
+the shortest list that you're zipping.
+And the same is true when
+you're zipping two futures.
+So, in that case, you know the error
+case is the empty list and
+the success case, is the non empty list.
+So when I'm zipping two futures and one
+of them fails, the whole zip will fail.
+So even though I'm doing a lot of work
+to send this packet to both Europe and
+back, it doesn't help me because the zip
+will fail when one of them fails.
+So, all right.
+So this is not very resilient.
+But there was this this,
+these two functions.
+Well, the one that I showed you, but
+there's another one,
+recoverWith and recover.
+And you can see that recoverWith
+looks a little bit like
+flatMap because it takes a function that
+takes an exception and returns a Future.
+And so it's kind of the,
+the error case for flatMap.
+And then we have recover which
+takes a Throwable and returns a T,
+which is kind of the map for
+the error case.
+So let's see if we can use these
+functions to write a more resilient
+version of sending packets, all right?
+So there was our old version,
+we were just going to send it.
+What we're going to do now is we're going
+to send the packet to Europe first.
+When that fails, we use recoverWith, okay.
+And then, you know, what we get is we
+get the function from throwable to,
+Future of t, right?
+That's what we need?
+So then we just send it to Europe,
+and then, sorry, to the US.
+And when that fails, we just return
+the error message with recover,
+and if it succeeds, you know,
+we're done, all right.
+Now the problem with this code is that,
+you know,
+we're really trying to
+send the packet to Europe.
+But when,
+when it goes wrong sending it to the US,
+we get the error message for the US.
+So this code is still not really good, but
+it's already much better than
+our naive attempt, all right?
+But the, the thing here that I want
+to focus on is that recover and
+recoverWith are like the map and
+the flatMap, but then for
+the error case of the of the Future,
+all right?
+So instead of you know, getting the value,
+they get the exception but
+then the signatures are the same for
+the rest.
+So there's an error channel and
+a regular channel, and
+they have the same operators
+defined on them, all right.
+We're going to revisit this code,
+in the next section.
+And then we're going to do
+a little bit of kicking out, and
+trying to do some hipster functional
+programming, so see you soon.
+

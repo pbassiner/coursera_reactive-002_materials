@@ -1,0 +1,242 @@
+1
+00:00:00,270 --> 00:00:02,870
+Hey, everybody, welcome back.
+
+2
+00:00:02,870 --> 00:00:11,470
+I must admit, I'm a little bit addicted
+to building combinators over futures.
+
+3
+00:00:11,470 --> 00:00:17,360
+And the reason for that is that
+once we move from the world of,
+
+4
+00:00:17,360 --> 00:00:22,214
+you know regular types,
+T or Try of T into future,
+
+5
+00:00:22,214 --> 00:00:27,150
+into the world of futures, we cannot
+use a regular control flow anymore,
+
+6
+00:00:27,150 --> 00:00:29,870
+because everything becomes callback-based.
+
+7
+00:00:29,870 --> 00:00:32,730
+And hence, you know, in order to do that,
+
+8
+00:00:32,730 --> 00:00:38,850
+we need a lot of higher order functions
+to make our programming life easier.
+
+9
+00:00:38,850 --> 00:00:44,500
+And in this lecture, these two lectures
+here, we're going to look at yet another
+
+10
+00:00:46,230 --> 00:00:51,262
+little combinator on futures, and
+we're also going to have some fun.
+
+11
+00:00:51,262 --> 00:00:57,340
+All right, so this really is just a fun,
+fun lecture to show,
+
+12
+00:00:57,340 --> 00:01:01,400
+show off how good we are as
+functional programmers.
+
+13
+00:01:01,400 --> 00:01:02,230
+'Kay.
+
+14
+00:01:02,230 --> 00:01:07,670
+Remember this code here where we read from
+memory and we used flatMap and so on.
+
+15
+00:01:07,670 --> 00:01:13,755
+Of course, we can write the same
+code using for comprehensions.
+
+16
+00:01:13,755 --> 00:01:18,790
+Because futures are monads,
+they support all
+
+17
+00:01:18,790 --> 00:01:24,630
+the constraints to use for comprehensions,
+so we can write the code as this.
+
+18
+00:01:24,630 --> 00:01:32,250
+Read a packet from memory, put it in
+packet, and then send save the packet.
+
+19
+00:01:32,250 --> 00:01:35,190
+You get a confirmation and
+you yield the conformation, and
+
+20
+00:01:35,190 --> 00:01:38,729
+the result type is Future
+of Array of Bytes.
+
+21
+00:01:40,420 --> 00:01:44,390
+Now, the thing that we were
+trying to do is to make
+
+22
+00:01:44,390 --> 00:01:46,950
+sending this package resilient to failure.
+
+23
+00:01:47,988 --> 00:01:50,350
+And we messed around with that.
+
+24
+00:01:50,350 --> 00:01:53,210
+We defined even a new combinator.
+
+25
+00:01:53,210 --> 00:01:56,359
+And what I want to do now
+is I want to define yet
+
+26
+00:01:56,359 --> 00:01:59,751
+another combinator to deal with failure.
+
+27
+00:01:59,751 --> 00:02:03,930
+And the combinator that I want
+to introduce is called retry.
+
+28
+00:02:03,930 --> 00:02:06,090
+It's here on the slide.
+
+29
+00:02:06,090 --> 00:02:09,850
+And retry takes two parameters,
+in a curried way.
+
+30
+00:02:09,850 --> 00:02:15,050
+So the first is the number of times
+that you want to retry a computation.
+
+31
+00:02:16,070 --> 00:02:21,093
+And the second one is the future that,
+
+32
+00:02:21,093 --> 00:02:24,530
+you know,
+the computation that you want to perform.
+
+33
+00:02:24,530 --> 00:02:30,000
+Okay, so
+retry number of times that block, and
+
+34
+00:02:30,000 --> 00:02:36,720
+then you will return a future as
+soon as that block succeeds or
+
+35
+00:02:36,720 --> 00:02:42,930
+if it still fails after number of time
+tries, then you return the error message.
+
+36
+00:02:42,930 --> 00:02:47,130
+Okay, now here's a simple
+implementation of that.
+
+37
+00:02:47,130 --> 00:02:49,319
+We can just use recursion.
+
+38
+00:02:49,319 --> 00:02:56,090
+So if you have run out of number of times,
+you immediately fail.
+
+39
+00:02:56,090 --> 00:03:01,560
+So you just return a future that
+represents failure with a new exception
+
+40
+00:03:01,560 --> 00:03:07,520
+saying, sorry,
+I tried n times, didn't work.
+
+41
+00:03:08,900 --> 00:03:10,860
+What do you do otherwise?
+
+42
+00:03:10,860 --> 00:03:17,990
+Well, otherwise, you execute the block,
+and if the block fails, you fall back to,
+
+43
+00:03:17,990 --> 00:03:24,570
+huh, the recursive call to number of
+times minus 1 with the same block.
+
+44
+00:03:24,570 --> 00:03:28,320
+So this code, you have to admit,
+looks pretty nifty.
+
+45
+00:03:28,320 --> 00:03:35,059
+It looks very elegant, but
+the downside is that it uses recursion.
+
+46
+00:03:35,059 --> 00:03:41,410
+And some people say that recursion is
+the goto of functional programming.
+
+47
+00:03:41,410 --> 00:03:46,030
+And so they frown upon this,
+where there is explicit recursion.
+
+48
+00:03:46,030 --> 00:03:48,009
+And they say, no, no, no, no.
+
+49
+00:03:48,009 --> 00:03:51,710
+You have to use higher order
+functions that hide the recursion.
+
+50
+00:03:51,710 --> 00:03:54,360
+So let's see what
+the consequences of that are.
+
+51
+00:03:54,360 --> 00:04:01,044
+So let's do some macho programming but
+we will do that after the break.
+

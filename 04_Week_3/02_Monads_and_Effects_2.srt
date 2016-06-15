@@ -1,0 +1,423 @@
+1
+00:00:00,220 --> 00:00:05,270
+Welcome back to the lecture on Monads and
+Effects.
+
+2
+00:00:05,270 --> 00:00:11,970
+And where we ended up
+was with the desire to
+
+3
+00:00:13,010 --> 00:00:19,376
+make the type of a function
+from T to S more precise by ex,
+
+4
+00:00:19,376 --> 00:00:24,610
+you know, expressing in the type
+that this function could fail.
+
+5
+00:00:24,610 --> 00:00:28,840
+And we used a type constructor Try
+
+6
+00:00:28,840 --> 00:00:33,050
+to indicate the fact that
+this function could fail.
+
+7
+00:00:33,050 --> 00:00:37,770
+And we didn't say how this Try
+was defined, but here it is.
+
+8
+00:00:37,770 --> 00:00:42,638
+So if you look at the class Try,
+it's an abstract class with two subtypes.
+
+9
+00:00:42,638 --> 00:00:47,040
+And there's one case for success and
+the other case for failure.
+
+10
+00:00:47,040 --> 00:00:50,040
+So you see there the two case classes.
+
+11
+00:00:50,040 --> 00:00:54,370
+Success takes a value of type T and
+extends Try of T.
+
+12
+00:00:54,370 --> 00:01:01,380
+And the class Failure takes
+an exception and also extends Try of T.
+
+13
+00:01:01,380 --> 00:01:06,532
+So as you see that this type
+is like a union type that
+
+14
+00:01:06,532 --> 00:01:11,908
+expresses the fact that
+the function that returns a value
+
+15
+00:01:11,908 --> 00:01:17,508
+of Try of T can either successfully
+return a value of type T or
+
+16
+00:01:17,508 --> 00:01:21,992
+fail with an exception of type Throwable.
+
+17
+00:01:21,992 --> 00:01:26,595
+When we adapt our types of
+our adventure game with Try,
+
+18
+00:01:26,595 --> 00:01:29,597
+we will see now that collectCoins,
+
+19
+00:01:29,597 --> 00:01:36,140
+instead of returning a List of Coins,
+will return a Try of List of Coins.
+
+20
+00:01:36,140 --> 00:01:41,810
+And similarly, buyTreasure will
+take a List of Coins still,
+
+21
+00:01:41,810 --> 00:01:45,460
+but it will return a Try of Treasure.
+
+22
+00:01:45,460 --> 00:01:46,091
+Okay?
+
+23
+00:01:46,091 --> 00:01:51,250
+And so again, this Try means it
+either returns a list of coins or
+
+24
+00:01:51,250 --> 00:01:53,550
+throws an exception.
+
+25
+00:01:53,550 --> 00:01:58,360
+And the same if you return a Try
+of Treasure, it means either it
+
+26
+00:01:58,360 --> 00:02:03,470
+successfully returns a Treasure or
+it throws an exception.
+
+27
+00:02:04,900 --> 00:02:09,550
+Now, however,
+our code becomes really ugly,
+
+28
+00:02:09,550 --> 00:02:14,710
+when we want to compose collectCoins and
+buyTreasure.
+
+29
+00:02:14,710 --> 00:02:16,410
+So let's look at the code here.
+
+30
+00:02:16,410 --> 00:02:18,770
+Again, we still call the constructor.
+
+31
+00:02:18,770 --> 00:02:24,210
+But now, when we call collectCoins,
+we get a Try of List of Coins.
+
+32
+00:02:24,210 --> 00:02:29,740
+But notice that buyTreasure
+takes a List of Coins,
+
+33
+00:02:29,740 --> 00:02:33,080
+but we have in our hands
+a Try of List of Coins.
+
+34
+00:02:33,080 --> 00:02:38,242
+So what we have to do is we
+are forced to use pattern matching,
+
+35
+00:02:38,242 --> 00:02:43,000
+and when the call to
+collect coins succeeded,
+
+36
+00:02:43,000 --> 00:02:48,500
+then we can take out the list of coins and
+call buyTreasure.
+
+37
+00:02:48,500 --> 00:02:53,250
+And then when it fails,
+we just propagate the exception.
+
+38
+00:02:53,250 --> 00:02:58,160
+But you see,
+this nice sequential composition of code
+
+39
+00:02:58,160 --> 00:03:01,790
+is now all spoiled, because there
+is now pattern matching and so
+
+40
+00:03:01,790 --> 00:03:07,420
+on and it doesn't look that nice anymore.
+
+41
+00:03:07,420 --> 00:03:13,090
+Fortunately, there's a couple of
+higher-order functions defined on Try
+
+42
+00:03:13,090 --> 00:03:14,790
+on the Try type.
+
+43
+00:03:14,790 --> 00:03:19,418
+And for example, there's flatMap,
+there's map, there's filter.
+
+44
+00:03:19,418 --> 00:03:24,570
+And what we will do is we'll use
+these higher order functions, and
+
+45
+00:03:24,570 --> 00:03:31,010
+in particular, the first one, flatMap,
+to make this code look beautiful again.
+
+46
+00:03:32,450 --> 00:03:37,450
+But first of all,
+the fact that we have here flatMap and
+
+47
+00:03:37,450 --> 00:03:42,890
+that we have a constructor for
+Try means that Try is a monad,
+
+48
+00:03:42,890 --> 00:03:48,030
+and in particular,
+it's a monad that handles exceptions.
+
+49
+00:03:48,030 --> 00:03:52,810
+And the fact that it's a monad,
+the fact that it has a flatMap,
+
+50
+00:03:52,810 --> 00:03:56,258
+will allow us to kind of, you know,
+guide us toward the happy path.
+
+51
+00:03:56,258 --> 00:04:00,290
+Because the flatMap takes care
+of all the pattern matching and
+
+52
+00:04:00,290 --> 00:04:07,168
+propagating exceptions such that we only
+have to think about the happy part, okay?
+
+53
+00:04:07,168 --> 00:04:13,190
+So monads are type
+constructors that help you
+
+54
+00:04:13,190 --> 00:04:18,610
+to take the happy path, and
+you can forget about the exceptional case.
+
+55
+00:04:19,970 --> 00:04:22,310
+So let's do some noise reduction here.
+
+56
+00:04:22,310 --> 00:04:24,090
+So we still call our constructor.
+
+57
+00:04:25,340 --> 00:04:28,720
+And now what we do is,
+we say, collectCoins.
+
+58
+00:04:28,720 --> 00:04:32,880
+And then we flatMap
+the function buyTreasure coins.
+
+59
+00:04:32,880 --> 00:04:38,450
+And the flatMap will unwrap the Try of T,
+and if it's success,
+
+60
+00:04:38,450 --> 00:04:42,650
+it will give us the coins,
+such that we can call buyTreasure.
+
+61
+00:04:42,650 --> 00:04:44,652
+And if we flip back two slides,
+
+62
+00:04:44,652 --> 00:04:48,280
+you see that the type of flatMap
+is exactly what we need.
+
+63
+00:04:48,280 --> 00:04:54,458
+It's defined on Try of T, so the,
+the, the this pointer is a Try of T.
+
+64
+00:04:54,458 --> 00:04:59,741
+Then we get a function from T to Try of S,
+and then the result is Try of S.
+
+65
+00:04:59,741 --> 00:05:04,570
+So the types in this code all work out.
+
+66
+00:05:04,570 --> 00:05:05,372
+All right?
+
+67
+00:05:05,372 --> 00:05:11,430
+So flatMap is the plumber that
+guides you through the happy path.
+
+68
+00:05:12,580 --> 00:05:17,780
+Of course, instead of flatMap in Scala,
+we can also use comprehension syntax
+
+69
+00:05:17,780 --> 00:05:22,410
+that makes it even look nicer, so
+we can write using for comprehensions.
+
+70
+00:05:22,410 --> 00:05:27,620
+We can say collectCoins and
+then put that into coins.
+
+71
+00:05:27,620 --> 00:05:33,010
+You see the, instead of equal sign,
+we use the left arrow, because on the, on
+
+72
+00:05:33,010 --> 00:05:38,410
+this side, it's a Try of List of Coins and
+on the other side it's a List of Coins.
+
+73
+00:05:38,410 --> 00:05:41,790
+And the same for treasure, and
+then we yield the treasure.
+
+74
+00:05:41,790 --> 00:05:47,660
+So this is a nicer notation for
+these monadic functions.
+
+75
+00:05:49,490 --> 00:05:55,400
+Now let's look at a couple of these
+higher-order functions that are defined
+
+76
+00:05:55,400 --> 00:05:59,950
+on Try of T and
+see if we can define them ourselves.
+
+77
+00:05:59,950 --> 00:06:00,880
+Here's map.
+
+78
+00:06:00,880 --> 00:06:06,050
+Map takes a function from T to S and
+returns a Try of S.
+
+79
+00:06:06,050 --> 00:06:09,860
+And we have to be,
+a little bit careful here
+
+80
+00:06:12,280 --> 00:06:18,190
+because when we get a value of this,
+we have to check whether it was Success.
+
+81
+00:06:18,190 --> 00:06:21,900
+If it's Failure, we just create Failure.
+
+82
+00:06:21,900 --> 00:06:27,130
+But notice that calling the function
+f might throw an exception as well.
+
+83
+00:06:27,130 --> 00:06:33,180
+So we have to guard that call in order
+to kind of return the right value,
+
+84
+00:06:33,180 --> 00:06:37,110
+and that's what you see in
+the Try constructor there.
+
+85
+00:06:37,110 --> 00:06:42,150
+It will do a try catch such that the
+exception that might happen when you call
+
+86
+00:06:42,150 --> 00:06:43,330
+f won't escape.
+
+87
+00:06:44,370 --> 00:06:45,250
+All right.
+
+88
+00:06:45,250 --> 00:06:50,830
+That was the end of our Try monad and
+
+89
+00:06:50,830 --> 00:06:55,185
+next we'll go and talk about more effects.
+

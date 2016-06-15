@@ -1,0 +1,447 @@
+1
+00:00:00,630 --> 00:00:02,200
+Hey, welcome back.
+
+2
+00:00:02,200 --> 00:00:09,562
+Remember we were trying to make
+sending packets resilient to failure.
+
+3
+00:00:09,562 --> 00:00:14,952
+And we kind of messed around a little
+bit with the naive approach,
+
+4
+00:00:14,952 --> 00:00:21,290
+and then we had a better solution
+using recover and recoverWith.
+
+5
+00:00:21,290 --> 00:00:26,340
+But that was unsatisfactory, because
+we returned the wrong error message
+
+6
+00:00:26,340 --> 00:00:32,050
+in case something did go wrong when
+both calls would go wrong, all right?
+
+7
+00:00:32,050 --> 00:00:39,000
+So what we're going to try to do now
+is we're going to write a better
+
+8
+00:00:39,000 --> 00:00:44,600
+recovery combinator, and
+that's called fallbackTo.
+
+9
+00:00:44,600 --> 00:00:49,860
+And what that tries to
+do is it will try to
+
+10
+00:00:49,860 --> 00:00:54,780
+execute the computation that,
+so that's kind of, you know,
+
+11
+00:00:54,780 --> 00:00:59,160
+if this, or, sorry, it will try to,
+this is defined on Future of T, so
+
+12
+00:00:59,160 --> 00:01:05,440
+what it will do is it will
+try to run this future.
+
+13
+00:01:05,440 --> 00:01:10,010
+When that fails,
+it will kind of, you know,
+
+14
+00:01:10,010 --> 00:01:16,310
+try the fallback future, but
+if that fails, it will return the error
+
+15
+00:01:17,680 --> 00:01:22,630
+that the first failure was.
+
+16
+00:01:22,630 --> 00:01:23,330
+All right?
+
+17
+00:01:23,330 --> 00:01:26,330
+So we first try to run the this.
+
+18
+00:01:26,330 --> 00:01:28,070
+If that succeeds, we're done.
+
+19
+00:01:28,070 --> 00:01:30,690
+If that fails, we try the fallback.
+
+20
+00:01:30,690 --> 00:01:35,520
+If that fails, we know that the this
+failed, so we return the error message,
+
+21
+00:01:35,520 --> 00:01:37,248
+the error from that one.
+
+22
+00:01:37,248 --> 00:01:40,692
+All right.
+
+23
+00:01:40,692 --> 00:01:48,060
+So, if we had that function,
+then we can define sendToSafe as follows.
+
+24
+00:01:48,060 --> 00:01:50,350
+We first try to send it to Europe.
+
+25
+00:01:50,350 --> 00:01:58,464
+If that fails, we fall back to
+sending the message to the USA.
+
+26
+00:01:58,464 --> 00:02:02,612
+And then we recover by getting
+the europeError message,
+
+27
+00:02:02,612 --> 00:02:06,361
+because that's what
+the fallbackTo gives us, and
+
+28
+00:02:06,361 --> 00:02:11,390
+then we can kind of, you know,
+turn that back into the Byte array.
+
+29
+00:02:11,390 --> 00:02:11,940
+All right.
+
+30
+00:02:11,940 --> 00:02:13,790
+So this looks much better.
+
+31
+00:02:13,790 --> 00:02:18,970
+So this fallbackTo is a very nice
+combinator that's very useful.
+
+32
+00:02:18,970 --> 00:02:21,420
+So how are we going to implement that?
+
+33
+00:02:21,420 --> 00:02:23,250
+Well, it's surprisingly simple.
+
+34
+00:02:23,250 --> 00:02:25,850
+You're going to notice it yourself.
+
+35
+00:02:27,080 --> 00:02:30,370
+When we kind of, you know,
+looked at this code here
+
+36
+00:02:32,710 --> 00:02:38,520
+because instead of getting the US error,
+we would just return the Europe error,
+
+37
+00:02:38,520 --> 00:02:42,322
+and in this case,
+that is represented by this.
+
+38
+00:02:42,322 --> 00:02:48,770
+So fallbackTo is simply defined as
+this recoverWith, in that case,
+
+39
+00:02:48,770 --> 00:02:54,380
+we just can throw away the error message.
+
+40
+00:02:54,380 --> 00:03:01,760
+And then we try that, and
+if that fails, we recover with this.
+
+41
+00:03:01,760 --> 00:03:06,607
+And this is a future, but we know that
+it failed, so everything goes right.
+
+42
+00:03:06,607 --> 00:03:10,455
+So, look at this code for
+a few seconds, and
+
+43
+00:03:10,455 --> 00:03:14,096
+you have to admit that this is beautiful.
+
+44
+00:03:14,096 --> 00:03:20,238
+All right, so you try this, if that fails,
+you try that, and then, you know,
+
+45
+00:03:20,238 --> 00:03:26,040
+in the end, you say, okay,
+if both fails, then we just return this.
+
+46
+00:03:28,290 --> 00:03:34,110
+Now the reason we introduced futures
+
+47
+00:03:34,110 --> 00:03:38,750
+was that we had computations
+that took a long time and
+
+48
+00:03:38,750 --> 00:03:42,570
+we didn't want to block on them,
+we didn't want to block, you know,
+
+49
+00:03:42,570 --> 00:03:46,930
+several years in human time for
+a computation to finish.
+
+50
+00:03:46,930 --> 00:03:49,900
+So that's why we had futures
+where we pass a callback.
+
+51
+00:03:51,200 --> 00:03:56,940
+Now, sometimes, when you're testing code,
+you still want to block.
+
+52
+00:03:56,940 --> 00:04:00,800
+Because, you know, you just want
+to print something or whatever.
+
+53
+00:04:00,800 --> 00:04:04,550
+So, you know,
+this code is dangerous to use, but
+
+54
+00:04:04,550 --> 00:04:09,555
+it's useful for testing cases or
+when you're writing small sample scripts.
+
+55
+00:04:09,555 --> 00:04:15,240
+So there's a special trait here
+the Awaitable, and that has,
+
+56
+00:04:15,240 --> 00:04:20,110
+you know, these two functions
+in here that will allow you to
+
+57
+00:04:20,110 --> 00:04:25,090
+block on a Future with
+a kind of timeout duration.
+
+58
+00:04:25,090 --> 00:04:27,900
+So don't use this in production code.
+
+59
+00:04:27,900 --> 00:04:32,660
+If you see one of your colleagues use
+this while you're doing a code review,
+
+60
+00:04:32,660 --> 00:04:38,760
+you know, you scream, should scream
+bloody murder, you should never use this.
+
+61
+00:04:38,760 --> 00:04:43,840
+Only in small demos and kind of,
+you know, little scripts.
+
+62
+00:04:43,840 --> 00:04:46,910
+All right?
+So for example, what we can do here is,
+
+63
+00:04:46,910 --> 00:04:51,020
+we can kind of, you know,
+read from memory, send the packet back,
+
+64
+00:04:51,020 --> 00:04:54,940
+we get a confirmation, and
+now we want to print the confirmation.
+
+65
+00:04:54,940 --> 00:05:00,810
+So what we can do is we can say we want to
+wait at most two seconds, and now we can,
+
+66
+00:05:00,810 --> 00:05:06,040
+you know, we get an array of Bytes,
+and we can turn that into text.
+
+67
+00:05:07,350 --> 00:05:10,170
+So you know, you should always,
+
+68
+00:05:10,170 --> 00:05:15,170
+once you're asynchronous,
+you should never ever block, except,
+
+69
+00:05:15,170 --> 00:05:19,830
+you know, when you're debugging or
+doing little scripts, okay?
+
+70
+00:05:19,830 --> 00:05:24,320
+So promise that to me, never block when
+you have an asynchronous computation.
+
+71
+00:05:24,320 --> 00:05:28,770
+And we will see the same when
+we're doing Observables.
+
+72
+00:05:28,770 --> 00:05:34,750
+There we have a similar mechanism to allow
+blocking, but that's only for convenience.
+
+73
+00:05:34,750 --> 00:05:39,350
+But never use this in production, because
+once you block somewhere in this whole
+
+74
+00:05:39,350 --> 00:05:45,200
+pipeline, you might as well, kind of,
+you know, have not used asynchrony.
+
+75
+00:05:45,200 --> 00:05:45,790
+Okay?
+
+76
+00:05:45,790 --> 00:05:50,978
+So the reason that you introduced
+futures was because there was latency.
+
+77
+00:05:50,978 --> 00:05:54,831
+As soon as you introduce blocking,
+you're destroying all of that.
+
+78
+00:05:54,831 --> 00:05:57,800
+So promise me one thing.
+
+79
+00:05:57,800 --> 00:05:59,650
+Don't do that, okay?
+
+80
+00:05:59,650 --> 00:06:04,790
+You're introducing futures, and
+now you're stuck in future-land.
+
+81
+00:06:04,790 --> 00:06:05,290
+Good.
+
+82
+00:06:06,510 --> 00:06:13,470
+There's one nice thing here in,
+in Scala that I have to show you.
+
+83
+00:06:13,470 --> 00:06:15,710
+These are the postfix operators.
+
+84
+00:06:15,710 --> 00:06:18,970
+So when you want to kind of
+create a duration for, you know,
+
+85
+00:06:18,970 --> 00:06:22,725
+a number of seconds or
+minutes, if you import
+
+86
+00:06:22,725 --> 00:06:27,970
+scala.language.postfixOps, then
+you can write, you know,
+
+87
+00:06:27,970 --> 00:06:33,170
+a number followed by minutes, so
+it looks very much like units of measure.
+
+88
+00:06:33,170 --> 00:06:36,260
+So five years, that is 1,826 minutes.
+
+89
+00:06:37,570 --> 00:06:39,031
+All right, good.
+
+90
+00:06:39,031 --> 00:06:40,668
+So thank you very much.
+
+91
+00:06:40,668 --> 00:06:46,771
+This was the lecture on
+combinators on futures.
+
+92
+00:06:46,771 --> 00:06:52,379
+In the exercises, what we will
+do in the homework, or the labs,
+
+93
+00:06:52,379 --> 00:06:58,182
+what we will do is, we will show you
+a different design for futures, and
+
+94
+00:06:58,182 --> 00:07:03,490
+then you will have to implement
+your own combinators on those.
+
+95
+00:07:03,490 --> 00:07:05,490
+So, thank you, and see you next time.
+

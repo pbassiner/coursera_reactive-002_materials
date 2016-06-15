@@ -1,0 +1,248 @@
+Welcome, everybody.
+This is the last lecture on futures.
+And what we're going to do here is
+we're going to look at promises,
+which are a way to create futures
+where you can set the value,
+the result of the future,
+from the outside.
+Okay, let's, again, look at the code that
+I left you with last time,
+defining filter on Futures.
+So filter takes a predicate,
+returns a Future.
+And so what we do here is
+we create a Promise, and
+we'll talk about the signature
+of the Promise soon.
+But, you know, we create a Promise.
+Then what we do is, we're going to
+kind of wait for this to terminate.
+We do that by giving a callback.
+If it fails, well, the thing has failed,
+so the Future that we want to return,
+p.future down there, we are going
+to complete that with a failure.
+Okay?
+When this succeeds with a value x, now we
+have to check whether the predicate holds.
+If the predicate holds then we succeed.
+So what we do is we complete
+the Future with Success, with value x.
+And otherwise, we will complete
+the Failure with a new Failure exception.
+All right?
+So here you see that this Promise is
+something that has a Future that's,
+you see that there on the last line,
+p.future, and
+it has a way to complete
+the Future that I hand out.
+And the picture I like to draw for
+that, and the picture I want to
+you to have in your head is a Promise
+is a little bit like a mailbox, okay?
+So a mailbox is that, you know,
+somebody can put something in the mailbox
+and you can wait for the mailbox.
+So they've got a little
+sign on the mailbox.
+That's, you know, the, the signal that
+your callback has been processed.
+And then somebody, the postman,
+puts the mail in your mailbox.
+And that's exactly what a Promise is.
+It's a little bit like a mutable
+variable where one side is a future,
+where you get the value
+of your callback and
+where you can set the mutable
+variable on the other side.
+And that's maybe the reason I'm
+not such a big fan of Promises,
+because it's a very imperative concept.
+Now let's look at the trait,
+so trait Promise.
+So a Promise has a Future.
+You can complete a Promise
+using a Try of T.
+And then you can also try to complete it.
+And the problem is that you cannot,
+you know, it's a,
+it's a kind of, it's a mutable
+variable that you can assign once.
+So if you would try to complete it twice,
+bad things will happen.
+So you can use tryComplete, and
+then it returns a boolean that tells you
+whether or not it actually has succeeded.
+Okay.
+And there is the remember
+the trait Future.
+And so the thing that you
+pass in into complete or
+try on complete is actually the value
+that get passed to the callback, okay?
+So I think this is a very intuitive
+picture of what a Promise is.
+It's like a single assignment variable
+where you get the result via a callback.
+Let's show an example of a Future
+where we're going to race,
+so we're going to define race,
+that takes two Futures.
+And we want to return a new Future, and
+that is the first Future
+that will kind of, you know,
+successfully or unsuccessfully terminate.
+So what do we do?
+We create a new Promise,
+we register a callback with both
+Futures that try to complete the Promise,
+and then we return the Promise.
+And notice that we, here,
+we use tryComplete because we're trying
+to complete that same Future twice.
+And it's a single assignment
+mutable variable.
+So you can only if you would use here,
+complete one of those two would throw.
+So that's why we use here,
+try on complete.
+Okay, and of course,
+there are simple helper functions,
+instead of creating a try explicitly,
+you can kind of, you know,
+complete it with success of a value or
+you can complete it with a Failure.
+These are simple helper functions.
+Let's implement zip using Promises.
+So zip takes two futures, and
+what it does is, it tries to zip them.
+When one of them fails,
+the whole thing fails.
+When both succeed,
+you return the pair with the two values.
+And this zip here is
+a little bit different,
+that instead of returning
+a future of pairs,
+it will take a function that receives
+the two values and returns the result.
+And that is, then you don't
+have to do pattern matching.
+So this, this function could also be
+called zipWith or and it could be curried.
+But it doesn't really matter
+what the signature is,
+we're interested in the implementation.
+So what do we do?
+We allocate a new Promise, a Promise of R,
+then we wait for this to complete.
+If it fails, then, we,
+complete the Promise with the Failure.
+If it succeeds, then we look,
+what the other Future does.
+And then if that completes,
+we look at whether that's a failure,
+then we attempt the Promise
+with the Failure.
+If it succeeds,
+we now have two values in our hands,
+the result of the first Promise, and
+the result of the second Promise.
+We call the function here, and we're done.
+Okay?
+Now let's look at how we define zip
+using await instead of Promises.
+And here you see that this is, again, much
+more elegant, because what does zip do,
+is we just await both of them,
+and then we just apply f.
+If any of them fails,
+the async block will take care of that.
+So this is again, you know, a little
+confirmation that I like this async await,
+despite all the problems that it has.
+Now here's an,
+an example of a function that is,
+can only, I think, well, it can only,
+that its nicest implementation is
+just using straight recursion,
+no async await, and no promises.
+And what this function does is,
+it takes a List of Futures and
+turns it into a Future of Lists.
+And the way it works is it just
+goes through that list and
+runs all the Futures and
+collects the results into a list.
+And using pattern matching and
+recursion, it's quite easy.
+If the List of Futures is empty, well,
+we return a Future with an empty list,
+because we want to pivot the List and
+the Future,
+that's what you see in the type, right?
+We want to swap List of Future becomes
+Future of List, so that's what we do here.
+If we have an empty List,
+we turn that into a Future.
+And otherwise we get a Future
+followed by a List of Futures.
+And what we do is we call the flatMap
+of Future, then we get a value T.
+Then we recursively sequence
+the rest of the list,
+which returns a Future of List,
+so we flatMap that again.
+And then we return a new Future putting
+that first value there on
+top of the rest of the list.
+Yeah, this is quite elegant and nice.
+Now, I warn you, the next slides that
+use async await, it's kind of grungy.
+So we have to kind of, you know,
+allocate a list buffer, do a while loop.
+This code is not beautiful.
+I'm not proud of this code.
+This code looks much more elegant.
+Okay?
+But, notice, again,
+straight recursion wins.
+It's the most elegant one.
+And using Promises,
+I don't even know how to begin.
+Okay, so this, this might be something
+that you want to try at home but
+it's definitely not going
+to be as elegant as this.
+All right, thank you very much.
+We have now reached the end of the left
+column of the four essential effects.
+So we talked a lot about Try of T,
+and we talked even more about futures.
+And you see that these
+are the effects that make
+computations that return
+one value explicit.
+So Try of T is a computation that
+returns one value that might fail.
+And Future of T is the monad
+that expresses a computation
+that might fail and
+takes a long time, 'kay?
+And what we're going to do next is,
+we're going to switch from one to many,
+and then we're going to
+do the same sequence.
+So we'll first look at
+synchronous collections, and
+then we will go to
+asynchronous collections.
+But for now, thank you very much,
+and then see you next time
+when we're going to move from
+the left column to the right column.
+Bye-bye.
+

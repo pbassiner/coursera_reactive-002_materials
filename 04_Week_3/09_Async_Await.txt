@@ -1,0 +1,181 @@
+Welcome back everybody.
+We're still talking about futures.
+One of my favorite types.
+And what we're going to do
+now is we're actually going
+to get rid of the futures in our types.
+Because It's kind of
+nice to see try of t and
+future of t in the type because that makes
+the types more honest and more precise.
+Because looking at the type
+signature we can now see, oh,
+this function might fail or
+this function takes a long time.
+But the price that we have to pay is yet
+we have to write things using flatmap and
+higher order functions.
+Where sometimes really what we want to
+do is we want to write just simple,
+old-fashioned control flow.
+And Async await is a feature
+that allows you to kind of,
+you know, go back,
+forget about futures and so on.
+In the limited context, and
+then just write regular imperative code.
+So, what we want to do is we want
+to make effects implicit again.
+But, you know, in a limited scope.
+All right?
+So we still like on the outside It
+still looks like a function that
+returns a Future, or
+a function that use Try.
+But internally we want to
+treat it inside our code,
+inside our code we want to just treat
+it as a regular function from T to S.
+Okay?
+Now there's a feature here in Scala.
+It's called async await.
+And what that allows you to do is when
+you have a code inside an async block,
+then you can use await around something
+of type future, and get back a T.
+So that's a miracle function here, right?
+So this is a function here, this await,
+that allows you to get rid of
+the future in a magic way.
+Also notice that this async here
+takes an execution context.
+We're going to ignore that but
+the magic that we want to use here is
+that this allows us to just forget
+about the future and
+just get the regular value back of type T.
+Now async await has become very popular
+to do asynchronous programming.
+If you get C# it has support for
+async await.
+JavaScript will have support for
+async await.
+Facebook's hack has support for
+async await.
+And also the dark language from
+Google has support for async await.
+So even if you're not using Scala,
+this is super useful, knowledge,
+because it is a language feature
+that will be in any modern language.
+Now, this thing comes with
+a lot of small print,
+the Scala version, and
+it might be frustrating when you use this.
+There's a lot of small print.
+You cannot use it anywhere
+in all situations.
+You cannot use it with try catch.
+You cannot use it with nested functions.
+So it's a little bit primitive, but
+it's still worthwhile
+the trouble in my opinion.
+Okay?
+You will get, you will be screaming and
+crying because of the horrible compiler
+error messages this thing has implemented,
+you know, using macros and
+it will spill all the guts on your screen.
+Just bite through it and you will love it.
+All right?
+Because, in the end, it's worth it.
+Your code will be much simpler and
+much readable.
+But, you have to be patient and
+you have to, kind of,
+you know, go through some pain.
+But, no pain, no gain.
+All right?
+So let's look at our, retry example and,
+and kind of, you know, write that,
+using regular imperative control flow and
+async await.
+So what you see here, up here is that
+I have an async block which means
+that inside the async block I can use
+the await when there is a tuture,
+I can get that into a regular result,
+okay.
+So what I do now is I
+just declare a variable,
+I've my result type and
+then I just go into a loop.
+And, as long as the result is failure and
+I've not reached the number of times,
+I'm going to kind of,
+you know, try the result.
+If the result succeeds,
+then this condition fails.
+I fall through and
+I return the result, okay?
+And there we're using this function
+here that takes a future and
+returns it into a future of Try
+of T to make the try explicit.
+So I think this code looks pretty nice,
+and
+the reason is that I can just a y loop.
+Now let's look how we define
+filter using async await.
+Again, look here, we have the async block.
+And what we can do now is
+we can await ourselves, so
+this was of type future of T.
+So when I await that,
+I get a value of type T.
+And then I just check if p holds,
+then I return x, and
+otherwise I throw an exception.
+Now this looks really,
+really simple, because,
+you think about filter,
+filter is something like a conditional.
+A flatMap it's even nicer.
+So, I, flatMap takes,
+a function that, given a T,
+returns a future.
+This is the instance method,
+so the this is future of T, so
+how can I call that function?
+Well, to do that, I first have to take
+a future of T and turn it into a T.
+Ha!
+But, magically, if I'm in this
+async block, I can use await.
+So I just await myself.
+Now I get a value of type T.
+I call the function,
+which returns a, future of T,
+but since the await wraps
+another future on it,
+I have to await that f of x and
+everything goes well.
+Now look how beautiful and
+elegant this code is.
+Now in the next lecture,
+we will introduce promises,
+which is another mechanism
+to create futures.
+And there filter will look like this.
+All right?
+And, and don't understand the code, yet,
+be, that will be in, in the next lecture.
+But, you know, you will see that, you see
+immediately that that code is much longer
+than this code that uses async await,
+and so I prefer the async await version.
+So, thank you very much.
+Next lecture,
+we'll talk about these future things
+that we silently introduced here.
+

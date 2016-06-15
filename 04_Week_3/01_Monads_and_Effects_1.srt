@@ -1,0 +1,358 @@
+1
+00:00:00,590 --> 00:00:04,470
+Welcome, everybody,
+to the Principles of Reactive Programming.
+
+2
+00:00:04,470 --> 00:00:08,529
+And today, we're going to talk
+about monads and effects.
+
+3
+00:00:08,529 --> 00:00:12,845
+But before we do that,
+there are a few disclaimers.
+
+4
+00:00:12,845 --> 00:00:17,870
+Unfortunately, there's no type checker yet
+for PowerPoint, and since we will show
+
+5
+00:00:17,870 --> 00:00:23,560
+a lot of code fragments,
+it might be that there are typos or
+
+6
+00:00:23,560 --> 00:00:28,418
+bugs in the, in the code fragments,
+so don't take these as gospel.
+
+7
+00:00:28,418 --> 00:00:31,640
+All the code will be available on GitHub,
+and
+
+8
+00:00:31,640 --> 00:00:35,400
+that's what you should try to use
+when you try to run this code.
+
+9
+00:00:37,410 --> 00:00:42,297
+Also, when we say code fragments,
+we really mean code fragments, so
+
+10
+00:00:42,297 --> 00:00:46,570
+we're going to leave out a lot of
+declarations to focus on the essence.
+
+11
+00:00:46,570 --> 00:00:49,120
+Again, the running code is on GitHub.
+
+12
+00:00:50,700 --> 00:00:58,296
+We're using a particular version
+of RxScala 0.23 or higher.
+
+13
+00:00:58,296 --> 00:01:04,040
+And notice that the Scala names can
+be different from the RxJava names.
+
+14
+00:01:04,040 --> 00:01:09,801
+So if you look at the RxJava documentation
+and in particular at the Marble diagrams,
+
+15
+00:01:09,801 --> 00:01:14,669
+sometimes the names might change,
+and the reason is that we wanted
+
+16
+00:01:14,669 --> 00:01:18,910
+to make the library feel natural for
+Scala programmers.
+
+17
+00:01:20,130 --> 00:01:25,750
+And the last thing, the last
+disclaimer is that when I say monad,
+
+18
+00:01:25,750 --> 00:01:28,190
+I do fast and loose reasoning.
+
+19
+00:01:28,190 --> 00:01:31,250
+In particular,
+I don't care about the monad laws.
+
+20
+00:01:31,250 --> 00:01:37,520
+So unlike, you know, a real monad where
+you make sure that the monad laws hold,
+
+21
+00:01:37,520 --> 00:01:41,607
+I just mean it's a type that has
+a constructor and a flatMap.
+
+22
+00:01:42,740 --> 00:01:46,551
+So with those out of the way,
+let's get started.
+
+23
+00:01:46,551 --> 00:01:50,837
+And what we're going to do in
+this first set of lectures is,
+
+24
+00:01:50,837 --> 00:01:56,560
+we're going to talk about the four
+essential effects in programming.
+
+25
+00:01:56,560 --> 00:02:02,880
+And the four essential effects in
+programming are in this table here,
+
+26
+00:02:02,880 --> 00:02:05,020
+is the one that we're all familiar with,
+
+27
+00:02:05,020 --> 00:02:09,740
+is synchronous computations
+that return a single value.
+
+28
+00:02:09,740 --> 00:02:14,180
+Then we have asynchronous computations
+that return a single value.
+
+29
+00:02:14,180 --> 00:02:16,040
+So, that's the first column.
+
+30
+00:02:16,040 --> 00:02:21,040
+And then we will move on to
+synchronous computations that return
+
+31
+00:02:21,040 --> 00:02:26,110
+many values and asynchronous
+computations that return many values.
+
+32
+00:02:26,110 --> 00:02:30,770
+But first, we're going to focus
+on the leftmost quadrant,
+
+33
+00:02:30,770 --> 00:02:34,800
+there, synchronous computations
+that return one value.
+
+34
+00:02:34,800 --> 00:02:39,030
+And this is the, the kind of effect
+that we're all familiar with.
+
+35
+00:02:39,030 --> 00:02:43,130
+And this is the effect that's implicit
+in most of our programming languages.
+
+36
+00:02:43,130 --> 00:02:44,610
+So let's look at some code here.
+
+37
+00:02:45,710 --> 00:02:53,150
+And what we're going to do is we're going
+to program a super simple adventure game.
+
+38
+00:02:53,150 --> 00:02:55,460
+So here, you see the trait Adventure.
+
+39
+00:02:55,460 --> 00:02:58,250
+And what you can do when you're
+running this adventure game,
+
+40
+00:02:58,250 --> 00:03:00,080
+you can collect coins.
+
+41
+00:03:00,080 --> 00:03:02,470
+And that returns a list of coins.
+
+42
+00:03:02,470 --> 00:03:05,810
+And once you have a list of coins,
+you can buy treasure.
+
+43
+00:03:05,810 --> 00:03:07,180
+That's great.
+
+44
+00:03:07,180 --> 00:03:10,660
+So let's write a little script for
+our game.
+
+45
+00:03:10,660 --> 00:03:13,250
+So we first call the constructor, and
+
+46
+00:03:13,250 --> 00:03:17,160
+there's also an object Adventure
+that contains the constructor.
+
+47
+00:03:17,160 --> 00:03:21,650
+Then we collect some coins,
+and then hopefully,
+
+48
+00:03:21,650 --> 00:03:25,530
+we collect a lot of coins so
+we can buy some treasure.
+
+49
+00:03:26,530 --> 00:03:33,730
+Now, this program looks very innocent, but
+it's really not as innocent as you think.
+
+50
+00:03:33,730 --> 00:03:39,540
+Because, as in any video game,
+actions may fail.
+
+51
+00:03:39,540 --> 00:03:43,950
+For example,
+while you're trying to collect coins,
+
+52
+00:03:43,950 --> 00:03:49,172
+you can be eaten by a monster, and
+then the game over exception is thrown,
+
+53
+00:03:49,172 --> 00:03:51,980
+and you won't receive a list of gold.
+
+54
+00:03:51,980 --> 00:03:54,480
+Now, if you look at that script there,
+
+55
+00:03:54,480 --> 00:03:58,300
+you know, it doesn't show anywhere
+that anything can go wrong.
+
+56
+00:03:59,660 --> 00:04:04,640
+And even if you have successfully
+collected all your coins without any
+
+57
+00:04:04,640 --> 00:04:09,630
+exceptions, you can still get an exception
+
+58
+00:04:09,630 --> 00:04:13,280
+when you're trying to buy coins, because
+maybe you didn't collect enough coins.
+
+59
+00:04:13,280 --> 00:04:17,180
+And oops, you know,
+an exception is thrown.
+
+60
+00:04:18,320 --> 00:04:23,851
+So the problem is that when we look
+at the signatures of collectCoins and
+
+61
+00:04:23,851 --> 00:04:28,870
+buyTreasure, is that these types don't
+tell us that things can go wrong.
+
+62
+00:04:30,210 --> 00:04:34,940
+And when we look at the sequential
+composition of our code,
+
+63
+00:04:34,940 --> 00:04:38,090
+it doesn't tell us what's
+really happening there.
+
+64
+00:04:38,090 --> 00:04:42,894
+So you collect coins, and
+that call will block until
+
+65
+00:04:42,894 --> 00:04:47,790
+collectCoins has returned
+with no exceptions.
+
+66
+00:04:47,790 --> 00:04:51,340
+And then we execute buyTreasure,
+
+67
+00:04:51,340 --> 00:04:55,870
+which will also block until
+all the treasures are bought,
+
+68
+00:04:55,870 --> 00:05:00,760
+until this function returns, and
+only continues if there's no exception.
+
+69
+00:05:02,290 --> 00:05:07,200
+So what we really need to do to
+make the types honest is that
+
+70
+00:05:07,200 --> 00:05:12,610
+we want to expose in the type
+the fact that things can go wrong.
+
+71
+00:05:12,610 --> 00:05:18,390
+So instead of having a function from T
+to S, we want to have a function from T
+
+72
+00:05:18,390 --> 00:05:26,190
+to Try of S, where now in the type we
+can see that this function might fail.
+
+73
+00:05:26,190 --> 00:05:28,830
+And how is this function Try defined?
+
+74
+00:05:28,830 --> 00:05:31,990
+Well, that is in the next lecture.
+
+75
+00:05:31,990 --> 00:05:33,100
+See you in a bit.
+

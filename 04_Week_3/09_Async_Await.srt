@@ -1,0 +1,510 @@
+1
+00:00:00,250 --> 00:00:01,530
+Welcome back everybody.
+
+2
+00:00:01,530 --> 00:00:03,720
+We're still talking about futures.
+
+3
+00:00:04,980 --> 00:00:07,070
+One of my favorite types.
+
+4
+00:00:08,470 --> 00:00:13,030
+And what we're going to do
+now is we're actually going
+
+5
+00:00:13,030 --> 00:00:17,480
+to get rid of the futures in our types.
+
+6
+00:00:17,480 --> 00:00:21,890
+Because It's kind of
+nice to see try of t and
+
+7
+00:00:21,890 --> 00:00:27,300
+future of t in the type because that makes
+the types more honest and more precise.
+
+8
+00:00:27,300 --> 00:00:30,310
+Because looking at the type
+signature we can now see, oh,
+
+9
+00:00:30,310 --> 00:00:34,960
+this function might fail or
+this function takes a long time.
+
+10
+00:00:34,960 --> 00:00:38,600
+But the price that we have to pay is yet
+
+11
+00:00:38,600 --> 00:00:43,065
+we have to write things using flatmap and
+higher order functions.
+
+12
+00:00:43,065 --> 00:00:48,258
+Where sometimes really what we want to
+do is we want to write just simple,
+
+13
+00:00:48,258 --> 00:00:51,080
+old-fashioned control flow.
+
+14
+00:00:51,080 --> 00:00:55,750
+And Async await is a feature
+that allows you to kind of,
+
+15
+00:00:55,750 --> 00:01:00,010
+you know, go back,
+forget about futures and so on.
+
+16
+00:01:00,010 --> 00:01:05,057
+In the limited context, and
+then just write regular imperative code.
+
+17
+00:01:06,290 --> 00:01:11,890
+So, what we want to do is we want
+to make effects implicit again.
+
+18
+00:01:11,890 --> 00:01:13,830
+But, you know, in a limited scope.
+
+19
+00:01:13,830 --> 00:01:15,150
+All right?
+
+20
+00:01:15,150 --> 00:01:19,080
+So we still like on the outside It
+still looks like a function that
+
+21
+00:01:19,080 --> 00:01:22,310
+returns a Future, or
+a function that use Try.
+
+22
+00:01:22,310 --> 00:01:26,400
+But internally we want to
+treat it inside our code,
+
+23
+00:01:26,400 --> 00:01:31,638
+inside our code we want to just treat
+it as a regular function from T to S.
+
+24
+00:01:31,638 --> 00:01:33,133
+Okay?
+
+25
+00:01:33,133 --> 00:01:39,480
+Now there's a feature here in Scala.
+
+26
+00:01:39,480 --> 00:01:41,730
+It's called async await.
+
+27
+00:01:41,730 --> 00:01:47,530
+And what that allows you to do is when
+you have a code inside an async block,
+
+28
+00:01:47,530 --> 00:01:55,600
+then you can use await around something
+of type future, and get back a T.
+
+29
+00:01:55,600 --> 00:01:58,140
+So that's a miracle function here, right?
+
+30
+00:01:58,140 --> 00:02:01,210
+So this is a function here, this await,
+
+31
+00:02:01,210 --> 00:02:05,710
+that allows you to get rid of
+the future in a magic way.
+
+32
+00:02:07,100 --> 00:02:11,310
+Also notice that this async here
+takes an execution context.
+
+33
+00:02:11,310 --> 00:02:14,580
+We're going to ignore that but
+
+34
+00:02:14,580 --> 00:02:19,660
+the magic that we want to use here is
+that this allows us to just forget
+
+35
+00:02:19,660 --> 00:02:23,750
+about the future and
+just get the regular value back of type T.
+
+36
+00:02:25,320 --> 00:02:30,310
+Now async await has become very popular
+to do asynchronous programming.
+
+37
+00:02:31,530 --> 00:02:36,250
+If you get C# it has support for
+async await.
+
+38
+00:02:36,250 --> 00:02:39,900
+JavaScript will have support for
+async await.
+
+39
+00:02:39,900 --> 00:02:43,980
+Facebook's hack has support for
+async await.
+
+40
+00:02:43,980 --> 00:02:49,200
+And also the dark language from
+Google has support for async await.
+
+41
+00:02:49,200 --> 00:02:55,110
+So even if you're not using Scala,
+this is super useful, knowledge,
+
+42
+00:02:55,110 --> 00:03:00,860
+because it is a language feature
+that will be in any modern language.
+
+43
+00:03:00,860 --> 00:03:04,132
+Now, this thing comes with
+a lot of small print,
+
+44
+00:03:04,132 --> 00:03:09,900
+the Scala version, and
+it might be frustrating when you use this.
+
+45
+00:03:09,900 --> 00:03:11,540
+There's a lot of small print.
+
+46
+00:03:11,540 --> 00:03:15,330
+You cannot use it anywhere
+in all situations.
+
+47
+00:03:15,330 --> 00:03:17,410
+You cannot use it with try catch.
+
+48
+00:03:17,410 --> 00:03:19,940
+You cannot use it with nested functions.
+
+49
+00:03:19,940 --> 00:03:22,050
+So it's a little bit primitive, but
+
+50
+00:03:22,050 --> 00:03:25,530
+it's still worthwhile
+the trouble in my opinion.
+
+51
+00:03:25,530 --> 00:03:26,260
+Okay?
+
+52
+00:03:26,260 --> 00:03:28,500
+You will get, you will be screaming and
+
+53
+00:03:28,500 --> 00:03:33,590
+crying because of the horrible compiler
+error messages this thing has implemented,
+
+54
+00:03:33,590 --> 00:03:38,610
+you know, using macros and
+it will spill all the guts on your screen.
+
+55
+00:03:39,720 --> 00:03:43,910
+Just bite through it and you will love it.
+
+56
+00:03:43,910 --> 00:03:44,600
+All right?
+
+57
+00:03:44,600 --> 00:03:46,390
+Because, in the end, it's worth it.
+
+58
+00:03:46,390 --> 00:03:49,960
+Your code will be much simpler and
+much readable.
+
+59
+00:03:49,960 --> 00:03:53,140
+But, you have to be patient and
+you have to, kind of,
+
+60
+00:03:53,140 --> 00:03:55,010
+you know, go through some pain.
+
+61
+00:03:55,010 --> 00:03:57,260
+But, no pain, no gain.
+
+62
+00:03:57,260 --> 00:03:58,221
+All right?
+
+63
+00:03:58,221 --> 00:04:05,905
+So let's look at our, retry example and,
+and kind of, you know, write that,
+
+64
+00:04:05,905 --> 00:04:10,829
+using regular imperative control flow and
+async await.
+
+65
+00:04:10,829 --> 00:04:16,045
+So what you see here, up here is that
+I have an async block which means
+
+66
+00:04:16,045 --> 00:04:21,351
+that inside the async block I can use
+the await when there is a tuture,
+
+67
+00:04:21,351 --> 00:04:24,761
+I can get that into a regular result,
+okay.
+
+68
+00:04:24,761 --> 00:04:28,577
+So what I do now is I
+just declare a variable,
+
+69
+00:04:28,577 --> 00:04:33,490
+I've my result type and
+then I just go into a loop.
+
+70
+00:04:33,490 --> 00:04:39,770
+And, as long as the result is failure and
+I've not reached the number of times,
+
+71
+00:04:39,770 --> 00:04:44,040
+I'm going to kind of,
+you know, try the result.
+
+72
+00:04:44,040 --> 00:04:48,190
+If the result succeeds,
+then this condition fails.
+
+73
+00:04:48,190 --> 00:04:52,570
+I fall through and
+I return the result, okay?
+
+74
+00:04:52,570 --> 00:04:56,990
+And there we're using this function
+here that takes a future and
+
+75
+00:04:56,990 --> 00:05:01,720
+returns it into a future of Try
+of T to make the try explicit.
+
+76
+00:05:01,720 --> 00:05:04,590
+So I think this code looks pretty nice,
+and
+
+77
+00:05:04,590 --> 00:05:06,600
+the reason is that I can just a y loop.
+
+78
+00:05:06,600 --> 00:05:11,650
+Now let's look how we define
+filter using async await.
+
+79
+00:05:11,650 --> 00:05:15,910
+Again, look here, we have the async block.
+
+80
+00:05:15,910 --> 00:05:19,531
+And what we can do now is
+we can await ourselves, so
+
+81
+00:05:19,531 --> 00:05:21,608
+this was of type future of T.
+
+82
+00:05:21,608 --> 00:05:25,578
+So when I await that,
+I get a value of type T.
+
+83
+00:05:25,578 --> 00:05:30,436
+And then I just check if p holds,
+then I return x, and
+
+84
+00:05:30,436 --> 00:05:34,320
+otherwise I throw an exception.
+
+85
+00:05:34,320 --> 00:05:39,260
+Now this looks really,
+really simple, because,
+
+86
+00:05:39,260 --> 00:05:43,915
+you think about filter,
+filter is something like a conditional.
+
+87
+00:05:43,915 --> 00:05:46,740
+A flatMap it's even nicer.
+
+88
+00:05:46,740 --> 00:05:50,253
+So, I, flatMap takes,
+
+89
+00:05:51,377 --> 00:05:58,450
+a function that, given a T,
+returns a future.
+
+90
+00:05:58,450 --> 00:06:02,730
+This is the instance method,
+so the this is future of T, so
+
+91
+00:06:02,730 --> 00:06:04,290
+how can I call that function?
+
+92
+00:06:04,290 --> 00:06:10,710
+Well, to do that, I first have to take
+a future of T and turn it into a T.
+
+93
+00:06:10,710 --> 00:06:11,720
+Ha!
+
+94
+00:06:11,720 --> 00:06:16,840
+But, magically, if I'm in this
+async block, I can use await.
+
+95
+00:06:16,840 --> 00:06:19,520
+So I just await myself.
+
+96
+00:06:19,520 --> 00:06:21,920
+Now I get a value of type T.
+
+97
+00:06:21,920 --> 00:06:27,710
+I call the function,
+which returns a, future of T,
+
+98
+00:06:27,710 --> 00:06:30,660
+but since the await wraps
+another future on it,
+
+99
+00:06:30,660 --> 00:06:35,240
+I have to await that f of x and
+everything goes well.
+
+100
+00:06:35,240 --> 00:06:39,060
+Now look how beautiful and
+elegant this code is.
+
+101
+00:06:39,060 --> 00:06:43,070
+Now in the next lecture,
+we will introduce promises,
+
+102
+00:06:43,070 --> 00:06:46,870
+which is another mechanism
+to create futures.
+
+103
+00:06:46,870 --> 00:06:50,440
+And there filter will look like this.
+
+104
+00:06:50,440 --> 00:06:51,110
+All right?
+
+105
+00:06:51,110 --> 00:06:56,200
+And, and don't understand the code, yet,
+be, that will be in, in the next lecture.
+
+106
+00:06:56,200 --> 00:07:02,200
+But, you know, you will see that, you see
+immediately that that code is much longer
+
+107
+00:07:02,200 --> 00:07:09,285
+than this code that uses async await,
+and so I prefer the async await version.
+
+108
+00:07:09,285 --> 00:07:11,255
+So, thank you very much.
+
+109
+00:07:11,255 --> 00:07:13,025
+Next lecture,
+
+110
+00:07:13,025 --> 00:07:17,545
+we'll talk about these future things
+that we silently introduced here.
+

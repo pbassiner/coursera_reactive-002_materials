@@ -1,0 +1,134 @@
+Welcome, everybody,
+to the Principles of Reactive Programming.
+And today, we're going to talk
+about monads and effects.
+But before we do that,
+there are a few disclaimers.
+Unfortunately, there's no type checker yet
+for PowerPoint, and since we will show
+a lot of code fragments,
+it might be that there are typos or
+bugs in the, in the code fragments,
+so don't take these as gospel.
+All the code will be available on GitHub,
+and
+that's what you should try to use
+when you try to run this code.
+Also, when we say code fragments,
+we really mean code fragments, so
+we're going to leave out a lot of
+declarations to focus on the essence.
+Again, the running code is on GitHub.
+We're using a particular version
+of RxScala 0.23 or higher.
+And notice that the Scala names can
+be different from the RxJava names.
+So if you look at the RxJava documentation
+and in particular at the Marble diagrams,
+sometimes the names might change,
+and the reason is that we wanted
+to make the library feel natural for
+Scala programmers.
+And the last thing, the last
+disclaimer is that when I say monad,
+I do fast and loose reasoning.
+In particular,
+I don't care about the monad laws.
+So unlike, you know, a real monad where
+you make sure that the monad laws hold,
+I just mean it's a type that has
+a constructor and a flatMap.
+So with those out of the way,
+let's get started.
+And what we're going to do in
+this first set of lectures is,
+we're going to talk about the four
+essential effects in programming.
+And the four essential effects in
+programming are in this table here,
+is the one that we're all familiar with,
+is synchronous computations
+that return a single value.
+Then we have asynchronous computations
+that return a single value.
+So, that's the first column.
+And then we will move on to
+synchronous computations that return
+many values and asynchronous
+computations that return many values.
+But first, we're going to focus
+on the leftmost quadrant,
+there, synchronous computations
+that return one value.
+And this is the, the kind of effect
+that we're all familiar with.
+And this is the effect that's implicit
+in most of our programming languages.
+So let's look at some code here.
+And what we're going to do is we're going
+to program a super simple adventure game.
+So here, you see the trait Adventure.
+And what you can do when you're
+running this adventure game,
+you can collect coins.
+And that returns a list of coins.
+And once you have a list of coins,
+you can buy treasure.
+That's great.
+So let's write a little script for
+our game.
+So we first call the constructor, and
+there's also an object Adventure
+that contains the constructor.
+Then we collect some coins,
+and then hopefully,
+we collect a lot of coins so
+we can buy some treasure.
+Now, this program looks very innocent, but
+it's really not as innocent as you think.
+Because, as in any video game,
+actions may fail.
+For example,
+while you're trying to collect coins,
+you can be eaten by a monster, and
+then the game over exception is thrown,
+and you won't receive a list of gold.
+Now, if you look at that script there,
+you know, it doesn't show anywhere
+that anything can go wrong.
+And even if you have successfully
+collected all your coins without any
+exceptions, you can still get an exception
+when you're trying to buy coins, because
+maybe you didn't collect enough coins.
+And oops, you know,
+an exception is thrown.
+So the problem is that when we look
+at the signatures of collectCoins and
+buyTreasure, is that these types don't
+tell us that things can go wrong.
+And when we look at the sequential
+composition of our code,
+it doesn't tell us what's
+really happening there.
+So you collect coins, and
+that call will block until
+collectCoins has returned
+with no exceptions.
+And then we execute buyTreasure,
+which will also block until
+all the treasures are bought,
+until this function returns, and
+only continues if there's no exception.
+So what we really need to do to
+make the types honest is that
+we want to expose in the type
+the fact that things can go wrong.
+So instead of having a function from T
+to S, we want to have a function from T
+to Try of S, where now in the type we
+can see that this function might fail.
+And how is this function Try defined?
+Well, that is in the next lecture.
+See you in a bit.
+

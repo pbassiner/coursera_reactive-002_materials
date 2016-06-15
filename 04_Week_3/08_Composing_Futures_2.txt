@@ -1,0 +1,192 @@
+Hey, welcome back everybody.
+I left you with this nasty
+cliffhanger where I challenged you
+to write a recursion function
+that kind of tried to
+run a future-based computation
+n times without recursion.
+Okay?
+Now I'm going to show you two possible way
+to solve this but of course, you know,
+maybe you have come up with your own way,
+and you can share that on the forums.
+That would be fun.
+What I'm going to do is I'm going
+to use foldr and fold left.
+Those are the kind of, you know,
+two power tools in our toolbox.
+And whenever we do things with recursion,
+it's often nicer to do it with a fold.
+Okay?
+So let's see what the consequences of this
+are, because, you know, maybe using
+a fold is not always the correct choice.
+Okay, so let's geek out for
+a bit and pretend that we
+are functional programming hipsters.
+I should put on here my you know,
+my rimmed glasses and
+my tweed coat, but, you know,
+I remain hippie in my tie dye.
+But what we're going to do is we're
+going to use foldRight and foldLeft.
+So let's refresh our
+memory what these are.
+FoldRight takes a List,
+in this case List with values a, b, and c.
+It takes a neutral element e, and
+a function, a combination function, okay?
+And this foldRight folds the list
+from right to left, okay?
+So it starts at the right side of the list
+and then takes e and applies f to c and e.
+And then it goes one step to the left,
+because it's folding from right to left,
+and then applies f to b and
+the result of c and e.
+And then finally, it applies f to a and
+the result of folding from the right.
+Okay?
+So it's easy to remember, it's just like
+the northern wind blows from the right,
+foldRight folds from the right.
+Heh, obvious, huh?
+Then if you look at foldLeft,
+well, that folds from the left.
+So what it does is,
+it starts with the neutral element and
+it does the combiner function.
+And it first combines e with a.
+And then combines that with b.
+And then combines that with c, all right.
+So it kind of, you know,
+associates the other way around.
+We're going to use both foldLeft and
+foldRight to
+implement our function
+to retry a computation.
+And here is the solution.
+So what we're going to do is,
+well, if we want to use fold, and
+in this case we'll start with foldLeft,
+if we want to use fold, we need a list.
+Well, how do we create a list?
+I know,
+we can create a list from number of times.
+So what we will do is, we will create
+a list from one to number of times and
+put that into a list.
+Then we will map over that list the block.
+So now we get a list of n blocks.
+And notice that we're kind of putting
+that block under a unit arrow,
+because we don't want to execute the block
+just yet, we want to execute them
+one by one, because every time we execute,
+it might have side effects, so
+we have to be very careful to
+delay the execution of the block.
+Our neutral element is failed.
+So we create a new Future.failed.
+And then, what we do is we fold from
+the left, starting with failed,
+and then our combined combination
+function takes a future,
+that was the thing on the left,
+and the block.
+And then we try to run the future ,and if
+that fails, we're going to run the block.
+Okay, so it looks a little bit puzzling,
+but if you think a little bit about it,
+retry 3 of block will unfold
+to failed recoverWith block,
+recoverWith block, recoverWith block.
+If you don't believe me,
+let's do the derivation here.
+So first, we're going to run the list, so
+we get, you know, that's the simple thing.
+So when we run the list, now we're going
+to map the number of attempts over that.
+And so now we get a list of n blocks.
+And remember,
+this is super important to do this here,
+because we don't want to
+accidentally execute the blocks.
+Okay, so we have to build this
+little thunk that hides the block.
+All right.
+And now we're going to fold left and
+if you kind of, you know,
+do the fold left here, you will see
+that this gives us the same result.
+So by doing a little bit of substitution,
+it should be clear
+that the result of this function
+is exactly what we want.
+All right,
+now let's try to do it with foldRight.
+There's even more higher order functions,
+so in this case again,
+we create a list from 1 to n.
+We map the block, delayed block,
+over that, we create the failure.
+But now we're folding from the right,
+starting with failed.
+But we're not really starting with failed,
+we're starting with a function that
+is delayed failed,
+because we kind of have to kind
+of turn this from the other side.
+So what you will see is the combination
+function now takes a block on the left and
+a function that returns
+a future on the right, and
+we have to return a function
+that returns a future.
+And how do we do that?
+By calling the block and
+then falling back to the a.
+So here you see that, you know,
+everything is reversed, and
+when you unfold this,
+you will see this here.
+So this is like, you know, looks, like,
+super cool with lots of
+higher order functions.
+But to be honest,
+I think that in this case,
+the recursive solution
+was the simplest one.
+All right?
+So sometimes straight recursion
+is the way to go and we should
+just leave those higher order functions
+to the functional programming hipsters.
+Right?
+And this is one of the most
+important things of functional,
+of mastering programing.
+You have to know when you use recursion,
+you have to know when to use folds,
+you have to know when to fold left,
+because you saw that, you know,
+fold right and fold left, you know,
+the code looked quite different, and
+in one case we even needed
+more higher-order functions.
+But this kind of balance,
+that is, you know,
+as you get more experienced in
+writing code in a functional style,
+that's what you will learn kind of,
+you know, it will become natural to you.
+Just like, you know, a soccer player
+knows intuitively when to jump and
+to head in the ball into the goal.
+All right.
+Thank you.
+This is the end of composing futures.
+And what we're going to do next is we're
+going to look at some even more advanced
+ways to deal with futures.
+

@@ -1,0 +1,157 @@
+Welcome back to the lecture on Monads and
+Effects.
+And where we ended up
+was with the desire to
+make the type of a function
+from T to S more precise by ex,
+you know, expressing in the type
+that this function could fail.
+And we used a type constructor Try
+to indicate the fact that
+this function could fail.
+And we didn't say how this Try
+was defined, but here it is.
+So if you look at the class Try,
+it's an abstract class with two subtypes.
+And there's one case for success and
+the other case for failure.
+So you see there the two case classes.
+Success takes a value of type T and
+extends Try of T.
+And the class Failure takes
+an exception and also extends Try of T.
+So as you see that this type
+is like a union type that
+expresses the fact that
+the function that returns a value
+of Try of T can either successfully
+return a value of type T or
+fail with an exception of type Throwable.
+When we adapt our types of
+our adventure game with Try,
+we will see now that collectCoins,
+instead of returning a List of Coins,
+will return a Try of List of Coins.
+And similarly, buyTreasure will
+take a List of Coins still,
+but it will return a Try of Treasure.
+Okay?
+And so again, this Try means it
+either returns a list of coins or
+throws an exception.
+And the same if you return a Try
+of Treasure, it means either it
+successfully returns a Treasure or
+it throws an exception.
+Now, however,
+our code becomes really ugly,
+when we want to compose collectCoins and
+buyTreasure.
+So let's look at the code here.
+Again, we still call the constructor.
+But now, when we call collectCoins,
+we get a Try of List of Coins.
+But notice that buyTreasure
+takes a List of Coins,
+but we have in our hands
+a Try of List of Coins.
+So what we have to do is we
+are forced to use pattern matching,
+and when the call to
+collect coins succeeded,
+then we can take out the list of coins and
+call buyTreasure.
+And then when it fails,
+we just propagate the exception.
+But you see,
+this nice sequential composition of code
+is now all spoiled, because there
+is now pattern matching and so
+on and it doesn't look that nice anymore.
+Fortunately, there's a couple of
+higher-order functions defined on Try
+on the Try type.
+And for example, there's flatMap,
+there's map, there's filter.
+And what we will do is we'll use
+these higher order functions, and
+in particular, the first one, flatMap,
+to make this code look beautiful again.
+But first of all,
+the fact that we have here flatMap and
+that we have a constructor for
+Try means that Try is a monad,
+and in particular,
+it's a monad that handles exceptions.
+And the fact that it's a monad,
+the fact that it has a flatMap,
+will allow us to kind of, you know,
+guide us toward the happy path.
+Because the flatMap takes care
+of all the pattern matching and
+propagating exceptions such that we only
+have to think about the happy part, okay?
+So monads are type
+constructors that help you
+to take the happy path, and
+you can forget about the exceptional case.
+So let's do some noise reduction here.
+So we still call our constructor.
+And now what we do is,
+we say, collectCoins.
+And then we flatMap
+the function buyTreasure coins.
+And the flatMap will unwrap the Try of T,
+and if it's success,
+it will give us the coins,
+such that we can call buyTreasure.
+And if we flip back two slides,
+you see that the type of flatMap
+is exactly what we need.
+It's defined on Try of T, so the,
+the, the this pointer is a Try of T.
+Then we get a function from T to Try of S,
+and then the result is Try of S.
+So the types in this code all work out.
+All right?
+So flatMap is the plumber that
+guides you through the happy path.
+Of course, instead of flatMap in Scala,
+we can also use comprehension syntax
+that makes it even look nicer, so
+we can write using for comprehensions.
+We can say collectCoins and
+then put that into coins.
+You see the, instead of equal sign,
+we use the left arrow, because on the, on
+this side, it's a Try of List of Coins and
+on the other side it's a List of Coins.
+And the same for treasure, and
+then we yield the treasure.
+So this is a nicer notation for
+these monadic functions.
+Now let's look at a couple of these
+higher-order functions that are defined
+on Try of T and
+see if we can define them ourselves.
+Here's map.
+Map takes a function from T to S and
+returns a Try of S.
+And we have to be,
+a little bit careful here
+because when we get a value of this,
+we have to check whether it was Success.
+If it's Failure, we just create Failure.
+But notice that calling the function
+f might throw an exception as well.
+So we have to guard that call in order
+to kind of return the right value,
+and that's what you see in
+the Try constructor there.
+It will do a try catch such that the
+exception that might happen when you call
+f won't escape.
+All right.
+That was the end of our Try monad and
+next we'll go and talk about more effects.
+

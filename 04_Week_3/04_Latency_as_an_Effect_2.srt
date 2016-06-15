@@ -1,0 +1,789 @@
+1
+00:00:01,340 --> 00:00:02,140
+All right.
+
+2
+00:00:02,140 --> 00:00:03,520
+Welcome back.
+
+3
+00:00:03,520 --> 00:00:09,540
+We just saw that in the simple program
+where we were kind of reading some stuff
+
+4
+00:00:09,540 --> 00:00:15,850
+from memory, sending that as a packet
+over to the app from the US to Europe
+
+5
+00:00:15,850 --> 00:00:20,550
+that there was an enormous latency
+involved with that, all right?
+
+6
+00:00:21,630 --> 00:00:26,330
+And what we asked
+ourselves is can we invent
+
+7
+00:00:26,330 --> 00:00:31,140
+a monad to make this visible,
+
+8
+00:00:31,140 --> 00:00:35,860
+to make the fact that there's
+latency visible in the type.
+
+9
+00:00:35,860 --> 00:00:41,240
+Just like we did, with the try
+monad that made the effect that,
+
+10
+00:00:42,390 --> 00:00:48,270
+errors could happen explicit in the type,
+and the answer, fortunately is yes,
+
+11
+00:00:48,270 --> 00:00:52,050
+and the monads that we
+will use is called future.
+
+12
+00:00:52,050 --> 00:01:01,240
+The Future of T is a monad that
+handles both exceptions and latency.
+
+13
+00:01:01,240 --> 00:01:05,270
+All right, because still these
+computations can fail, but
+
+14
+00:01:05,270 --> 00:01:06,470
+also they take time.
+
+15
+00:01:06,470 --> 00:01:10,970
+So this monad really gives you both.
+
+16
+00:01:12,960 --> 00:01:16,590
+Now let's look at how this looks like.
+
+17
+00:01:16,590 --> 00:01:21,390
+Well here's the declaration
+of the trait Future and
+
+18
+00:01:21,390 --> 00:01:26,290
+the the single method of course
+there's a lot of helper methods there.
+
+19
+00:01:26,290 --> 00:01:32,130
+But the most important method is
+the uncomplete, which takes a callback
+
+20
+00:01:32,130 --> 00:01:38,600
+that is a function of Try of T to unit,
+all right?
+
+21
+00:01:38,600 --> 00:01:39,770
+And what that means is this,
+
+22
+00:01:39,770 --> 00:01:44,220
+is this function that I talked about,
+this self addressed envelope.
+
+23
+00:01:44,220 --> 00:01:48,270
+So when you want, when you have a Future,
+when you have a computation that can
+
+24
+00:01:48,270 --> 00:01:53,020
+take a long time,
+what you do is you give it a callback, and
+
+25
+00:01:53,020 --> 00:01:58,080
+that callback will,
+when the function when that computation
+
+26
+00:01:58,080 --> 00:02:02,060
+terminate will call you,
+call you back with the result.
+
+27
+00:02:02,060 --> 00:02:05,160
+And that result can either
+be a regular value,
+
+28
+00:02:05,160 --> 00:02:09,860
+successful value or
+a exception, all right?
+
+29
+00:02:09,860 --> 00:02:14,430
+So that's where we see our good
+friend Try of T come back.
+
+30
+00:02:14,430 --> 00:02:18,170
+And, and
+if you look at the scala definitions again
+
+31
+00:02:18,170 --> 00:02:23,370
+the types might be a little bit more
+complicated, but this, this the essence.
+
+32
+00:02:23,370 --> 00:02:29,310
+And in particular, future stake
+the implicit execution context,
+
+33
+00:02:29,310 --> 00:02:33,510
+you will see that this grayed out for
+now we will ignore that
+
+34
+00:02:33,510 --> 00:02:38,090
+in a couple of lessons from now we will
+talk a little bit more about that.
+
+35
+00:02:38,090 --> 00:02:42,860
+But for now You just import
+execution context put in
+
+36
+00:02:42,860 --> 00:02:47,480
+place is global and
+you don't have to worry about that, okay.
+
+37
+00:02:48,890 --> 00:02:53,710
+Now here's a little bit of
+a design question here is
+
+38
+00:02:53,710 --> 00:02:58,730
+once you have a a function that
+takes a call back of that form.
+
+39
+00:02:58,730 --> 00:03:04,680
+So, if call back that has type try
+T of T to unit, it means that,
+
+40
+00:03:04,680 --> 00:03:09,330
+that function internally probably
+will do better formatting or
+
+41
+00:03:09,330 --> 00:03:14,260
+it will use some of the culminators the
+higher, or the functions defiant on try.
+
+42
+00:03:14,260 --> 00:03:18,810
+But in many cases you will
+do a better match to check
+
+43
+00:03:18,810 --> 00:03:23,740
+whether your computation succeeded,
+then you do one thing or
+
+44
+00:03:23,740 --> 00:03:26,950
+when your computation failed and
+then you do another thing.
+
+45
+00:03:26,950 --> 00:03:32,590
+So, this design of future is
+not the only possible design.
+
+46
+00:03:32,590 --> 00:03:37,520
+For example, what we can do is we
+can take the functions there on
+
+47
+00:03:37,520 --> 00:03:42,300
+the right hand side of that pattern
+match and onNext and onError and
+
+48
+00:03:42,300 --> 00:03:47,760
+pass those separately into
+the onComplete call back.
+
+49
+00:03:47,760 --> 00:03:52,510
+Or what we can do is say oh there's two
+functions there let's put them in, in, a,
+
+50
+00:03:52,510 --> 00:03:54,990
+a type themselves and pass that.
+
+51
+00:03:54,990 --> 00:03:58,230
+So that's you get that what
+that would look like okay,
+
+52
+00:03:58,230 --> 00:03:59,990
+where we only focus on the essence.
+
+53
+00:03:59,990 --> 00:04:05,840
+So the first one here would be that
+onComplete would take two call backs,
+
+54
+00:04:05,840 --> 00:04:10,820
+one when the function successfully
+completes and one when it fails.
+
+55
+00:04:11,950 --> 00:04:18,230
+If you're a JavaScript programmer you will
+see that JavaScript Often uses this model.
+
+56
+00:04:18,230 --> 00:04:23,200
+So a lot of javascript based,
+APIs that deal
+
+57
+00:04:23,200 --> 00:04:28,420
+with asynchrony will pick two call backs,
+one success continuation, or
+
+58
+00:04:28,420 --> 00:04:33,050
+sometimes these call backs are also called
+continuations, so what you will see is
+
+59
+00:04:33,050 --> 00:04:38,020
+that they will take a success continuation
+which is a function from T to unit.
+
+60
+00:04:38,020 --> 00:04:42,620
+And a failure continuation which is
+the one that takes the exception and
+
+61
+00:04:42,620 --> 00:04:43,820
+also returns unit.
+
+62
+00:04:45,330 --> 00:04:49,770
+But of course, what we can also do is
+we can package up these two functions
+
+63
+00:04:49,770 --> 00:04:53,500
+into its own type and
+then pass an instance of that type.
+
+64
+00:04:53,500 --> 00:04:58,110
+So that would be the more O,
+O approach to this.
+
+65
+00:04:59,880 --> 00:05:04,610
+And I'm showing you these alternatives
+because, you know many languages,
+
+66
+00:05:04,610 --> 00:05:12,250
+many libraries all have their approaches
+to dealing with Futures in one way or
+
+67
+00:05:12,250 --> 00:05:16,360
+another, and it's good to kind of,
+to see that they're kind of all the same.
+
+68
+00:05:16,360 --> 00:05:21,384
+Really the essence is that you provide
+a callback that will be invoked
+
+69
+00:05:21,384 --> 00:05:25,900
+once the computation has a highlight and
+see has terminated.
+
+70
+00:05:28,230 --> 00:05:32,650
+Alright, so let's,
+given this type of Future of T,
+
+71
+00:05:32,650 --> 00:05:38,750
+let's adapt our types to show
+that reading from memory,
+
+72
+00:05:38,750 --> 00:05:44,820
+and especially sending packets from
+the US to Europe can take a long time.
+
+73
+00:05:44,820 --> 00:05:52,080
+So now the signatures reach for
+memory gets a future
+
+74
+00:05:52,080 --> 00:05:56,910
+of array of bytes meaning this will be
+a computation that takes a long time.
+
+75
+00:05:56,910 --> 00:06:00,160
+So we have to provide a call back to that,
+and
+
+76
+00:06:00,160 --> 00:06:06,580
+then send to Europe as the same thing,
+it returns a future of array of bytes.
+
+77
+00:06:06,580 --> 00:06:09,670
+But, Future of course, has a,
+
+78
+00:06:09,670 --> 00:06:15,820
+a lot of higher order functions defined on
+it because, otherwise, we would get stuck
+
+79
+00:06:15,820 --> 00:06:22,080
+in writing ugly code like this or
+even kind of stuck, at all, like, here.
+
+80
+00:06:22,080 --> 00:06:28,580
+We first, read, from memory so, what we
+get back is a Future of array of bytes.
+
+81
+00:06:29,620 --> 00:06:32,020
+And what can we do with the future?
+
+82
+00:06:32,020 --> 00:06:36,330
+Well we can call onComplete,
+where we have to give it a call back.
+
+83
+00:06:38,580 --> 00:06:42,380
+But now the thing is that what
+happens when we get a failure,
+
+84
+00:06:42,380 --> 00:06:46,890
+because the onComplete must, you know,
+what, what, what do we do there?
+
+85
+00:06:46,890 --> 00:06:50,530
+So this kind of is a little
+bit unfortunate, this code.
+
+86
+00:06:54,270 --> 00:06:55,710
+So what do we do?
+
+87
+00:06:55,710 --> 00:07:02,030
+Well what we can do here is we can kind
+of, you know, refactor it a little bit,
+
+88
+00:07:02,030 --> 00:07:06,040
+and we say when we are onComplete
+we call the packet sent to Europe.
+
+89
+00:07:06,040 --> 00:07:09,240
+When we do fail,
+yeah It's still, not you see,
+
+90
+00:07:09,240 --> 00:07:13,040
+it's like better matching and
+lots of nesting.
+
+91
+00:07:13,040 --> 00:07:15,840
+So what are we going to do now?
+
+92
+00:07:15,840 --> 00:07:16,920
+What is our friend?
+
+93
+00:07:16,920 --> 00:07:18,720
+What's coming to the rescue?
+
+94
+00:07:18,720 --> 00:07:19,480
+That's flat map.
+
+95
+00:07:20,832 --> 00:07:27,350
+All right, so we have now a monad,
+a type constructor that allows us to
+
+96
+00:07:27,350 --> 00:07:32,900
+express the fact that computations
+take time, and that they can fail.
+
+97
+00:07:32,900 --> 00:07:37,220
+So let's use this type
+constructor Future and,
+
+98
+00:07:37,220 --> 00:07:41,540
+to make our types more precise.
+
+99
+00:07:41,540 --> 00:07:47,103
+So here was our Socket class,
+readFromMemory,
+
+100
+00:07:47,103 --> 00:07:53,470
+sendToEurope and now instead of
+directly returning array of bytes,
+
+101
+00:07:53,470 --> 00:07:57,530
+readFromMemory will return
+a Future of array of bytes.
+
+102
+00:07:57,530 --> 00:08:02,050
+And now you can look at this type and you
+can see this computation will take a long
+
+103
+00:08:02,050 --> 00:08:06,780
+time, so it will return a Future and
+what do I do with this Future?
+
+104
+00:08:06,780 --> 00:08:11,330
+I give it a call back that will be
+called once my future completes,
+
+105
+00:08:11,330 --> 00:08:14,070
+either with an exception,
+or with a regular value.
+
+106
+00:08:14,070 --> 00:08:16,430
+And similarly, for
+
+107
+00:08:16,430 --> 00:08:21,900
+send a packet from the US to Europe,
+which took a really long time.
+
+108
+00:08:21,900 --> 00:08:26,630
+So, there, also, the type becomes
+a future of array of bytes.
+
+109
+00:08:27,680 --> 00:08:32,060
+Now, and just like with Try of T
+
+110
+00:08:33,350 --> 00:08:38,985
+the code becomes quite messy because,
+we can first you know,
+
+111
+00:08:38,985 --> 00:08:44,870
+calling read from memory is easy because
+we get a Future of array of bytes and,
+
+112
+00:08:44,870 --> 00:08:50,330
+but know what do we do, we now have to
+kind of you know, do back at unComplete.
+
+113
+00:08:50,330 --> 00:08:57,310
+And but unComplete, took a callback,
+you know that took a Try of T to unit.
+
+114
+00:08:57,310 --> 00:09:01,670
+But what we want is we want to have a
+confirmation that it is a Future of array
+
+115
+00:09:01,670 --> 00:09:02,870
+of bytes.
+
+116
+00:09:02,870 --> 00:09:07,680
+So this is kind of problematic right?
+
+117
+00:09:07,680 --> 00:09:12,550
+We cannot write it like this because
+the right hand side here, it will be of
+
+118
+00:09:12,550 --> 00:09:18,420
+type unit where as what we want
+is a Future of array of bytes.
+
+119
+00:09:18,420 --> 00:09:22,040
+So there we see that
+the compiler is complaining.
+
+120
+00:09:22,040 --> 00:09:23,700
+It's, there's red squigglies.
+
+121
+00:09:23,700 --> 00:09:28,280
+You never want to see your red squigglies
+in your codes but what can we do?
+
+122
+00:09:28,280 --> 00:09:31,980
+So, let's try to refactor this
+goal a little bit such that
+
+123
+00:09:31,980 --> 00:09:35,400
+we can return a Future of array of bytes.
+
+124
+00:09:35,400 --> 00:09:39,070
+So let's, you know, again,
+we read from memory, and
+
+125
+00:09:39,070 --> 00:09:45,300
+then we say when the packet complete,
+we give it a callback.
+
+126
+00:09:45,300 --> 00:09:50,430
+We get the confirmation, but now this
+confirmation of the right type is nested
+
+127
+00:09:50,430 --> 00:09:55,560
+inside the, this complete, so our our,
+this is the problem with callbacks.
+
+128
+00:09:55,560 --> 00:09:59,092
+Your code gets all tangled inside out.
+
+129
+00:09:59,092 --> 00:10:04,040
+And that's not very handy, but
+
+130
+00:10:04,040 --> 00:10:09,040
+let's push this to the next lecture
+when we're going to talk about
+
+131
+00:10:09,040 --> 00:10:13,320
+the higher order functions on Future and
+let's just look like a little bit
+
+132
+00:10:13,320 --> 00:10:17,540
+more about how we can
+construct Futures and so on.
+
+133
+00:10:17,540 --> 00:10:20,070
+So here's how you construct a Future.
+
+134
+00:10:20,070 --> 00:10:23,360
+A Future takes a body, a computation and
+
+135
+00:10:23,360 --> 00:10:29,310
+here you see this by name function,
+you know, arrow T and
+
+136
+00:10:29,310 --> 00:10:34,470
+it takes an implicit execution context and
+then returns a future.
+
+137
+00:10:34,470 --> 00:10:39,050
+And again, don't worry about
+execution context because we
+
+138
+00:10:39,050 --> 00:10:43,190
+are importing the implicit
+global execution context.
+
+139
+00:10:43,190 --> 00:10:48,120
+But what this constructor does
+is it starts an asynchronous
+
+140
+00:10:48,120 --> 00:10:53,200
+computation and
+immediately it returns a future that,
+
+141
+00:10:53,200 --> 00:10:57,270
+you know, you can register a callback
+with when the Future completes.
+
+142
+00:10:58,820 --> 00:11:01,570
+Now what is important to
+notice Is that you can,
+
+143
+00:11:01,570 --> 00:11:06,360
+of course,
+supply several callbacks to that Future.
+
+144
+00:11:07,680 --> 00:11:14,640
+And the behavior of a Future is that
+this callback is called at most once,
+
+145
+00:11:14,640 --> 00:11:19,180
+because the computation might never
+terminate, but when it terminates,
+
+146
+00:11:19,180 --> 00:11:23,910
+it's called exactly once with the value,
+all right.
+
+147
+00:11:23,910 --> 00:11:27,060
+And if the computation has
+already terminated and
+
+148
+00:11:27,060 --> 00:11:33,190
+you're adding a new callback,
+debt callback will be called immediately.
+
+149
+00:11:33,190 --> 00:11:37,560
+So here's a small example you know,
+
+150
+00:11:37,560 --> 00:11:43,300
+we are creating three email messages,
+
+151
+00:11:43,300 --> 00:11:48,090
+and then we're reading from memory, and
+
+152
+00:11:48,090 --> 00:11:52,740
+future array of bytes, and
+this is defined as follows.
+
+153
+00:11:52,740 --> 00:11:58,000
+We kind of, you know, take the email
+from the queue we serialize it and
+
+154
+00:11:58,000 --> 00:12:01,550
+then we, return the binary, message.
+
+155
+00:12:01,550 --> 00:12:03,580
+So this is the, the read from memory.
+
+156
+00:12:03,580 --> 00:12:07,170
+But, but now notice that,
+you know, whenever I can, you know,
+
+157
+00:12:09,300 --> 00:12:13,930
+put a callback to this read from memory,
+
+158
+00:12:13,930 --> 00:12:18,040
+The code in that body will
+be executed only once.
+
+159
+00:12:18,040 --> 00:12:23,412
+So it's not that when you register two
+callbacks that two emails will be read,
+
+160
+00:12:23,412 --> 00:12:24,610
+all right.
+
+161
+00:12:24,610 --> 00:12:29,490
+So that's important, so here's a body with
+side effects, but for every callback,
+
+162
+00:12:29,490 --> 00:12:32,290
+the side effect will have been only once.
+
+163
+00:12:32,290 --> 00:12:34,680
+So this is a very important
+thing with a Future.
+
+164
+00:12:35,950 --> 00:12:39,919
+All right, thank you so much and
+see you in the next lecture
+
+165
+00:12:39,919 --> 00:12:44,539
+when we're going to talk about
+higher order functions on Futures.
+

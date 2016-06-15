@@ -1,0 +1,295 @@
+All right.
+Welcome back.
+We just saw that in the simple program
+where we were kind of reading some stuff
+from memory, sending that as a packet
+over to the app from the US to Europe
+that there was an enormous latency
+involved with that, all right?
+And what we asked
+ourselves is can we invent
+a monad to make this visible,
+to make the fact that there's
+latency visible in the type.
+Just like we did, with the try
+monad that made the effect that,
+errors could happen explicit in the type,
+and the answer, fortunately is yes,
+and the monads that we
+will use is called future.
+The Future of T is a monad that
+handles both exceptions and latency.
+All right, because still these
+computations can fail, but
+also they take time.
+So this monad really gives you both.
+Now let's look at how this looks like.
+Well here's the declaration
+of the trait Future and
+the the single method of course
+there's a lot of helper methods there.
+But the most important method is
+the uncomplete, which takes a callback
+that is a function of Try of T to unit,
+all right?
+And what that means is this,
+is this function that I talked about,
+this self addressed envelope.
+So when you want, when you have a Future,
+when you have a computation that can
+take a long time,
+what you do is you give it a callback, and
+that callback will,
+when the function when that computation
+terminate will call you,
+call you back with the result.
+And that result can either
+be a regular value,
+successful value or
+a exception, all right?
+So that's where we see our good
+friend Try of T come back.
+And, and
+if you look at the scala definitions again
+the types might be a little bit more
+complicated, but this, this the essence.
+And in particular, future stake
+the implicit execution context,
+you will see that this grayed out for
+now we will ignore that
+in a couple of lessons from now we will
+talk a little bit more about that.
+But for now You just import
+execution context put in
+place is global and
+you don't have to worry about that, okay.
+Now here's a little bit of
+a design question here is
+once you have a a function that
+takes a call back of that form.
+So, if call back that has type try
+T of T to unit, it means that,
+that function internally probably
+will do better formatting or
+it will use some of the culminators the
+higher, or the functions defiant on try.
+But in many cases you will
+do a better match to check
+whether your computation succeeded,
+then you do one thing or
+when your computation failed and
+then you do another thing.
+So, this design of future is
+not the only possible design.
+For example, what we can do is we
+can take the functions there on
+the right hand side of that pattern
+match and onNext and onError and
+pass those separately into
+the onComplete call back.
+Or what we can do is say oh there's two
+functions there let's put them in, in, a,
+a type themselves and pass that.
+So that's you get that what
+that would look like okay,
+where we only focus on the essence.
+So the first one here would be that
+onComplete would take two call backs,
+one when the function successfully
+completes and one when it fails.
+If you're a JavaScript programmer you will
+see that JavaScript Often uses this model.
+So a lot of javascript based,
+APIs that deal
+with asynchrony will pick two call backs,
+one success continuation, or
+sometimes these call backs are also called
+continuations, so what you will see is
+that they will take a success continuation
+which is a function from T to unit.
+And a failure continuation which is
+the one that takes the exception and
+also returns unit.
+But of course, what we can also do is
+we can package up these two functions
+into its own type and
+then pass an instance of that type.
+So that would be the more O,
+O approach to this.
+And I'm showing you these alternatives
+because, you know many languages,
+many libraries all have their approaches
+to dealing with Futures in one way or
+another, and it's good to kind of,
+to see that they're kind of all the same.
+Really the essence is that you provide
+a callback that will be invoked
+once the computation has a highlight and
+see has terminated.
+Alright, so let's,
+given this type of Future of T,
+let's adapt our types to show
+that reading from memory,
+and especially sending packets from
+the US to Europe can take a long time.
+So now the signatures reach for
+memory gets a future
+of array of bytes meaning this will be
+a computation that takes a long time.
+So we have to provide a call back to that,
+and
+then send to Europe as the same thing,
+it returns a future of array of bytes.
+But, Future of course, has a,
+a lot of higher order functions defined on
+it because, otherwise, we would get stuck
+in writing ugly code like this or
+even kind of stuck, at all, like, here.
+We first, read, from memory so, what we
+get back is a Future of array of bytes.
+And what can we do with the future?
+Well we can call onComplete,
+where we have to give it a call back.
+But now the thing is that what
+happens when we get a failure,
+because the onComplete must, you know,
+what, what, what do we do there?
+So this kind of is a little
+bit unfortunate, this code.
+So what do we do?
+Well what we can do here is we can kind
+of, you know, refactor it a little bit,
+and we say when we are onComplete
+we call the packet sent to Europe.
+When we do fail,
+yeah It's still, not you see,
+it's like better matching and
+lots of nesting.
+So what are we going to do now?
+What is our friend?
+What's coming to the rescue?
+That's flat map.
+All right, so we have now a monad,
+a type constructor that allows us to
+express the fact that computations
+take time, and that they can fail.
+So let's use this type
+constructor Future and,
+to make our types more precise.
+So here was our Socket class,
+readFromMemory,
+sendToEurope and now instead of
+directly returning array of bytes,
+readFromMemory will return
+a Future of array of bytes.
+And now you can look at this type and you
+can see this computation will take a long
+time, so it will return a Future and
+what do I do with this Future?
+I give it a call back that will be
+called once my future completes,
+either with an exception,
+or with a regular value.
+And similarly, for
+send a packet from the US to Europe,
+which took a really long time.
+So, there, also, the type becomes
+a future of array of bytes.
+Now, and just like with Try of T
+the code becomes quite messy because,
+we can first you know,
+calling read from memory is easy because
+we get a Future of array of bytes and,
+but know what do we do, we now have to
+kind of you know, do back at unComplete.
+And but unComplete, took a callback,
+you know that took a Try of T to unit.
+But what we want is we want to have a
+confirmation that it is a Future of array
+of bytes.
+So this is kind of problematic right?
+We cannot write it like this because
+the right hand side here, it will be of
+type unit where as what we want
+is a Future of array of bytes.
+So there we see that
+the compiler is complaining.
+It's, there's red squigglies.
+You never want to see your red squigglies
+in your codes but what can we do?
+So, let's try to refactor this
+goal a little bit such that
+we can return a Future of array of bytes.
+So let's, you know, again,
+we read from memory, and
+then we say when the packet complete,
+we give it a callback.
+We get the confirmation, but now this
+confirmation of the right type is nested
+inside the, this complete, so our our,
+this is the problem with callbacks.
+Your code gets all tangled inside out.
+And that's not very handy, but
+let's push this to the next lecture
+when we're going to talk about
+the higher order functions on Future and
+let's just look like a little bit
+more about how we can
+construct Futures and so on.
+So here's how you construct a Future.
+A Future takes a body, a computation and
+here you see this by name function,
+you know, arrow T and
+it takes an implicit execution context and
+then returns a future.
+And again, don't worry about
+execution context because we
+are importing the implicit
+global execution context.
+But what this constructor does
+is it starts an asynchronous
+computation and
+immediately it returns a future that,
+you know, you can register a callback
+with when the Future completes.
+Now what is important to
+notice Is that you can,
+of course,
+supply several callbacks to that Future.
+And the behavior of a Future is that
+this callback is called at most once,
+because the computation might never
+terminate, but when it terminates,
+it's called exactly once with the value,
+all right.
+And if the computation has
+already terminated and
+you're adding a new callback,
+debt callback will be called immediately.
+So here's a small example you know,
+we are creating three email messages,
+and then we're reading from memory, and
+future array of bytes, and
+this is defined as follows.
+We kind of, you know, take the email
+from the queue we serialize it and
+then we, return the binary, message.
+So this is the, the read from memory.
+But, but now notice that,
+you know, whenever I can, you know,
+put a callback to this read from memory,
+The code in that body will
+be executed only once.
+So it's not that when you register two
+callbacks that two emails will be read,
+all right.
+So that's important, so here's a body with
+side effects, but for every callback,
+the side effect will have been only once.
+So this is a very important
+thing with a Future.
+All right, thank you so much and
+see you in the next lecture
+when we're going to talk about
+higher order functions on Futures.
+

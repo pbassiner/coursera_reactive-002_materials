@@ -1,0 +1,527 @@
+1
+00:00:00,720 --> 00:00:02,520
+Hey, welcome back everybody.
+
+2
+00:00:02,520 --> 00:00:07,630
+I left you with this nasty
+cliffhanger where I challenged you
+
+3
+00:00:07,630 --> 00:00:12,830
+to write a recursion function
+that kind of tried to
+
+4
+00:00:12,830 --> 00:00:19,970
+run a future-based computation
+n times without recursion.
+
+5
+00:00:19,970 --> 00:00:21,090
+Okay?
+
+6
+00:00:21,090 --> 00:00:29,360
+Now I'm going to show you two possible way
+to solve this but of course, you know,
+
+7
+00:00:29,360 --> 00:00:35,430
+maybe you have come up with your own way,
+and you can share that on the forums.
+
+8
+00:00:35,430 --> 00:00:36,140
+That would be fun.
+
+9
+00:00:37,272 --> 00:00:42,670
+What I'm going to do is I'm going
+to use foldr and fold left.
+
+10
+00:00:43,890 --> 00:00:49,460
+Those are the kind of, you know,
+two power tools in our toolbox.
+
+11
+00:00:49,460 --> 00:00:56,230
+And whenever we do things with recursion,
+it's often nicer to do it with a fold.
+
+12
+00:00:56,230 --> 00:00:59,295
+Okay?
+So let's see what the consequences of this
+
+13
+00:00:59,295 --> 00:01:03,980
+are, because, you know, maybe using
+a fold is not always the correct choice.
+
+14
+00:01:05,220 --> 00:01:06,460
+Okay, so let's geek out for
+
+15
+00:01:06,460 --> 00:01:10,610
+a bit and pretend that we
+are functional programming hipsters.
+
+16
+00:01:10,610 --> 00:01:16,390
+I should put on here my you know,
+my rimmed glasses and
+
+17
+00:01:16,390 --> 00:01:21,000
+my tweed coat, but, you know,
+I remain hippie in my tie dye.
+
+18
+00:01:21,000 --> 00:01:25,030
+But what we're going to do is we're
+going to use foldRight and foldLeft.
+
+19
+00:01:25,030 --> 00:01:29,996
+So let's refresh our
+memory what these are.
+
+20
+00:01:29,996 --> 00:01:35,097
+FoldRight takes a List,
+in this case List with values a, b, and c.
+
+21
+00:01:35,097 --> 00:01:41,430
+It takes a neutral element e, and
+a function, a combination function, okay?
+
+22
+00:01:41,430 --> 00:01:47,720
+And this foldRight folds the list
+from right to left, okay?
+
+23
+00:01:47,720 --> 00:01:55,910
+So it starts at the right side of the list
+and then takes e and applies f to c and e.
+
+24
+00:01:55,910 --> 00:02:01,180
+And then it goes one step to the left,
+because it's folding from right to left,
+
+25
+00:02:01,180 --> 00:02:05,400
+and then applies f to b and
+the result of c and e.
+
+26
+00:02:05,400 --> 00:02:11,630
+And then finally, it applies f to a and
+the result of folding from the right.
+
+27
+00:02:11,630 --> 00:02:12,420
+Okay?
+
+28
+00:02:12,420 --> 00:02:17,682
+So it's easy to remember, it's just like
+the northern wind blows from the right,
+
+29
+00:02:17,682 --> 00:02:20,808
+foldRight folds from the right.
+
+30
+00:02:20,808 --> 00:02:23,641
+Heh, obvious, huh?
+
+31
+00:02:23,641 --> 00:02:27,541
+Then if you look at foldLeft,
+well, that folds from the left.
+
+32
+00:02:27,541 --> 00:02:30,517
+So what it does is,
+it starts with the neutral element and
+
+33
+00:02:30,517 --> 00:02:32,610
+it does the combiner function.
+
+34
+00:02:32,610 --> 00:02:35,383
+And it first combines e with a.
+
+35
+00:02:35,383 --> 00:02:37,740
+And then combines that with b.
+
+36
+00:02:37,740 --> 00:02:40,260
+And then combines that with c, all right.
+
+37
+00:02:40,260 --> 00:02:44,772
+So it kind of, you know,
+associates the other way around.
+
+38
+00:02:44,772 --> 00:02:49,773
+We're going to use both foldLeft and
+foldRight to
+
+39
+00:02:49,773 --> 00:02:55,140
+implement our function
+to retry a computation.
+
+40
+00:02:56,380 --> 00:02:59,720
+And here is the solution.
+
+41
+00:02:59,720 --> 00:03:07,290
+So what we're going to do is,
+well, if we want to use fold, and
+
+42
+00:03:07,290 --> 00:03:12,420
+in this case we'll start with foldLeft,
+if we want to use fold, we need a list.
+
+43
+00:03:12,420 --> 00:03:15,270
+Well, how do we create a list?
+
+44
+00:03:15,270 --> 00:03:20,000
+I know,
+we can create a list from number of times.
+
+45
+00:03:20,000 --> 00:03:24,840
+So what we will do is, we will create
+a list from one to number of times and
+
+46
+00:03:24,840 --> 00:03:26,780
+put that into a list.
+
+47
+00:03:26,780 --> 00:03:32,013
+Then we will map over that list the block.
+
+48
+00:03:32,013 --> 00:03:35,786
+So now we get a list of n blocks.
+
+49
+00:03:35,786 --> 00:03:40,119
+And notice that we're kind of putting
+that block under a unit arrow,
+
+50
+00:03:40,119 --> 00:03:44,899
+because we don't want to execute the block
+just yet, we want to execute them
+
+51
+00:03:44,899 --> 00:03:49,604
+one by one, because every time we execute,
+it might have side effects, so
+
+52
+00:03:49,604 --> 00:03:53,520
+we have to be very careful to
+delay the execution of the block.
+
+53
+00:03:55,608 --> 00:03:57,970
+Our neutral element is failed.
+
+54
+00:03:57,970 --> 00:04:01,150
+So we create a new Future.failed.
+
+55
+00:04:01,150 --> 00:04:07,290
+And then, what we do is we fold from
+the left, starting with failed,
+
+56
+00:04:07,290 --> 00:04:12,890
+and then our combined combination
+function takes a future,
+
+57
+00:04:12,890 --> 00:04:16,130
+that was the thing on the left,
+and the block.
+
+58
+00:04:16,130 --> 00:04:21,870
+And then we try to run the future ,and if
+that fails, we're going to run the block.
+
+59
+00:04:23,350 --> 00:04:29,558
+Okay, so it looks a little bit puzzling,
+but if you think a little bit about it,
+
+60
+00:04:29,558 --> 00:04:33,932
+retry 3 of block will unfold
+to failed recoverWith block,
+
+61
+00:04:33,932 --> 00:04:37,930
+recoverWith block, recoverWith block.
+
+62
+00:04:37,930 --> 00:04:42,620
+If you don't believe me,
+let's do the derivation here.
+
+63
+00:04:42,620 --> 00:04:49,890
+So first, we're going to run the list, so
+we get, you know, that's the simple thing.
+
+64
+00:04:49,890 --> 00:04:55,250
+So when we run the list, now we're going
+to map the number of attempts over that.
+
+65
+00:04:55,250 --> 00:04:59,810
+And so now we get a list of n blocks.
+
+66
+00:04:59,810 --> 00:05:03,910
+And remember,
+this is super important to do this here,
+
+67
+00:05:03,910 --> 00:05:08,010
+because we don't want to
+accidentally execute the blocks.
+
+68
+00:05:08,010 --> 00:05:13,070
+Okay, so we have to build this
+little thunk that hides the block.
+
+69
+00:05:14,600 --> 00:05:15,350
+All right.
+
+70
+00:05:15,350 --> 00:05:20,360
+And now we're going to fold left and
+if you kind of, you know,
+
+71
+00:05:20,360 --> 00:05:25,130
+do the fold left here, you will see
+that this gives us the same result.
+
+72
+00:05:25,130 --> 00:05:29,730
+So by doing a little bit of substitution,
+it should be clear
+
+73
+00:05:29,730 --> 00:05:34,420
+that the result of this function
+is exactly what we want.
+
+74
+00:05:36,580 --> 00:05:40,390
+All right,
+now let's try to do it with foldRight.
+
+75
+00:05:40,390 --> 00:05:42,320
+There's even more higher order functions,
+
+76
+00:05:42,320 --> 00:05:45,860
+so in this case again,
+we create a list from 1 to n.
+
+77
+00:05:46,918 --> 00:05:53,050
+We map the block, delayed block,
+over that, we create the failure.
+
+78
+00:05:53,050 --> 00:05:56,960
+But now we're folding from the right,
+starting with failed.
+
+79
+00:05:56,960 --> 00:06:01,440
+But we're not really starting with failed,
+we're starting with a function that
+
+80
+00:06:04,280 --> 00:06:07,348
+is delayed failed,
+
+81
+00:06:07,348 --> 00:06:12,540
+because we kind of have to kind
+of turn this from the other side.
+
+82
+00:06:12,540 --> 00:06:18,730
+So what you will see is the combination
+function now takes a block on the left and
+
+83
+00:06:18,730 --> 00:06:22,310
+a function that returns
+a future on the right, and
+
+84
+00:06:22,310 --> 00:06:25,550
+we have to return a function
+that returns a future.
+
+85
+00:06:25,550 --> 00:06:26,720
+And how do we do that?
+
+86
+00:06:26,720 --> 00:06:30,300
+By calling the block and
+then falling back to the a.
+
+87
+00:06:30,300 --> 00:06:34,250
+So here you see that, you know,
+everything is reversed, and
+
+88
+00:06:34,250 --> 00:06:37,844
+when you unfold this,
+you will see this here.
+
+89
+00:06:37,844 --> 00:06:40,610
+So this is like, you know, looks, like,
+
+90
+00:06:40,610 --> 00:06:43,840
+super cool with lots of
+higher order functions.
+
+91
+00:06:43,840 --> 00:06:47,298
+But to be honest,
+I think that in this case,
+
+92
+00:06:47,298 --> 00:06:50,949
+the recursive solution
+was the simplest one.
+
+93
+00:06:50,949 --> 00:06:52,230
+All right?
+
+94
+00:06:52,230 --> 00:06:59,120
+So sometimes straight recursion
+is the way to go and we should
+
+95
+00:06:59,120 --> 00:07:03,400
+just leave those higher order functions
+to the functional programming hipsters.
+
+96
+00:07:03,400 --> 00:07:04,160
+Right?
+
+97
+00:07:04,160 --> 00:07:08,040
+And this is one of the most
+important things of functional,
+
+98
+00:07:08,040 --> 00:07:10,370
+of mastering programing.
+
+99
+00:07:10,370 --> 00:07:15,098
+You have to know when you use recursion,
+you have to know when to use folds,
+
+100
+00:07:15,098 --> 00:07:19,374
+you have to know when to fold left,
+because you saw that, you know,
+
+101
+00:07:19,374 --> 00:07:24,104
+fold right and fold left, you know,
+the code looked quite different, and
+
+102
+00:07:24,104 --> 00:07:28,150
+in one case we even needed
+more higher-order functions.
+
+103
+00:07:28,150 --> 00:07:31,317
+But this kind of balance,
+that is, you know,
+
+104
+00:07:31,317 --> 00:07:35,869
+as you get more experienced in
+writing code in a functional style,
+
+105
+00:07:35,869 --> 00:07:41,260
+that's what you will learn kind of,
+you know, it will become natural to you.
+
+106
+00:07:41,260 --> 00:07:46,702
+Just like, you know, a soccer player
+knows intuitively when to jump and
+
+107
+00:07:46,702 --> 00:07:48,930
+to head in the ball into the goal.
+
+108
+00:07:50,040 --> 00:07:50,750
+All right.
+
+109
+00:07:50,750 --> 00:07:51,290
+Thank you.
+
+110
+00:07:51,290 --> 00:07:54,600
+This is the end of composing futures.
+
+111
+00:07:54,600 --> 00:07:59,360
+And what we're going to do next is we're
+going to look at some even more advanced
+
+112
+00:07:59,360 --> 00:08:01,210
+ways to deal with futures.
+

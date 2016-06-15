@@ -1,0 +1,510 @@
+1
+00:00:01,190 --> 00:00:02,510
+Hey, welcome back.
+
+2
+00:00:02,510 --> 00:00:07,340
+And we are now going to kind of look
+at our next effect, and that's latency.
+
+3
+00:00:07,340 --> 00:00:12,410
+Remember that in the previous lessons
+we looked at exceptions as an effect.
+
+4
+00:00:12,410 --> 00:00:15,790
+So we wanted to kind of enhance our types,
+
+5
+00:00:15,790 --> 00:00:20,700
+to reflect the fact that
+a computation could fail.
+
+6
+00:00:20,700 --> 00:00:24,880
+But there's another effect
+that we want to make visible,
+
+7
+00:00:24,880 --> 00:00:30,540
+namely the fact that
+computation can take time.
+
+8
+00:00:31,560 --> 00:00:39,000
+And that's what going, is going to bring
+us from the top left to the bottom left.
+
+9
+00:00:39,000 --> 00:00:44,318
+So, we're now going to go from Try of T
+and we're going to introduce Future of T
+
+10
+00:00:44,318 --> 00:00:50,320
+as a monad that captures the fact
+that computations take time.
+
+11
+00:00:52,142 --> 00:00:57,510
+All right,
+let's go back to our simple adventure game
+
+12
+00:00:57,510 --> 00:01:01,160
+where we had to collect coins and
+buy treasure.
+
+13
+00:01:01,160 --> 00:01:06,100
+And then we had this kind of little script
+where we first collected some coins, and
+
+14
+00:01:06,100 --> 00:01:08,290
+then we bought treasure.
+
+15
+00:01:08,290 --> 00:01:11,080
+So what we're going to do
+is we're going to morph
+
+16
+00:01:11,080 --> 00:01:16,230
+this little adventure game
+into a networking script.
+
+17
+00:01:16,230 --> 00:01:18,000
+And it's really easy.
+
+18
+00:01:18,000 --> 00:01:22,130
+So, first of all, we're going to,
+kind of, you know, turn our
+
+19
+00:01:23,140 --> 00:01:28,880
+adventure into a socket, and
+instead of collecting lists of coins,
+
+20
+00:01:28,880 --> 00:01:32,980
+we're going to read from
+memory an array of bytes.
+
+21
+00:01:32,980 --> 00:01:36,540
+And instead of buying treasures,
+given a list of coins,
+
+22
+00:01:36,540 --> 00:01:41,650
+we're going to send a packet
+from the US to Europe and back.
+
+23
+00:01:41,650 --> 00:01:42,210
+All right?
+
+24
+00:01:42,210 --> 00:01:46,770
+But you see that the signatures
+are the have the same shape
+
+25
+00:01:46,770 --> 00:01:51,590
+as our little adventure game, and
+our little scripts even looks the same.
+
+26
+00:01:51,590 --> 00:01:55,150
+We're first creating a socket,
+we're reading from memory,
+
+27
+00:01:55,150 --> 00:02:00,038
+we get an array of bytes, and then we
+send the packet to Europe and back.
+
+28
+00:02:00,038 --> 00:02:05,300
+Hah, by now you know that
+
+29
+00:02:05,300 --> 00:02:09,990
+while that this code looks easy,
+it's not as easy as you think.
+
+30
+00:02:09,990 --> 00:02:15,860
+And the reason is that reading
+from memory takes a lot of time,
+
+31
+00:02:15,860 --> 00:02:21,100
+and sending a package from Europe and
+back takes even more time.
+
+32
+00:02:21,100 --> 00:02:25,515
+But this time it's, you know,
+expressed in nanoseconds or
+
+33
+00:02:25,515 --> 00:02:30,350
+microseconds, which is not,
+kind of, intuitive for humans.
+
+34
+00:02:30,350 --> 00:02:35,160
+So let's look at kind of a little
+table that tells us the time
+
+35
+00:02:35,160 --> 00:02:40,230
+that various operations take, you know,
+on account of, you know, computer,
+
+36
+00:02:40,230 --> 00:02:44,980
+and note that these times, you know,
+will vary because computers are changing,
+
+37
+00:02:44,980 --> 00:02:48,450
+so take this as a rough guess, all right?
+
+38
+00:02:48,450 --> 00:02:54,469
+So taking, you know a typical instruction
+1 nanosecond, but let's look at this,
+
+39
+00:02:54,469 --> 00:03:00,658
+we are, we are going to read from memory,
+so that's 250,000 nanoseconds.
+
+40
+00:03:00,658 --> 00:03:09,057
+And sending a packet from the US to
+Europe takes about 150 milliseconds.
+
+41
+00:03:09,057 --> 00:03:13,681
+And notice that a lot of these times
+are limited by the speed of light so
+
+42
+00:03:13,681 --> 00:03:16,320
+we cannot do much about them.
+
+43
+00:03:16,320 --> 00:03:20,640
+Now, I don't know about you,
+but for me, I have no clue
+
+44
+00:03:20,640 --> 00:03:25,990
+what 150 milliseconds means or
+what 1 nanosecond means.
+
+45
+00:03:25,990 --> 00:03:31,000
+So let's take these numbers and
+take 1 nanosecond and turn that into
+
+46
+00:03:31,000 --> 00:03:35,910
+seconds and then we kind of calculate
+weeks, months, and years from that.
+
+47
+00:03:36,930 --> 00:03:37,640
+All right?
+
+48
+00:03:37,640 --> 00:03:40,910
+Because this thing doesn't still,
+they say oh, you know,
+
+49
+00:03:40,910 --> 00:03:43,020
+read from memory takes 50,000 nanoseconds.
+
+50
+00:03:43,020 --> 00:03:44,000
+Who cares?
+
+51
+00:03:44,000 --> 00:03:45,590
+All right?
+
+52
+00:03:45,590 --> 00:03:50,450
+So let's kind of change these numbers
+into something that we, as humans,
+
+53
+00:03:50,450 --> 00:03:52,010
+can understand.
+
+54
+00:03:52,010 --> 00:03:52,710
+Okay?
+
+55
+00:03:52,710 --> 00:03:57,470
+So 1 nanosecond becomes 1 second, and
+then we'll turn that into days and hours.
+
+56
+00:03:58,690 --> 00:04:01,210
+Now we get much better picture.
+
+57
+00:04:02,310 --> 00:04:06,021
+So, in terms of human time scales,
+
+58
+00:04:06,021 --> 00:04:12,591
+reading 1 megabyte from memory
+takes about, 3 days, okay.
+
+59
+00:04:12,591 --> 00:04:17,109
+So it's like sending, you know,
+your kids to do some groceries, and
+
+60
+00:04:17,109 --> 00:04:22,392
+it takes three days, you know, they have
+to go on their horse to the next village,
+
+61
+00:04:22,392 --> 00:04:25,660
+get the, the groceries and come back.
+
+62
+00:04:25,660 --> 00:04:29,480
+And of course this can still fail, so when
+you're kind of, you know, driving your
+
+63
+00:04:29,480 --> 00:04:35,020
+horse to the next village there might
+be bandits that you know, attack you.
+
+64
+00:04:35,020 --> 00:04:38,980
+So it doesn't only take time,
+it can also fail.
+
+65
+00:04:38,980 --> 00:04:42,350
+But we dealt with failure
+In the previous lectures.
+
+66
+00:04:42,350 --> 00:04:43,810
+But this one is even worse.
+
+67
+00:04:43,810 --> 00:04:48,310
+If you look at the sending of
+packets from US to Europe and back,
+
+68
+00:04:48,310 --> 00:04:52,720
+in human times that takes 5 years, okay.
+
+69
+00:04:52,720 --> 00:04:58,620
+So underneath that simple program
+was hidden some enormous latencies,
+
+70
+00:04:58,620 --> 00:05:01,960
+some enormous time that
+this computation took.
+
+71
+00:05:01,960 --> 00:05:05,526
+And that was not visible in the time so
+let's make that, again,
+
+72
+00:05:05,526 --> 00:05:06,725
+visible in the time.
+
+73
+00:05:06,725 --> 00:05:12,231
+Because, you know, we don't want this
+reading from memory to block for
+
+74
+00:05:12,231 --> 00:05:17,227
+3 years and then, or it's for
+3 days, sorry, and then, you know,
+
+75
+00:05:17,227 --> 00:05:21,887
+sending the packet to Europe and
+back will block for 5 years, and
+
+76
+00:05:21,887 --> 00:05:25,050
+only continue when there's no exception.
+
+77
+00:05:25,050 --> 00:05:28,800
+If you look at, in real life,
+when we communicate with people,
+
+78
+00:05:28,800 --> 00:05:32,210
+imagine that you would ask
+a question to a person, and
+
+79
+00:05:32,210 --> 00:05:37,040
+it would take five years,
+before you get an answer.
+
+80
+00:05:37,040 --> 00:05:39,180
+You're not going to wait five years.
+
+81
+00:05:39,180 --> 00:05:40,230
+What would you do?
+
+82
+00:05:40,230 --> 00:05:45,500
+Well, what I would do is I would give
+this person a self-addressed letter,
+
+83
+00:05:45,500 --> 00:05:46,870
+I would say here's a question.
+
+84
+00:05:46,870 --> 00:05:49,770
+I know it takes 5 years for
+you to answer it.
+
+85
+00:05:49,770 --> 00:05:54,240
+Once you have the answer, you just
+put the answer in this envelope and
+
+86
+00:05:54,240 --> 00:05:55,438
+you send it back to me.
+
+87
+00:05:55,438 --> 00:06:00,320
+That idea in computer
+science is called a callback.
+
+88
+00:06:00,320 --> 00:06:04,540
+And that's exactly,
+the mechanism we're going to use.
+
+89
+00:06:04,540 --> 00:06:09,580
+So if a computation takes a lot of time,
+we're going to introduce a type
+
+90
+00:06:10,950 --> 00:06:15,716
+where you can register a callback
+that will be invoked once
+
+91
+00:06:15,716 --> 00:06:20,065
+this computation terminates.
+
+92
+00:06:21,350 --> 00:06:25,900
+And again, that computation
+might terminate successfully, or
+
+93
+00:06:25,900 --> 00:06:26,710
+with an exception.
+
+94
+00:06:28,660 --> 00:06:33,890
+But let's first show that we, as humans,
+are still superior to machines.
+
+95
+00:06:33,890 --> 00:06:38,750
+There's now a lot of talk about, you know,
+the rise of AI and that you know,
+
+96
+00:06:38,750 --> 00:06:41,410
+we have to really scared of computers.
+
+97
+00:06:41,410 --> 00:06:44,440
+But I don't think that's that bad.
+
+98
+00:06:44,440 --> 00:06:50,240
+Because apparently somebody has swam from
+
+99
+00:06:52,740 --> 00:06:59,170
+Europe to the US and that kind of,
+you know, took about 3 months.
+
+100
+00:06:59,170 --> 00:07:02,850
+And if you want to walk
+across the continental US,
+
+101
+00:07:02,850 --> 00:07:04,920
+that takes about 12 months.
+
+102
+00:07:04,920 --> 00:07:09,050
+So if you cannot make the same journey
+that that packet makes, you know,
+
+103
+00:07:09,050 --> 00:07:12,760
+it means that humans are still
+twice as fast as computers,
+
+104
+00:07:12,760 --> 00:07:17,320
+so I, I wouldn't worry too much for
+the machines to take over.
+
+105
+00:07:17,320 --> 00:07:18,070
+All right?
+
+106
+00:07:18,070 --> 00:07:19,810
+But here's the question.
+
+107
+00:07:19,810 --> 00:07:24,370
+Is there a monad that we can use to,
+
+108
+00:07:24,370 --> 00:07:27,270
+express the fact that
+computations take time?
+
+109
+00:07:28,350 --> 00:07:30,350
+Well, after the break!
+

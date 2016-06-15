@@ -1,0 +1,90 @@
+Hey, everybody, welcome back.
+I must admit, I'm a little bit addicted
+to building combinators over futures.
+And the reason for that is that
+once we move from the world of,
+you know regular types,
+T or Try of T into future,
+into the world of futures, we cannot
+use a regular control flow anymore,
+because everything becomes callback-based.
+And hence, you know, in order to do that,
+we need a lot of higher order functions
+to make our programming life easier.
+And in this lecture, these two lectures
+here, we're going to look at yet another
+little combinator on futures, and
+we're also going to have some fun.
+All right, so this really is just a fun,
+fun lecture to show,
+show off how good we are as
+functional programmers.
+'Kay.
+Remember this code here where we read from
+memory and we used flatMap and so on.
+Of course, we can write the same
+code using for comprehensions.
+Because futures are monads,
+they support all
+the constraints to use for comprehensions,
+so we can write the code as this.
+Read a packet from memory, put it in
+packet, and then send save the packet.
+You get a confirmation and
+you yield the conformation, and
+the result type is Future
+of Array of Bytes.
+Now, the thing that we were
+trying to do is to make
+sending this package resilient to failure.
+And we messed around with that.
+We defined even a new combinator.
+And what I want to do now
+is I want to define yet
+another combinator to deal with failure.
+And the combinator that I want
+to introduce is called retry.
+It's here on the slide.
+And retry takes two parameters,
+in a curried way.
+So the first is the number of times
+that you want to retry a computation.
+And the second one is the future that,
+you know,
+the computation that you want to perform.
+Okay, so
+retry number of times that block, and
+then you will return a future as
+soon as that block succeeds or
+if it still fails after number of time
+tries, then you return the error message.
+Okay, now here's a simple
+implementation of that.
+We can just use recursion.
+So if you have run out of number of times,
+you immediately fail.
+So you just return a future that
+represents failure with a new exception
+saying, sorry,
+I tried n times, didn't work.
+What do you do otherwise?
+Well, otherwise, you execute the block,
+and if the block fails, you fall back to,
+huh, the recursive call to number of
+times minus 1 with the same block.
+So this code, you have to admit,
+looks pretty nifty.
+It looks very elegant, but
+the downside is that it uses recursion.
+And some people say that recursion is
+the goto of functional programming.
+And so they frown upon this,
+where there is explicit recursion.
+And they say, no, no, no, no.
+You have to use higher order
+functions that hide the recursion.
+So let's see what
+the consequences of that are.
+So let's do some macho programming but
+we will do that after the break.
+

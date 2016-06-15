@@ -1,0 +1,184 @@
+Hey, welcome back.
+And we are now going to kind of look
+at our next effect, and that's latency.
+Remember that in the previous lessons
+we looked at exceptions as an effect.
+So we wanted to kind of enhance our types,
+to reflect the fact that
+a computation could fail.
+But there's another effect
+that we want to make visible,
+namely the fact that
+computation can take time.
+And that's what going, is going to bring
+us from the top left to the bottom left.
+So, we're now going to go from Try of T
+and we're going to introduce Future of T
+as a monad that captures the fact
+that computations take time.
+All right,
+let's go back to our simple adventure game
+where we had to collect coins and
+buy treasure.
+And then we had this kind of little script
+where we first collected some coins, and
+then we bought treasure.
+So what we're going to do
+is we're going to morph
+this little adventure game
+into a networking script.
+And it's really easy.
+So, first of all, we're going to,
+kind of, you know, turn our
+adventure into a socket, and
+instead of collecting lists of coins,
+we're going to read from
+memory an array of bytes.
+And instead of buying treasures,
+given a list of coins,
+we're going to send a packet
+from the US to Europe and back.
+All right?
+But you see that the signatures
+are the have the same shape
+as our little adventure game, and
+our little scripts even looks the same.
+We're first creating a socket,
+we're reading from memory,
+we get an array of bytes, and then we
+send the packet to Europe and back.
+Hah, by now you know that
+while that this code looks easy,
+it's not as easy as you think.
+And the reason is that reading
+from memory takes a lot of time,
+and sending a package from Europe and
+back takes even more time.
+But this time it's, you know,
+expressed in nanoseconds or
+microseconds, which is not,
+kind of, intuitive for humans.
+So let's look at kind of a little
+table that tells us the time
+that various operations take, you know,
+on account of, you know, computer,
+and note that these times, you know,
+will vary because computers are changing,
+so take this as a rough guess, all right?
+So taking, you know a typical instruction
+1 nanosecond, but let's look at this,
+we are, we are going to read from memory,
+so that's 250,000 nanoseconds.
+And sending a packet from the US to
+Europe takes about 150 milliseconds.
+And notice that a lot of these times
+are limited by the speed of light so
+we cannot do much about them.
+Now, I don't know about you,
+but for me, I have no clue
+what 150 milliseconds means or
+what 1 nanosecond means.
+So let's take these numbers and
+take 1 nanosecond and turn that into
+seconds and then we kind of calculate
+weeks, months, and years from that.
+All right?
+Because this thing doesn't still,
+they say oh, you know,
+read from memory takes 50,000 nanoseconds.
+Who cares?
+All right?
+So let's kind of change these numbers
+into something that we, as humans,
+can understand.
+Okay?
+So 1 nanosecond becomes 1 second, and
+then we'll turn that into days and hours.
+Now we get much better picture.
+So, in terms of human time scales,
+reading 1 megabyte from memory
+takes about, 3 days, okay.
+So it's like sending, you know,
+your kids to do some groceries, and
+it takes three days, you know, they have
+to go on their horse to the next village,
+get the, the groceries and come back.
+And of course this can still fail, so when
+you're kind of, you know, driving your
+horse to the next village there might
+be bandits that you know, attack you.
+So it doesn't only take time,
+it can also fail.
+But we dealt with failure
+In the previous lectures.
+But this one is even worse.
+If you look at the sending of
+packets from US to Europe and back,
+in human times that takes 5 years, okay.
+So underneath that simple program
+was hidden some enormous latencies,
+some enormous time that
+this computation took.
+And that was not visible in the time so
+let's make that, again,
+visible in the time.
+Because, you know, we don't want this
+reading from memory to block for
+3 years and then, or it's for
+3 days, sorry, and then, you know,
+sending the packet to Europe and
+back will block for 5 years, and
+only continue when there's no exception.
+If you look at, in real life,
+when we communicate with people,
+imagine that you would ask
+a question to a person, and
+it would take five years,
+before you get an answer.
+You're not going to wait five years.
+What would you do?
+Well, what I would do is I would give
+this person a self-addressed letter,
+I would say here's a question.
+I know it takes 5 years for
+you to answer it.
+Once you have the answer, you just
+put the answer in this envelope and
+you send it back to me.
+That idea in computer
+science is called a callback.
+And that's exactly,
+the mechanism we're going to use.
+So if a computation takes a lot of time,
+we're going to introduce a type
+where you can register a callback
+that will be invoked once
+this computation terminates.
+And again, that computation
+might terminate successfully, or
+with an exception.
+But let's first show that we, as humans,
+are still superior to machines.
+There's now a lot of talk about, you know,
+the rise of AI and that you know,
+we have to really scared of computers.
+But I don't think that's that bad.
+Because apparently somebody has swam from
+Europe to the US and that kind of,
+you know, took about 3 months.
+And if you want to walk
+across the continental US,
+that takes about 12 months.
+So if you cannot make the same journey
+that that packet makes, you know,
+it means that humans are still
+twice as fast as computers,
+so I, I wouldn't worry too much for
+the machines to take over.
+All right?
+But here's the question.
+Is there a monad that we can use to,
+express the fact that
+computations take time?
+Well, after the break!
+
