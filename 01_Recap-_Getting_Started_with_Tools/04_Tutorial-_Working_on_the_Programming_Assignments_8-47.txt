@@ -1,0 +1,247 @@
+Hi.
+In this video we are going to show you how
+to work on the programming assignments.
+We show you how to download them, how to
+import them into Eclipse,
+how to test your code and how to submit
+your solutions using SBT.
+Okay, so lets get started by going to the
+assignments page.
+And we open the Getting Started section,
+and
+we go to the instructions of the example
+assignment.
+So the first thing you need to do is
+installing all the required tools.
+How to do this is explained on the Tools
+Setup page.
+I will quickly show it to you.
+And for every operating system, you can
+also have screen
+task which also shows you how to setup the
+tools.
+Since I already installed everything on
+this
+machine, I just go right into the
+assignment.
+So, the first thing you need to do is
+download the assignment archive.
+Okay.
+We open that file in the Explorer.
+And now I will extract the assignment
+archive into my home directory.
+So I right click, select Extract All, and
+I will create a new
+directory in my Home folder, which I will
+use for the programming assignments.
+So I go to my Home directory, I create a
+new folder, I call it progfun assignment,
+and I click Extract.
+So I close the Explorer window and go back
+to the assignment.
+And the first thing we're going to do is
+starting Scala REPL inside the project
+that we just created.
+How you can do this is explained on the
+SBT tutorial website.
+So I open the SBT tutorial.
+And they follow the instructions which are
+on this page.
+So, I open a CommandPrompt, I go to the
+directory of my assignments over I go see
+the
+progfun assignments and then here I go see
+the example since
+I am working on the example assignment and
+I start SBT.
+Okay, once the SBT console has loaded you
+can,
+from SBT start, the Scala REPL using the
+console command.
+So you type console, hit enter, and then
+SBT will start the Scala REPL.
+Now we are
+in the Scala interpreter.
+Here we can type arbitrary Scala
+expression
+and they will be evaluated on the fly.
+For example, you can say println, and
+parse the string,
+and the print align comment will be
+evaluated.
+That is how we recommend that you start
+the Scala interpreter during this lesson.
+In order to close the Scala interpreter
+and get
+back to the SBT console, you have to type
+Ctrl+D.
+You will not see anything on the screen
+except that this Scala interpreter exists.
+Now we are back in the SBT shell.
+Okay so now we will go back to the
+assignment.
+We close the SBT tutorial and we move down
+to
+the next step, which is opening the
+project in Eclipse.
+So, you start up Eclipse.
+In my case, I have a shortcut on my
+desktop.
+And once you start Eclipse you have to
+choose a workspace to work with.
+If you already created a workspace for our
+class, then you can just use that.
+Otherwise you just create a new folder in
+your home directory and use that.
+So my workspace is a progfun workspace in
+my home directory.
+[SOUND]
+Okay, inside Eclipse you can just import a
+project that you extracted in your home
+directory.
+You do this by going to File, Import and
+in the General section you select Existing
+Project into Workspace.
+You go Next and you browse through
+the directory where you unpacked the
+assignment.
+So we go to progfun assignments and we
+accept the example folder, which is the
+project directory.
+Okay, we click finish.
+And now we already have the source code
+imported into Eclipse.
+So we open up the project, and in the
+source folder, source main Scala, in the
+package example
+you see the file Lists.scala, which is the
+file
+that you actually have to work on during
+this assignment.
+Okay, so let's go back to the
+instructions.
+So, the next assignment that you have
+to do is actually implementing the
+assignment.
+If you actually look at the code, there
+are
+two functions that need to be implemented,
+sum and max.
+Both functions are currently defined with
+a triple
+question mark, which means they are not
+yet implemented.
+Okay, in this case, I will not do a real
+implementation, but just return 0
+for both of them which is obviously wrong,
+but I don't want to spoil the solution.
+So let's go back to the assignment.
+The next step is running your code.
+There are two ways to run your code.
+You can start the Scala REPL and use the
+functions
+that you just implemented in Eclipse in
+the Scala REPL.
+For that, we go to the command prompt,
+we go back to the Scala REPL by typing
+console.
+And
+now we have another look at the source
+code.
+So the two functions, that we just
+implemented are defined
+in our object list, which in fact lives in
+package example.
+So if you want to use the functions, we
+have to either use the full name,
+example.list.sum, or we can also import
+the members of this object into the REPL.
+In order to import it, we just type,
+import example.Lists._,
+which means everything.
+And now the two functions that we defined
+are available, so we can try them out.
+For instance we can try the sum function
+and, type sum of list of 1, 2 and 3.
+And we get 0 because obviously our
+implementation is not correct.
+Okay.
+Another way to run your code is using a
+main object.
+This is explained on the, on the
+assignment page and I will not go
+into details right now.
+The next part of the assignment is writing
+tests.
+So if you go to eclipse, you see that
+there is a second source folder which is
+named src/test/scala.
+And this directory contains tests for our
+code.
+In fact, we already give you a test suite
+for the lists object.
+If you open it up you will see that the
+lists test suite is a
+whole tutorial on how to use Scala test,
+the tool that we are using for testing.
+It is really important that you work
+through this tutorial because
+we will be using testing a lot during all
+of our class.
+Okay, let's go back to the assignment.
+After your finished testing and everything
+is correct you can submit your solution.
+In order to do that you have to go back to
+SBT.
+Okay?
+So we open the CommandPrompt and we see,
+in fact, we are
+still in the Scala shell right now, so we
+type Ctrl+D, and
+we are back in the SBT shell, okay?
+Now, to submit your solution, the SBT
+shell defines a command, which is named
+Submit.
+The Submit command takes two arguments.
+The first one is your email address.
+The one that you used for registering on
+Coursera.
+The second argument to the submit command
+is your submission password.
+The submission password is not the
+password that you use for logging in.
+Instead the submission password can be
+obtained at the course website.
+So we go to the course website and we
+scroll
+up, and you have to go to the assignments
+page.
+On top of the assignment page you see your
+username and your submission password.
+Again, this is not
+your login password.
+So we copy the submission password, we go
+back to the shell, and we paste it.
+And now if you type Enter, your solution
+will be packed and uploaded to Coursera.
+Finally, in order to see your grade.
+Again, you go to the Coursera website.
+You go the assignment.
+And you look at the assignment that you've
+just submitted.
+I already have a score, because I
+submitted before.
+Notice that you can submit the same
+assignment as often as you like.
+So, if I click on the score.
+I will see the feedback that I received
+for earlier submissions that I did.
+So all the feedback below is for
+submissions that I did a few days ago.
+But you can also see that there is a new
+submission,
+which I did just right now, which has not
+yet been graded.
+Usually grading takes between five and ten
+minutes.
+

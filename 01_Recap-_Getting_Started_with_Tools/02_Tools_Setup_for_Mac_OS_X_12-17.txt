@@ -1,0 +1,298 @@
+Hi.
+In this video we are going to show you how
+to install the tools required for our
+class on your machine.
+This video is for people using Mac OS X.
+If you're using a different operating
+system, check the Getting
+Started section on the Video Lectures part
+of the class website.
+Everything that is shown in this video is
+also explained in
+text on the tool setup wiki page on the
+class website.
+So, let's have a look at this page.
+As you can see, there are three things
+that you need
+to install on your machine in order to
+prepare for this class.
+The first one is JDK, the Java runtime
+environment, which is used to execute
+Scala programs.
+The second one is SBT, a built tool for
+Scala,
+which will also use to submit your
+assignment solutions to Coursera.
+The third one is the Scala ID for Eclipse,
+which is
+the IDE that we are going to use in this
+class.
+Okay.
+So let's get started by installing the
+Java debug kit.
+Every section in this tutorial has three
+sub sections.
+one for each operating system.
+Since we are currently on Mac OS 10 we
+will
+look at how to install the JDK on Mac OS
+X.
+In fact Mac OS X either comes
+with Java preinstalled, or it will install
+it automatically for you.
+To verify if you already have Java, you
+have to open a terminal application.
+So, if you open the finder, we go to
+the Applications folder, and we open the
+Utilities folder.
+In Utilities, there is the application
+named Terminal.
+Since we will be using the Terminal a lot
+in this class,
+it makes sense to Drag it into your Dock.
+Okay, so we can close the Finder right
+now.
+Open a Terminal.
+And now we want to verify if we have Java
+installed.
+In order to do that, you type Java minus
+version into the terminal.
+On this version, I don't have Java
+installed yet.
+So I will get the window which tells me to
+open Java, I actually need to install it.
+So the only thing you need to do is click
+the Install button.
+Of course you have to agree to the licence
+agreements.
+Okay, so once the Java installation has
+finished, we
+just click OK and we run Java Linux
+version again.
+Now we see the version number of the Java
+installation that has been installed.
+Okay, so we close this terminal window and
+we
+move onto the second word that we need to
+install.
+The second tool that we need to install is
+SBT.
+In order to install SBT on your system,
+you can either use
+home brew package match or, or you can do
+a manual installation.
+In this video I will do a manual
+installation.
+So we download SBT from this url.
+Once the download has finished we now
+begin to find it
+in the finder and we double click it to
+extract SBT.
+Okay so since SBT is an application that
+we will reuse
+in the future we will move it to a
+different location.
+So I open it and you find a window.
+And in my home folder I create the sub
+directory named applications.
+[SOUND]
+Now I take the extracted SBT folder, and
+I move it to my newly-created Applications
+folder.
+Inside the SBT folder you have a big
+subdirectory which contains the executable
+files for SBT.
+So let's close the finder windows and go
+back to the tutorial.
+So we downloaded SBT, we unpacked the
+archive.
+And moved it to
+the Applications folder.
+And what we need to do last is add in
+the bin directory of SBT to the path
+environment variable.
+In order to do that you have to open the
+file.
+bash on your score profile which is
+located in your home directory.
+If the file doesn't exist yet, you will
+have to create it.
+Okay, so let's open a new terminal window.
+And let's check
+if the batch profile file already exists.
+So we type ls.
+bash_profile .
+In my case, the file does not exist yet.
+But it might very well be that you already
+have it.
+So, in order to create or edit the file,
+we can use
+the nano text editor, which is a very
+simple common line text editor.
+We type nano.
+bash_profile and hit enter.
+So now we need to add one Export command
+to this batch profile file.
+We go back to the setup instructions.
+We copy the Export command, right click
+Copy and go back to the terminal.
+And paste it using right-click Paste.
+Now in fact, we have to change
+the path of our SBT installation to match
+the path where we actually extracted SBT.
+In that case, this was /users/uc, my
+username, /applications And then SBT bit.
+Now we can exit the nano text editor using
+control-x
+and we will save the changes to the file
+by control
+with y and hitting enter for the file
+name.
+Okay, now we need to verify if SBT has
+been installed correctly.
+We close the terminal window and we go
+back to the instructions.
+In order to verify the SBT installation we
+have to start
+a new terminal window and we have to type
+SBT minus H.
+If the installation was successful, then
+you will
+see the SBT help message appear on the
+screen.
+Now you have to find the version of
+the Scala IDE which matches your operating
+system.
+In my case, I am on a 64 bit Mac OSX so I
+click this link.
+[SOUND]
+Once the download of the Scala IDE has
+finished.
+We open the download folder in the Finder.
+We unpack the Scala IDE by simply
+double-clicking the file.
+Since the Scala IDE is an application that
+we will resue
+in the future, we will also move it to our
+Applications folder.
+So I open a new window.
+I go up to my applications folder, and I
+move the eclipse folder into my
+applications.
+In order to open the Scala ID you
+simply go into the eclipse folder and you
+double click the eclipse file.
+When starting up Eclipse, you have to
+define which work space you want to use.
+We recommend that you create one work
+space, which you
+can then reuse for all the assignments of
+our class.
+I will do this now by clicking the Browse
+button and going to my Home folder.
+Okay, so now here I will create the new
+older
+named prog fun word space.
+I will select the folder and click Open.
+By clicking OK eclipse will start up using
+that new work space.
+OK in order to test the Scala ID we go
+back to the tool set of instructions page.
+We can close the download page.
+And the tool setup page explains you to
+create the simple hello world project in
+Scala IDE.
+I will show you how to do this now.
+So you go to eclipse and in the menu you
+select File > New > Scala Project.
+You give the project a name, for instance,
+Hello World.
+Okay, in order to enter the source code
+for the
+Hello World application We have to create
+a new scala object.
+So we open the project, and we right click
+on the source folder, and select New >
+Scala Object.
+We give the object a name.
+In this case, hello.
+And we define in which package the object
+is defined.
+So we put here the package greeter.
+We confirm by clicking finish.
+Okay, now the source code for the hello
+word
+application can be found under tools, set
+up instructions.
+So we go back to the wiki page and we
+scroll down to find the source code that
+we need.
+We select it, copy it.
+Go back to Eclipse.
+And just paste
+it into the file.
+We save the file, and you can notice that
+once you
+save a file, Eclipse will automatically
+compile the entire project for you.
+In order to execute the Hello World
+appllication You simply have to
+right-click on the hello.scala source
+file,
+select Run As, and select Scala
+Application.
+You will see the output of the Hello World
+program in the e, in the Eclipse console.
+The last feature that we are going to show
+you, is a brand new feature named the
+Scala Worksheet.
+In the Scala worksheet, you can type
+arbitrary Scala expressions.
+And see them evaluated on the fly.
+It's a great tool to learn and explore
+Scala.
+In order to create the worksheet, we
+right-click
+on the Create Package, we select New Scala
+worksheet.
+You have to give the worksheet a name, and
+click finish to create it.
+Okay, I will increase the size of this
+window
+in order to see all the, all the words.
+[NOISE]
+Now to try out the worksheet we have
+prepared some instructions
+for you that you can paste in to this
+newly created object.
+So if you go back to the set up
+instructions,
+and scroll down to the bottom of the page,
+you
+will see a few lines of code that you can
+copy and paste back in this freshly
+created scholar worksheet.
+[NOISE]
+Okay.
+Once you save the file, eclipse will
+automatically evaluate all the lines that
+are part
+of the worksheet, and show the result of
+the evaluation on the right hand side.
+In this example, we assign the number one
+to the value x.
+We define a function increase, which
+returns its argument decrease by one.
+And we test increase by
+invoking it and passing x into the
+function.
+You can see that an increase of x returns
+two.
+Now, if you go back in the worksheet and
+change the definition of x, for instance,
+to be 5.
+As soon as we save the file, the whole
+buffer will be reevaluated.
+And you can see that the result of the
+invocation of increase is now 6.
+

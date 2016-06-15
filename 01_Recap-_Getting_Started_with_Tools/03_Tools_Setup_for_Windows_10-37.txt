@@ -1,0 +1,254 @@
+Hi.
+In this video we are going to show you how
+to
+install all the required tools for our
+class on your machine.
+This video is for Windows users.
+If you are on a different operating
+system, check the
+Getting Started section of the video
+lectures on the class website.
+Everything that we show on this video is
+also described
+on the Wiki page Tools Setup on the class
+website.
+So, we go to the Tools Setup page, and we
+see there are three things that we need to
+install.
+The first one is JDK, the Java Runtime
+Environment, which is used to execute
+Scala programs.
+The second one is SBP.
+A built tool for Scala projects, which in
+this class,
+you will also use to submit your
+assignment solutions to Coursera.
+The third one is the Scala ID for Eclipse
+and the Scala Worskheet.
+Which is the ID that we are going to use
+during this class.
+So, let's get started with the JDK.
+So, we checked the JDK section, and there
+are three
+sub-sections for each operating system so,
+we go to Windows.
+First of all, we need to download the
+JDK installer from this URL from the
+Oracle website.
+And the first thing you need to do is
+accept the license agreement.
+And then you can download the JDK
+distribution for your architecture.
+In my case I am on X64 so, I will download
+this file.
+Once the download has finished, you
+just run the downloaded Execute Double
+Installer.
+You don't have to change any of the
+pre-define settings.
+The default options are fine.
+The installer will also ask you to install
+the Java Runtime Environment.
+Again, you can just follow the default
+options.
+Okay once you've finished you click Close,
+and you close the Oracle websites.
+You don't need to register.
+To finish the JDK installation, you need
+to add the bin directory
+of the JDK that you just installed to the
+path environment variable.
+How to do this is described on this
+website here.
+I will show you how to do these on Windows
+7.
+You go to the Start menu > Control panel.
+And in the search box, you type
+Environment Variable.
+And then, you get the, the option to edit
+the system environment variable.
+So, you click there.
+And you click on the button Environment
+Variables.
+In the list of system variables, you
+search
+for the variable named Path, and you
+double-click on it.
+To this list of directories, you will now
+add the bin directory of the JDK.
+So, you go to the Start menu > Computer >
+Local Disk > Program Files > Java.
+You go to the JDK bin directory, and by
+clicking in the location bar we can
+copy this path by right-clicking.
+We go back to the System Variable window,
+and we need to add the semi-colon
+and paste with Ctrl+V, the bin directory
+of the JDK.
+If any shut with OK, and closing all the
+dialogs.
+You can also close all of the Explorer
+windows.
+Okay, so, now to test
+that the JDK installation is successful,
+you have to open a Command Prompt.
+The Command Prompt can be found in the
+Start
+menu either by typing ser, by searching
+for Command Prompt.
+Or we can just go
+to Start > All Programs, and then
+Accessories.
+And you have the Command Prompt.
+So, to check the Java installation you
+type Java dash version and
+you should see the version number of the
+JDK you just installed.
+The second step is installing SBT.
+Again, we scroll down to the Window
+section.
+And as you can see we have to download SBT
+from this URL.
+So, we click here and we round it,
+download it installer.
+Again we can leave off all the default
+options and just hit the Install.
+Okay, once SBT is installed we will also
+verify that everything is
+correctly set up so, we go to Start, and
+to the Command Prompt.
+And to test SBT we have to type the
+following command,
+sbt sbt dash version.
+And now SBT will download a few
+dependencies and libraries.
+But this will only happen the first time
+you actually run SBT.
+After that, it will start up much faster.
+Okay, at the end, SBT will show you
+it's version number, which is supposed to
+be 0.12.0.
+Okay, we can
+exit the Command Prompt.
+Now, the last thing we need to do.
+Is installing the Scala IDE for Eclipse.
+The Scala IDE for Eclipse can be
+downloaded from the following URL.
+On this website you just scroll down to
+the list of
+downloads, and you select the package
+according to your operating system.
+Once the download has finished, we open
+the downloads folder in the Explorer.
+You right-click the archive and you select
+Extract All.
+I'm going to extract the Eclipse, the
+Scala ID for Eclipse to my desktop.
+Once that Windows has finished extracting
+the Zip file, we
+will close the Explorer windows and also
+the IDE download site.
+Now we have to start Eclipse.
+So, for that we go to the Desktop, we open
+the Eclipse folder.
+And we just run the Eclipse Executable.
+Now, whenever you start Eclipse, you have
+to tell it which workspace to use.
+For our class, we recommend that you
+create one single
+workspace that you can then reuse over all
+the assignments.
+So, I'm will do that now.
+I go to my Home folder.
+And I make a new folder which I called
+Coursera Workspace.
+And I select that as my Eclipse workspace.
+Okay, so this is the Scala IDE for
+Eclipse.
+In order to test whether everything has
+been
+set up correctly, we go back to the Wiki
+page and we create a small Hello World
+project
+in Eclipse according to steps described on
+this page.
+I will just do it in Eclipse right now.
+So, I maximize the window.
+I select File > New >Scala project
+and I give it a name.
+Hell, hello world.
+'Kay.
+So, in every Eclipse workspace you can
+have multiple projects.
+Now in order to create hello world.
+programming Scala.
+We right-click on the Source folder.
+Select New > Scala Object.
+And we create the Scala object, which we
+call Hello, for instance.
+And we usually put Scala code into a
+package.
+So, we create package which is named
+greet, greeter.
+Okay.
+Now, the actual code for the Hello World
+is given on the Tool Setup page.
+So, we go back to the Tool Setup page, and
+we scroll down to see the source
+code and we just copy it and paste it
+inside Eclipse.
+Okay?
+We save the file, and you see when you
+save
+the file Eclipse will immediately compile
+the workspace, the entire project.
+Okay once the file has been compiled, we
+can run the Hello World program by
+right-clicking on the Hello dot Scala
+source
+file, choosing Run As, and selecting Scala
+Application.
+You will see the output of the Hello World
+program in the Eclipse console.
+Okay, this installation of Eclipse also
+come with a
+brand new feature, which is called the
+Scala worksheet.
+Creating a Scala worksheet is easy, and
+again, described on the Tools Setup Wiki
+page.
+You can read through the instructions
+here.
+I will just read right now in Eclipse.
+So we right-click on the creator package.
+We select New and we choose Scala
+Worksheet.
+We give the work sheet a name.
+Okay?
+This will give us a new Scala object
+in which we can write new arbitrary Scala
+expressions.
+And those will be evaluated on the fly.
+To get an example, we have some code on
+the Tool Setup page
+that we can just copy and paste into the
+worksheet that we just created.
+Okay.
+And once you save the file, Eclipse will
+evaluate
+all the code that is in this worksheet
+object.
+So, you can see we define a value x to be
+one.
+We define an Increase function which
+returns its argument increased by one.
+And then to test it we just invoke the
+increase function and
+pass x into it, and you see that the
+result is two.
+You can change a definition, for instance.
+Now we say x to be five, and once you save
+the
+file, the change will be immediately
+reflected in the rest of the worksheet.
+

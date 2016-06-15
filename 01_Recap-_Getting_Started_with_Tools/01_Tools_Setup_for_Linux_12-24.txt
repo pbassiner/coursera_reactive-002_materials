@@ -1,0 +1,302 @@
+Hi.
+In this video we are going to show you how
+to install the tools required for this
+class on your machine.
+This video is for people using the Linux
+operating system.
+If you're on a different operating system,
+check the Getting
+Started section in the video lectures part
+of the class website.
+Everything that we show in this video is
+also
+explained in text on the Tools Setup wiki
+page
+on the class website.
+So we go to the Tool Setup page, and we
+see that
+there are three things that we need to
+install for our class.
+The first one is the JDK, the Java
+Development Kit.
+Which is a runtime environment on which
+Scala programs are executed.
+The second one is SBT, a build tool for
+Scala, which
+you will also be using for submitting your
+assignment solutions to Coursera.
+The third one is the Scala IDE for
+Eclipse, which
+is the IDE we are going to use in this
+class.
+Okay, so let's get started by installing
+the JDK.
+In the section installing the JDK there
+are three sub-sections for different
+operating system.
+In this video we are going to look at the
+part related to Linux.
+While recording this screen cast, I am on
+an Ubuntu system, and therefore, these are
+the instructions that apply to my system.
+If you are using a different Linux
+distribution,
+you will have to do the JDK installation
+differently.
+So one of the other things that we need to
+do
+is start the terminal, and install the
+open JDK using apt-get.
+To start the terminal I just click on Dash
+Home in the window and I search
+for terminal.
+And I can launch Terminal.
+Since we will be using the Terminal a lot
+in this tutorial,
+I will lock it to the Launcher and make it
+available more quickly.
+Okay, so the comment to install Open
+JDK on Ubuntu is the following sudu
+apt-get install openjdk-7-jdk.
+And you have to enter your password, and
+then apt-get will ask you to confirm.
+And now it will download and install the
+JDK.
+Okay, once that apt-get has finished
+installing the JDK, we
+want to make sure that everything has been
+set up correctly.
+We go back to the Tools Setup page, and we
+gotta read the section
+Verifying Your Setup.
+So what you have to do is, start a new
+terminal,
+so it loads the existing one and start a
+new one.
+And then you have to type java-version.
+Now you should see the version number of
+the JDK that you just installed.
+Okay, since this worked fine we are
+closing the
+terminal window and moving on to the
+second step.
+The second
+step is installing SBT.
+In order to install SBT, it has to be
+downloaded from this URL.
+So we simply click the URL, we save the
+file and
+Firefox will send it to the Download
+folder of my Home directory.
+So we go to the Home directory, Download
+folder, and we see this SBT archive.
+So, now we have to extract the archive.
+One way to do this in Ubuntu
+is right click on the file and just
+selecting Extract Here.
+Okay.
+So the SBT folder that has now been
+created contains
+bin directory, which in fact, contains the
+executable for SBT.
+So since SBT is a program that we might
+want to use in the
+future, I'm going to move it to a
+different location.
+So I cut the SBT folder and in my Home
+directory I create a new folder,
+which is which I call Applications.
+And I paste the SBT folder in there.
+Okay, so let's go back to the Tools Setup
+instructions.
+So we already unpacked the archive.
+And now what we need to do is add in the
+bin directory
+of the SBT installation that we
+just downloaded to the PATH environment
+variable.
+In order to do that, you have to open.
+bashrc, which is in your Home directory in
+a text editor.
+The easiest way to open that file is to
+open a terminal, and type
+in gedit.
+And then.
+bashrc .
+This will open the Text Editor with the
+bashrc file.
+Now in order to add SBT to the path we go
+back to the set of instructions wiki page,
+and we copy that export command that we
+need to add to the bashrc file.
+We copy it and we go back to gedit, and we
+scroll
+down to the end of the file, and just
+paste the command.
+Now, in fact, you have to update the path
+your SBT directory, with the real path on
+your system.
+So, the place where I installed it is in
+/home.
+And then my username, luc,
+and then /applications, in sbt/bin.
+Okay, so I close the gedit text.
+I save my changes.
+And now I have to verify that the SBT has
+been installed correctly.
+In order to do that, I have to open a new
+terminal window
+because the changes to bashrc will not be
+applied to existing terminal sessions.
+So I close my terminal.
+I open a new one.
+And in order to test SBT I
+type sbt -h.
+As expected, I see a help message from
+SBT, so everything is fine.
+Okay, so now we close the terminal window,
+and the last thing
+that we need to do is installing the Scala
+IDE for Eclipse.
+The Scala IDE for Eclipse, with all the
+plugins and settings that
+we need for the course, can be downloaded
+from the following URL.
+So I open this page in a new tab.
+And I scroll down to the download links.
+Now you just have to select the
+Eclipse distribution which matches your
+operating system.
+In my case, I'm on the Linux system with a
+32 bits.
+So I download this file and save it in the
+downloads folder.
+Okay, once the download of the Scala IDE
+has finished, I can close the Download
+window.
+Close the Download page for the IDE.
+And open the Download folder in my Home
+directory.
+Next, we unpack the downloaded Scala IDE
+package using
+the same mechanism as we used before for
+SBT.
+So, we right click on the file, and we
+select Extract Here.
+Okay.
+Again, since the Scala IDE is an
+application that we will continue using
+in the future, I right click on the new
+Eclipse folder, select Cut,
+then I go to my Home folder, and then to
+Applications.
+I right click and select Paste.
+In order to start Eclipse, I simply open
+the
+Eclipse folder and double click on the
+Eclipse execute.
+When starting Eclipse, you always have to
+define which workspace you are going to
+use.
+We recommend that you create one workspace
+for this class, which you then can reuse
+for all the assignments of the class.
+Okay, I will do that right now.
+So I click the Browse folder to go to my
+file system, I go
+to my Home folder, and the create a New
+Folder, which I call progfunworkspace.
+Okay, I select the folder, I click Okay,
+and then I start Eclipse.
+Okay, so this is the Scala IDE.
+In order to verify that everything is
+setup
+correctly, I go to the setup instructions
+wiki page.
+On the bottom of the page, there is a
+tutorial
+on how to create the Hello World program
+in Eclipse.
+So I glue this right now inside Eclipse.
+In order to create a new project, you
+select File, New,
+Scala Project from the menu, and you give
+the project a name.
+HelloWorld, and you can finish.
+Now, we will create the HelloWorld program
+file.
+So, you open the HelloWorld project.
+We right click on the source folder, and
+we select New >Scala Object.
+You have to give the object a name, so
+will use Hello.
+And we will put the object into a package.
+In this case, Package greeter.
+Okay, now the source project for Hello
+World can be again found on the wiki page.
+So, we go back to the wiki page, and we
+scroll down a bit
+to find the source code of the Hello,
+World application, we select the code.
+Right click and copy.
+We go back to Eclipse.
+And, we paste the code.
+Okay.
+Now, when we save the file, you will
+notice
+that Eclipse already compiled the file.
+Since this file defines an executable
+application,
+you can directly run it inside Eclipse.
+The easiest way to do this is right
+clicking on
+the Hello.scala source file, selecting Run
+As > Scala Application.
+You will then see the output of the Hello
+World program on the bottom of the screen.
+Good.
+So the last thing that we are going to
+show you in this
+video is a brand new feature that has been
+implemented for the Scala IDE.
+The feature is called the Scala worksheet,
+and it
+gives you a very interactive console to
+work with Scala.
+In order to create the Scala worksheet you
+have to right click on a package, select
+New, and then select Scala Worksheet.
+You have to give the worksheet a name.
+And click Finish.
+Okay, I have to make this window a bit
+bigger.
+Okay.
+Every expression that you type into a
+worksheet will be evaluated on the fly.
+In order to demonstrate that, we go back
+to the Tools Setup instructions, we scroll
+up to the end and we copy the statements
+that are at the end of the screen.
+We go back to Eclipse,
+and, and we paste this code into the
+worksheet.
+Okay.
+So once its safe to file, Eclipse will
+immediately evaluate all the expressions
+in the worksheet.
+So what it we do here is we define a value
+x to be 1.
+We define a function increase, which
+returns its argument increased by 1.
+And we test increase by invoking it, and
+we pass the value x into the function.
+And you can see
+that the result of passing x into increase
+is the value 2.
+Now you can easily go back in the
+worksheet and change some definitions.
+For instance, now we change x to be 5.
+And once you save the file, the entire
+worksheet is reloaded and re-evaluated,
+and the resulting value now is 6.
+

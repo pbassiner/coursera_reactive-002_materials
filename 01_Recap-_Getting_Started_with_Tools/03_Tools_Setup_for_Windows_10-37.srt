@@ -1,0 +1,688 @@
+1
+00:00:01,410 --> 00:00:02,480
+Hi.
+
+2
+00:00:02,480 --> 00:00:04,580
+In this video we are going to show you how
+to
+
+3
+00:00:04,580 --> 00:00:08,080
+install all the required tools for our
+class on your machine.
+
+4
+00:00:09,350 --> 00:00:11,190
+This video is for Windows users.
+
+5
+00:00:11,190 --> 00:00:14,050
+If you are on a different operating
+system, check the
+
+6
+00:00:14,050 --> 00:00:17,780
+Getting Started section of the video
+lectures on the class website.
+
+7
+00:00:19,520 --> 00:00:22,510
+Everything that we show on this video is
+also described
+
+8
+00:00:22,510 --> 00:00:26,320
+on the Wiki page Tools Setup on the class
+website.
+
+9
+00:00:27,600 --> 00:00:29,980
+So, we go to the Tools Setup page, and we
+
+10
+00:00:29,980 --> 00:00:32,560
+see there are three things that we need to
+install.
+
+11
+00:00:34,540 --> 00:00:37,190
+The first one is JDK, the Java Runtime
+
+12
+00:00:37,190 --> 00:00:40,279
+Environment, which is used to execute
+Scala programs.
+
+13
+00:00:41,710 --> 00:00:42,520
+The second one is SBP.
+
+14
+00:00:42,520 --> 00:00:47,030
+A built tool for Scala projects, which in
+this class,
+
+15
+00:00:47,030 --> 00:00:50,750
+you will also use to submit your
+assignment solutions to Coursera.
+
+16
+00:00:52,860 --> 00:00:57,140
+The third one is the Scala ID for Eclipse
+and the Scala Worskheet.
+
+17
+00:00:57,140 --> 00:00:59,709
+Which is the ID that we are going to use
+during this class.
+
+18
+00:01:01,960 --> 00:01:03,910
+So, let's get started with the JDK.
+
+19
+00:01:05,398 --> 00:01:08,255
+So, we checked the JDK section, and there
+are three
+
+20
+00:01:08,255 --> 00:01:12,070
+sub-sections for each operating system so,
+we go to Windows.
+
+21
+00:01:12,070 --> 00:01:14,030
+First of all, we need to download the
+
+22
+00:01:14,030 --> 00:01:19,167
+JDK installer from this URL from the
+Oracle website.
+
+23
+00:01:21,520 --> 00:01:24,370
+And the first thing you need to do is
+accept the license agreement.
+
+24
+00:01:25,590 --> 00:01:31,400
+And then you can download the JDK
+distribution for your architecture.
+
+25
+00:01:31,400 --> 00:01:34,860
+In my case I am on X64 so, I will download
+this file.
+
+26
+00:01:36,520 --> 00:01:38,950
+Once the download has finished, you
+
+27
+00:01:38,950 --> 00:01:42,950
+just run the downloaded Execute Double
+Installer.
+
+28
+00:01:46,390 --> 00:01:48,840
+You don't have to change any of the
+pre-define settings.
+
+29
+00:01:48,840 --> 00:01:50,170
+The default options are fine.
+
+30
+00:01:50,170 --> 00:01:55,990
+The installer will also ask you to install
+the Java Runtime Environment.
+
+31
+00:01:55,990 --> 00:01:58,709
+Again, you can just follow the default
+options.
+
+32
+00:02:00,120 --> 00:02:05,310
+Okay once you've finished you click Close,
+and you close the Oracle websites.
+
+33
+00:02:05,310 --> 00:02:06,440
+You don't need to register.
+
+34
+00:02:09,000 --> 00:02:14,010
+To finish the JDK installation, you need
+to add the bin directory
+
+35
+00:02:14,010 --> 00:02:18,430
+of the JDK that you just installed to the
+path environment variable.
+
+36
+00:02:18,430 --> 00:02:21,180
+How to do this is described on this
+website here.
+
+37
+00:02:24,460 --> 00:02:26,760
+I will show you how to do these on Windows
+7.
+
+38
+00:02:26,760 --> 00:02:31,110
+You go to the Start menu > Control panel.
+
+39
+00:02:31,110 --> 00:02:36,910
+And in the search box, you type
+Environment Variable.
+
+40
+00:02:36,910 --> 00:02:41,330
+And then, you get the, the option to edit
+the system environment variable.
+
+41
+00:02:41,330 --> 00:02:42,320
+So, you click there.
+
+42
+00:02:43,660 --> 00:02:45,900
+And you click on the button Environment
+Variables.
+
+43
+00:02:47,300 --> 00:02:49,520
+In the list of system variables, you
+search
+
+44
+00:02:49,520 --> 00:02:55,600
+for the variable named Path, and you
+double-click on it.
+
+45
+00:02:55,600 --> 00:03:00,290
+To this list of directories, you will now
+add the bin directory of the JDK.
+
+46
+00:03:00,290 --> 00:03:06,970
+So, you go to the Start menu > Computer >
+Local Disk > Program Files > Java.
+
+47
+00:03:06,970 --> 00:03:14,660
+You go to the JDK bin directory, and by
+clicking in the location bar we can
+
+48
+00:03:14,660 --> 00:03:17,710
+copy this path by right-clicking.
+
+49
+00:03:17,710 --> 00:03:23,795
+We go back to the System Variable window,
+and we need to add the semi-colon
+
+50
+00:03:23,795 --> 00:03:28,360
+and paste with Ctrl+V, the bin directory
+of the JDK.
+
+51
+00:03:30,420 --> 00:03:33,580
+If any shut with OK, and closing all the
+dialogs.
+
+52
+00:03:33,580 --> 00:03:36,468
+You can also close all of the Explorer
+windows.
+
+53
+00:03:36,468 --> 00:03:41,960
+Okay, so, now to test
+
+54
+00:03:41,960 --> 00:03:46,830
+that the JDK installation is successful,
+you have to open a Command Prompt.
+
+55
+00:03:46,830 --> 00:03:48,730
+The Command Prompt can be found in the
+Start
+
+56
+00:03:48,730 --> 00:03:52,680
+menu either by typing ser, by searching
+for Command Prompt.
+
+57
+00:03:54,190 --> 00:03:55,590
+Or we can just go
+
+58
+00:03:55,590 --> 00:03:59,770
+to Start > All Programs, and then
+Accessories.
+
+59
+00:03:59,770 --> 00:04:00,849
+And you have the Command Prompt.
+
+60
+00:04:02,400 --> 00:04:05,720
+So, to check the Java installation you
+type Java dash version and
+
+61
+00:04:05,720 --> 00:04:09,390
+you should see the version number of the
+JDK you just installed.
+
+62
+00:04:12,340 --> 00:04:15,090
+The second step is installing SBT.
+
+63
+00:04:15,090 --> 00:04:17,860
+Again, we scroll down to the Window
+section.
+
+64
+00:04:19,540 --> 00:04:22,910
+And as you can see we have to download SBT
+from this URL.
+
+65
+00:04:22,910 --> 00:04:28,010
+So, we click here and we round it,
+download it installer.
+
+66
+00:04:30,050 --> 00:04:35,224
+Again we can leave off all the default
+options and just hit the Install.
+
+67
+00:04:35,224 --> 00:04:42,904
+Okay, once SBT is installed we will also
+verify that everything is
+
+68
+00:04:42,904 --> 00:04:49,850
+correctly set up so, we go to Start, and
+to the Command Prompt.
+
+69
+00:04:51,190 --> 00:04:54,660
+And to test SBT we have to type the
+following command,
+
+70
+00:04:54,660 --> 00:04:57,644
+sbt sbt dash version.
+
+71
+00:04:59,410 --> 00:05:04,870
+And now SBT will download a few
+dependencies and libraries.
+
+72
+00:05:04,870 --> 00:05:07,720
+But this will only happen the first time
+you actually run SBT.
+
+73
+00:05:07,720 --> 00:05:11,640
+After that, it will start up much faster.
+
+74
+00:05:11,640 --> 00:05:13,970
+Okay, at the end, SBT will show you
+
+75
+00:05:13,970 --> 00:05:17,240
+it's version number, which is supposed to
+be 0.12.0.
+
+76
+00:05:17,240 --> 00:05:19,690
+Okay, we can
+
+77
+00:05:19,690 --> 00:05:20,790
+exit the Command Prompt.
+
+78
+00:05:22,840 --> 00:05:27,420
+Now, the last thing we need to do.
+Is installing the Scala IDE for Eclipse.
+
+79
+00:05:29,520 --> 00:05:32,880
+The Scala IDE for Eclipse can be
+downloaded from the following URL.
+
+80
+00:05:36,360 --> 00:05:39,790
+On this website you just scroll down to
+the list of
+
+81
+00:05:39,790 --> 00:05:44,800
+downloads, and you select the package
+according to your operating system.
+
+82
+00:05:46,620 --> 00:05:50,990
+Once the download has finished, we open
+the downloads folder in the Explorer.
+
+83
+00:05:52,042 --> 00:05:54,910
+You right-click the archive and you select
+Extract All.
+
+84
+00:05:56,530 --> 00:06:00,940
+I'm going to extract the Eclipse, the
+Scala ID for Eclipse to my desktop.
+
+85
+00:06:08,050 --> 00:06:11,670
+Once that Windows has finished extracting
+the Zip file, we
+
+86
+00:06:11,670 --> 00:06:15,910
+will close the Explorer windows and also
+the IDE download site.
+
+87
+00:06:18,760 --> 00:06:20,700
+Now we have to start Eclipse.
+
+88
+00:06:20,700 --> 00:06:25,510
+So, for that we go to the Desktop, we open
+the Eclipse folder.
+
+89
+00:06:25,510 --> 00:06:28,260
+And we just run the Eclipse Executable.
+
+90
+00:06:32,190 --> 00:06:37,070
+Now, whenever you start Eclipse, you have
+to tell it which workspace to use.
+
+91
+00:06:37,070 --> 00:06:40,100
+For our class, we recommend that you
+create one single
+
+92
+00:06:40,100 --> 00:06:44,130
+workspace that you can then reuse over all
+the assignments.
+
+93
+00:06:44,130 --> 00:06:46,050
+So, I'm will do that now.
+
+94
+00:06:46,050 --> 00:06:51,360
+I go to my Home folder.
+And I make a new folder which I called
+
+95
+00:06:51,360 --> 00:06:57,410
+Coursera Workspace.
+And I select that as my Eclipse workspace.
+
+96
+00:07:01,180 --> 00:07:03,800
+Okay, so this is the Scala IDE for
+Eclipse.
+
+97
+00:07:03,800 --> 00:07:05,780
+In order to test whether everything has
+been
+
+98
+00:07:05,780 --> 00:07:08,670
+set up correctly, we go back to the Wiki
+
+99
+00:07:08,670 --> 00:07:13,350
+page and we create a small Hello World
+project
+
+100
+00:07:13,350 --> 00:07:17,640
+in Eclipse according to steps described on
+this page.
+
+101
+00:07:17,640 --> 00:07:19,230
+I will just do it in Eclipse right now.
+
+102
+00:07:21,390 --> 00:07:27,240
+So, I maximize the window.
+I select File > New >Scala project
+
+103
+00:07:27,240 --> 00:07:32,840
+and I give it a name.
+Hell, hello world.
+
+104
+00:07:34,310 --> 00:07:34,810
+'Kay.
+
+105
+00:07:36,250 --> 00:07:40,500
+So, in every Eclipse workspace you can
+have multiple projects.
+
+106
+00:07:44,400 --> 00:07:49,330
+Now in order to create hello world.
+programming Scala.
+
+107
+00:07:49,330 --> 00:07:54,070
+We right-click on the Source folder.
+Select New > Scala Object.
+
+108
+00:07:55,350 --> 00:08:00,040
+And we create the Scala object, which we
+call Hello, for instance.
+
+109
+00:08:00,040 --> 00:08:02,550
+And we usually put Scala code into a
+package.
+
+110
+00:08:02,550 --> 00:08:06,600
+So, we create package which is named
+greet, greeter.
+
+111
+00:08:16,240 --> 00:08:17,160
+Okay.
+
+112
+00:08:17,160 --> 00:08:21,330
+Now, the actual code for the Hello World
+is given on the Tool Setup page.
+
+113
+00:08:21,330 --> 00:08:26,370
+So, we go back to the Tool Setup page, and
+we scroll down to see the source
+
+114
+00:08:26,370 --> 00:08:31,450
+code and we just copy it and paste it
+inside Eclipse.
+
+115
+00:08:33,370 --> 00:08:34,490
+Okay?
+
+116
+00:08:34,490 --> 00:08:36,730
+We save the file, and you see when you
+save
+
+117
+00:08:36,730 --> 00:08:41,739
+the file Eclipse will immediately compile
+the workspace, the entire project.
+
+118
+00:08:42,940 --> 00:08:47,365
+Okay once the file has been compiled, we
+can run the Hello World program by
+
+119
+00:08:47,365 --> 00:08:49,670
+right-clicking on the Hello dot Scala
+source
+
+120
+00:08:49,670 --> 00:08:54,250
+file, choosing Run As, and selecting Scala
+Application.
+
+121
+00:08:54,250 --> 00:08:58,060
+You will see the output of the Hello World
+program in the Eclipse console.
+
+122
+00:09:00,950 --> 00:09:03,590
+Okay, this installation of Eclipse also
+come with a
+
+123
+00:09:03,590 --> 00:09:06,110
+brand new feature, which is called the
+Scala worksheet.
+
+124
+00:09:07,680 --> 00:09:09,720
+Creating a Scala worksheet is easy, and
+
+125
+00:09:09,720 --> 00:09:13,260
+again, described on the Tools Setup Wiki
+page.
+
+126
+00:09:14,660 --> 00:09:16,300
+You can read through the instructions
+here.
+
+127
+00:09:16,300 --> 00:09:21,050
+I will just read right now in Eclipse.
+So we right-click on the creator package.
+
+128
+00:09:21,050 --> 00:09:24,664
+We select New and we choose Scala
+Worksheet.
+
+129
+00:09:26,400 --> 00:09:27,630
+We give the work sheet a name.
+
+130
+00:09:32,560 --> 00:09:33,660
+Okay?
+
+131
+00:09:33,660 --> 00:09:36,540
+This will give us a new Scala object
+
+132
+00:09:36,540 --> 00:09:40,800
+in which we can write new arbitrary Scala
+expressions.
+
+133
+00:09:40,800 --> 00:09:43,040
+And those will be evaluated on the fly.
+
+134
+00:09:45,130 --> 00:09:49,120
+To get an example, we have some code on
+the Tool Setup page
+
+135
+00:09:49,120 --> 00:09:53,740
+that we can just copy and paste into the
+worksheet that we just created.
+
+136
+00:09:59,910 --> 00:10:00,130
+Okay.
+
+137
+00:10:00,130 --> 00:10:04,960
+And once you save the file, Eclipse will
+evaluate
+
+138
+00:10:04,960 --> 00:10:08,500
+all the code that is in this worksheet
+object.
+
+139
+00:10:08,500 --> 00:10:11,780
+So, you can see we define a value x to be
+one.
+
+140
+00:10:11,780 --> 00:10:18,220
+We define an Increase function which
+returns its argument increased by one.
+
+141
+00:10:18,220 --> 00:10:21,616
+And then to test it we just invoke the
+increase function and
+
+142
+00:10:21,616 --> 00:10:25,450
+pass x into it, and you see that the
+result is two.
+
+143
+00:10:25,450 --> 00:10:28,480
+You can change a definition, for instance.
+
+144
+00:10:28,480 --> 00:10:31,380
+Now we say x to be five, and once you save
+the
+
+145
+00:10:31,380 --> 00:10:35,180
+file, the change will be immediately
+reflected in the rest of the worksheet.
+
